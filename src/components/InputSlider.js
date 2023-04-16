@@ -17,6 +17,7 @@ export default function InputSlider({
   max,
   step,
   updateFunc = () => {},
+  className,
 }) {
   const [value, setValue] = React.useState(defaultValue);
 
@@ -43,7 +44,10 @@ export default function InputSlider({
   };
 
   return (
-    <Box sx={{ maxWidth: 250, justifyContent: "center", alignItems: "center" }}>
+    <Box
+      className={className}
+      sx={{ maxWidth: 250, justifyContent: "center", alignItems: "center" }}
+    >
       <Typography id="input-slider" gutterBottom>
         {description}
       </Typography>
