@@ -1,8 +1,6 @@
 import { Container, Box } from "@mui/system";
 import Stars from "./Stars";
 
-import { constants, planck } from "../utils/planck";
-
 export default function About() {
   return (
     <Container maxWidth="lg">

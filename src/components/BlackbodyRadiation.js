@@ -89,6 +89,7 @@ export default function BlackbodyRadiation({ temp, max, min, step }) {
 
   useEffect(() => {
     setChartData(getData());
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [temperature]);
 
   return (
