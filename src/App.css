@@ -36,3 +36,10 @@
     transform: rotate(360deg);
   }
 }
+
+.chart-container {
+  margin: 0 auto;
+  width: 90%;
+  max-width: 90vw;
+  padding: 1rem;
+}

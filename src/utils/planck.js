@@ -28,4 +28,4 @@ function calculateTabulatedCurve(
   return [wavelengths, spectralRadianceValues];
 }
 
-export default calculateTabulatedCurve;
+export { calculateTabulatedCurve, planck };
