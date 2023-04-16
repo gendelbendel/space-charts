@@ -24,6 +24,7 @@ export default function InputSlider({
   const setBoth = (newValue) => {
     setValue(newValue);
     updateFunc(newValue);
+    window.history.replaceState(null, null, "?temp=" + newValue);
   };
   const handleSliderChange = (event, newValue) => {
     setBoth(newValue);
@@ -54,7 +55,7 @@ export default function InputSlider({
       <Grid container spacing={2} alignItems="center">
         <Grid item xs>
           <Slider
-            value={typeof value === "number" ? value : 0}
+            value={value}
             onChange={handleSliderChange}
             aria-labelledby="input-slider"
             step={step}

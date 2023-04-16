@@ -1,4 +1,5 @@
 import { Container, Box } from "@mui/system";
+import Stars from "./Stars";
 
 import { constants, planck } from "../utils/planck";
 
@@ -53,6 +54,10 @@ export default function About() {
             </a>
             .
           </p>
+        </div>
+        <div>
+          <h2>Popular stars to test</h2>
+          <Stars />
         </div>
         <div>
           <h2>Libraries</h2>

@@ -11,8 +11,8 @@ import About from "./About";
 
 Chart.register(CategoryScale);
 
-export default function BlackbodyRadiation() {
-  const [temperature, setTemperature] = useState(5700);
+export default function BlackbodyRadiation({ temp, max, min, step }) {
+  const [temperature, setTemperature] = useState(temp);
 
   const options = {
     plugins: {
@@ -106,9 +106,9 @@ export default function BlackbodyRadiation() {
           defaultValue={temperature}
           updateFunc={setTemperature}
           description="Temperature (K)"
-          min={100}
-          max={35000}
-          step={10}
+          min={min}
+          max={max}
+          step={step}
         />
         <LineChart height={300} chartData={chartData} options={options} />
         <About />

@@ -1,8 +1,4 @@
-const constants = {
-  h: 6.626e-34, // Planck's constant (J*s)
-  c: 2.998e8, // speed of light (m/s)
-  k: 1.381e-23, // Boltzmann constant (J/K)
-};
+import constants from "./constants";
 
 function planck(wavelength, temperature) {
   const lambda = wavelength * 1e-9; // convert wavelength from nm to m
