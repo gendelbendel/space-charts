@@ -2,10 +2,12 @@ import { useState, useEffect } from "react";
 import Chart from "chart.js/auto";
 import { CategoryScale } from "chart.js";
 import LineChart from "./LineChart";
+import { Container, Box } from "@mui/system";
 
 import { calculateTabulatedCurve } from "../utils/planck";
 import InputSlider from "./InputSlider";
 import { wavelengthToRGBA } from "../utils/space-colors";
+import About from "./About";
 
 Chart.register(CategoryScale);
 
@@ -58,7 +60,7 @@ export default function BlackbodyRadiation() {
 
   const getData = () => {
     const minWavelength = 0; // nm
-    const maxWavelength = 2000; // nm
+    const maxWavelength = 1000; // nm
     const step = 10; // nm
     const [wavelengths, spectralRadianceValues] = calculateTabulatedCurve(
       temperature,
@@ -75,7 +77,7 @@ export default function BlackbodyRadiation() {
           data: spectralRadianceValues,
           backgroundColor: ["rgba(75,192,192,1)"],
           borderColor: "black",
-          borderWidth: 2,
+          borderWidth: 1,
           pointBorderWidth: 0.4,
           pointBackgroundColor: (context) =>
             wavelengthToRGBA(wavelengths[context.dataIndex]),
@@ -90,18 +92,27 @@ export default function BlackbodyRadiation() {
   }, [temperature]);
 
   return (
-    <div className="blackbody">
-      <h1>Blackbody Radiation interactive</h1>
-      <InputSlider
-        className="temperature"
-        defaultValue={temperature}
-        updateFunc={setTemperature}
-        description="Temperature (K)"
-        min={100}
-        max={20000}
-        step={10}
-      />
-      <LineChart chartData={chartData} options={options} />
-    </div>
+    <Container className="blackbody" maxWidth="lg">
+      <Box
+        sx={{
+          bgcolor: "#cfe8fc",
+          "padding-top": "0.5em",
+          "padding-bottom": "0.5em",
+        }}
+      >
+        <h1>Blackbody Radiation interactive</h1>
+        <InputSlider
+          className="temperature"
+          defaultValue={temperature}
+          updateFunc={setTemperature}
+          description="Temperature (K)"
+          min={100}
+          max={35000}
+          step={10}
+        />
+        <LineChart height={300} chartData={chartData} options={options} />
+        <About />
+      </Box>
+    </Container>
   );
 }
