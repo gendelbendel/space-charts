@@ -31,6 +31,8 @@ const rows = [
   createData("Pollux", 4800),
   createData("Capella A", 4900),
   createData("Deneb", 8525),
+  createData("WISE 0855−0714", 240),
+  createData("WISE 0350-5658", 1600),
 ];
 
 export default function Stars() {

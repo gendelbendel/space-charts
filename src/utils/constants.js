@@ -1,6 +1,6 @@
 const constants = {
   // App related
-  minimumTemperature: 200,
+  minimumTemperature: 230,
   maximumTemperature: 20000,
   defaultTemperature: 5700, // The sun's temperature
   temperatureStepAmount: 10,

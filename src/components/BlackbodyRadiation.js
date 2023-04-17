@@ -1,13 +1,19 @@
 import { useState, useEffect } from "react";
 import Chart from "chart.js/auto";
 import { CategoryScale } from "chart.js";
-import LineChart from "./LineChart";
 import { Container, Box } from "@mui/system";
+import Grid from "@mui/material/Grid";
+
+import InputSlider from "./InputSlider";
+import LineChart from "./LineChart";
+import Star from "./Star";
+import About from "./About";
 
 import { calculateTabulatedCurve } from "../utils/planck";
-import InputSlider from "./InputSlider";
-import { wavelengthToRGBA } from "../utils/space-colors";
-import About from "./About";
+import {
+  wavelengthToRGBA,
+  normalizeSpectralIntensityRGB,
+} from "../utils/space-colors";
 
 Chart.register(CategoryScale);
 
@@ -25,12 +31,10 @@ export default function BlackbodyRadiation({ temp, max, min, step }) {
       },
       tooltip: {
         callbacks: {
-          label: (val) => {
-            console.log(val);
-            return `Spectral radiance: ${parseFloat(
+          label: (val) =>
+            `Spectral radiance: ${parseFloat(
               val.formattedValue.replace(/,/g, "")
-            ).toExponential(4)}`;
-          },
+            ).toExponential(4)}`,
         },
       },
     },
@@ -89,6 +93,7 @@ export default function BlackbodyRadiation({ temp, max, min, step }) {
 
   useEffect(() => {
     setChartData(getData());
+    normalizeSpectralIntensityRGB(temperature);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [temperature]);
 
@@ -97,20 +102,33 @@ export default function BlackbodyRadiation({ temp, max, min, step }) {
       <Box
         sx={{
           bgcolor: "#cfe8fc",
-          "padding-top": "0.5em",
-          "padding-bottom": "0.5em",
+          paddingTop: "0.5em",
+          paddingBottom: "0.5em",
         }}
       >
         <h1>Blackbody Radiation interactive</h1>
-        <InputSlider
-          className="temperature"
-          defaultValue={temperature}
-          updateFunc={setTemperature}
-          description="Temperature (K)"
-          min={min}
-          max={max}
-          step={step}
-        />
+        <Grid
+          container
+          // className="temperature"
+          sx={{ justifyContent: "center", alignItems: "center" }}
+          spacing={2}
+        >
+          <Grid item xs={5}>
+            <InputSlider
+              className="temperature"
+              defaultValue={temperature}
+              updateFunc={setTemperature}
+              description="Temperature (K)"
+              min={min}
+              max={max}
+              step={step}
+            />
+          </Grid>
+          <Grid item xs={5}>
+            <Star className="star" temperature={temperature} />
+          </Grid>
+        </Grid>
+
         <LineChart height={300} chartData={chartData} options={options} />
         <About />
       </Box>

@@ -7,7 +7,7 @@ import Slider from "@mui/material/Slider";
 import MuiInput from "@mui/material/Input";
 
 const Input = styled(MuiInput)`
-  width: 70px;
+  width: 60px;
 `;
 
 export default function InputSlider({
@@ -19,7 +19,7 @@ export default function InputSlider({
   updateFunc = () => {},
   className,
 }) {
-  const [value, setValue] = React.useState(defaultValue);
+  const [value, setValue] = React.useState(parseInt(defaultValue));
 
   const setBoth = (newValue) => {
     setValue(newValue);
@@ -47,7 +47,7 @@ export default function InputSlider({
   return (
     <Box
       className={className}
-      sx={{ maxWidth: 250, justifyContent: "center", alignItems: "center" }}
+      sx={{ maxWidth: 450, justifyContent: "center", alignItems: "center" }}
     >
       <Typography id="input-slider" gutterBottom>
         {description}

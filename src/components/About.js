@@ -4,7 +4,7 @@ import Stars from "./Stars";
 export default function About() {
   return (
     <Container maxWidth="lg">
-      <Box sx={{ bgcolor: "#cfe8fc", "padding-top": "0.5em" }}>
+      <Box sx={{ bgcolor: "#cfe8fc", paddingTop: "0.5em" }}>
         <div>
           <h1>What's going on here?</h1>
           <p>
@@ -26,12 +26,32 @@ export default function About() {
             my code for that. If you find any problems with that, please let me
             know!)
           </p>
+          <p>
+            Then to get the color of the star, I am integrating the spectral
+            density over three wavelength ranges: a red range (620 - 680 nm), a
+            green range (500 - 550 nm), and a blue range (430 - 480 nm). Once
+            each values are normalized, an RGB color can be determined.
+          </p>
+          <p>
+            Note: This is not quite the same method that astronomers use to
+            calculate color (calculating the magnitude of the B-V filters to get
+            a color index, then using a lookup table), but is close enough for
+            hobbyist usages.
+          </p>
+          <p>
+            Additional note: Stars on the extreme low end of temperatures (below
+            1500 K) are much darker and less vibrant than this tool shows. Most
+            of the spectral density for these stars are in the infrared range,
+            which isn't visible to the human eye. They would barely glow a deep
+            red, but would likely just appear black to our eyes.
+          </p>
         </div>
         <div>
           <h2>How to use this</h2>
           <p>
             As you use the slider or input box to modify the temperature, the
-            spectral density chart will update in real time.
+            spectral density chart will update in real time, as will the star's
+            color.
           </p>
         </div>
         <div>
@@ -82,10 +102,8 @@ export default function About() {
         </div>
         <div>
           <h2>Todos</h2>
-          <p>
-            1. Display the actual color of the star based on the information
-            plotted.
-          </p>
+          <p>1. Add routing from clicking a Kelvin value in the table</p>
+          <p>2. Gamma correction</p>
         </div>
       </Box>
     </Container>

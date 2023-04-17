@@ -56,9 +56,12 @@
   margin: 0 auto;
   width: 90%;
   max-width: 90vw;
-  padding: 1rem;
+  /* padding: 1rem; */
 }
 
-.lmao {
-  all: unset;
+.star {
+  margin: 0 auto;
+  width: 90%;
+  max-width: 90vw;
+  /* padding: 1rem; */
 }

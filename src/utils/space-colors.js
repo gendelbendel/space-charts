@@ -1,3 +1,5 @@
+import { planck } from "./planck";
+
 // takes wavelength in nm and returns an rgb value
 function wavelengthToRGB(wavelength) {
   let r, g, b, factor;
@@ -49,7 +51,6 @@ function wavelengthToRGB(wavelength) {
 }
 
 function wavelengthToRGBA(wavelength) {
-  console.log(wavelength);
   var r, g, b, a;
 
   if (wavelength < 380 || wavelength > 780) {
@@ -108,16 +109,59 @@ function wavelengthToRGBA(wavelength) {
   }
 
   // convert to 8-bit values
-  r = Math.round(r * 255);
-  g = Math.round(g * 255);
-  b = Math.round(b * 255);
-  a = Math.round(a * 255);
+  r = renormalizeRgbValue(r);
+  g = renormalizeRgbValue(g);
+  b = renormalizeRgbValue(b);
+  a = renormalizeRgbValue(a);
 
   const rgba = "rgba(" + r + "," + g + "," + b + "," + a + ")";
-  console.log(rgba);
   return rgba;
 }
 
-function normalizeSpectralIntensityRGB(temp, red, blue, green) {}
+function integrate(f, a, b, n) {
+  let dx = (b - a) / n;
+  let sum = 0.5 * (f(a) + f(b));
+  for (let i = 1; i < n; i++) {
+    let x = a + i * dx;
+    sum += f(x);
+  }
+  return sum * dx;
+}
 
-export { wavelengthToRGB, wavelengthToRGBA };
+function normalize(values) {
+  const maxVal = Math.max(...values);
+  return values.map((val) => val / maxVal);
+}
+
+function renormalizeRgbValue(val) {
+  return Math.round(255 * val);
+}
+
+function partialRight(fn) {
+  // A reference to the Array#slice method.
+  var slice = Array.prototype.slice;
+  // Convert arguments object to an array, removing the first argument.
+  var args = slice.call(arguments, 1);
+
+  return function () {
+    // Invoke the originally-specified function, passing in all just-
+    // specified arguments, followed by any originally-specified arguments.
+    return fn.apply(this, slice.call(arguments, 0).concat(args));
+  };
+}
+
+function normalizeSpectralIntensityRGB(temp) {
+  const partialTemp = partialRight(planck, temp);
+  const redIntegrated = integrate(partialTemp, 620, 680, 10);
+  const greenIntegrated = integrate(partialTemp, 500, 550, 10);
+  const blueIntegrated = integrate(partialTemp, 430, 480, 10);
+
+  const rgb = normalize([redIntegrated, greenIntegrated, blueIntegrated]);
+  const rgbA = `rgba(${renormalizeRgbValue(rgb[0])}, ${renormalizeRgbValue(
+    rgb[1]
+  )}, ${renormalizeRgbValue(rgb[2])}, ${renormalizeRgbValue(1)})`;
+
+  return rgbA;
+}
+
+export { wavelengthToRGB, wavelengthToRGBA, normalizeSpectralIntensityRGB };
