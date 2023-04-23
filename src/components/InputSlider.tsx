@@ -1,4 +1,4 @@
-import * as React from "react";
+import React, { Dispatch, SetStateAction } from "react";
 import { styled } from "@mui/material/styles";
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
@@ -10,29 +10,38 @@ const Input = styled(MuiInput)`
   width: 60px;
 `;
 
+interface InputSliderProps {
+  defaultValue: number;
+  description: string;
+  min: number;
+  max: number;
+  step: number;
+  updateFunc: Dispatch<SetStateAction<number>>;
+  className?: string;
+}
+
 export default function InputSlider({
   defaultValue,
   description,
   min,
   max,
   step,
-  updateFunc = () => {},
+  updateFunc,
   className,
-}) {
-  const [value, setValue] = React.useState(parseInt(defaultValue));
+}: InputSliderProps) {
+  const [value, setValue] = React.useState(defaultValue);
 
-  const setBoth = (newValue) => {
+  const setBoth = (newValue: number) => {
     setValue(newValue);
     updateFunc(newValue);
-    window.history.replaceState(null, null, "?temp=" + newValue);
+    window.history.replaceState(null, "", "?temp=" + newValue);
   };
-  const handleSliderChange = (event, newValue) => {
-    setBoth(newValue);
+  const handleSliderChange = (_event: Event, newValue: number | number[]) => {
+    if (typeof newValue === "number") setBoth(newValue);
   };
 
-  const handleInputChange = (event) => {
-    const newValue =
-      event.target.value === "" ? "" : Number(event.target.value);
+  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const newValue = event.target.value === "" ? 0 : Number(event.target.value);
     setBoth(newValue);
   };
 

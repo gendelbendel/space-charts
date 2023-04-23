@@ -10,7 +10,7 @@ import Paper from "@mui/material/Paper";
 const simbadSearchUrl = "https://simbad.u-strasbg.fr/simbad/sim-basic?Ident=";
 const googleImageUrl = "https://www.google.com/search?tbm=isch&q=";
 
-function createData(name, temp) {
+function createData(name: string, temp: number) {
   return {
     name,
     temp,

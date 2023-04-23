@@ -62,7 +62,7 @@ export default function About() {
               Planck's Law
             </a>{" "}
             to determine this. (
-            <a href="https://github.com/gendelbendel/space-charts/blob/main/src/utils/planck.js#L7">
+            <a href="https://github.com/gendelbendel/space-charts/blob/main/src/utils/math.ts#L3">
               Here's
             </a>{" "}
             my code for that. If you find any problems with that, please let me

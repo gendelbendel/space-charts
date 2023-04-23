@@ -3,13 +3,14 @@ import Chart from "chart.js/auto";
 import { CategoryScale } from "chart.js";
 import { Container, Box } from "@mui/system";
 import Grid from "@mui/material/Grid";
+import { ChartData, ChartOptions } from "chart.js";
 
 import InputSlider from "./InputSlider";
 import LineChart from "./LineChart";
 import Star from "./Star";
 import About from "./About";
 
-import { calculateTabulatedCurve } from "../utils/planck";
+import { calculateTabulatedCurve } from "../utils/chart-data";
 import {
   wavelengthToRGBA,
   normalizeSpectralIntensityRGB,
@@ -17,10 +18,22 @@ import {
 
 Chart.register(CategoryScale);
 
-export default function BlackbodyRadiation({ temp, max, min, step }) {
+interface BlackbodyRadiationProps {
+  temp: number;
+  max: number;
+  min: number;
+  step: number;
+}
+
+export default function BlackbodyRadiation({
+  temp,
+  max,
+  min,
+  step,
+}: BlackbodyRadiationProps) {
   const [temperature, setTemperature] = useState(temp);
 
-  const options = {
+  const options: ChartOptions<"line"> = {
     plugins: {
       title: {
         display: true,
@@ -31,7 +44,7 @@ export default function BlackbodyRadiation({ temp, max, min, step }) {
       },
       tooltip: {
         callbacks: {
-          label: (val) =>
+          label: (val: { formattedValue: string }) =>
             `Spectral radiance: ${parseFloat(
               val.formattedValue.replace(/,/g, "")
             ).toExponential(4)}`,
@@ -46,7 +59,10 @@ export default function BlackbodyRadiation({ temp, max, min, step }) {
     scales: {
       y: {
         ticks: {
-          callback: (val) => val.toExponential(4),
+          callback: (val: string | number) => {
+            if (typeof val === "number") return val.toExponential(4);
+            return val;
+          },
         },
         title: {
           display: true,
@@ -62,7 +78,7 @@ export default function BlackbodyRadiation({ temp, max, min, step }) {
     },
   };
 
-  const getData = () => {
+  const getData = (): ChartData<"line"> => {
     const minWavelength = 0; // nm
     const maxWavelength = 1000; // nm
     const step = 10; // nm
@@ -83,7 +99,7 @@ export default function BlackbodyRadiation({ temp, max, min, step }) {
           borderColor: "black",
           borderWidth: 1,
           pointBorderWidth: 0.4,
-          pointBackgroundColor: (context) =>
+          pointBackgroundColor: (context: { dataIndex: number }) =>
             wavelengthToRGBA(wavelengths[context.dataIndex]),
         },
       ],
@@ -129,7 +145,7 @@ export default function BlackbodyRadiation({ temp, max, min, step }) {
           </Grid>
         </Grid>
 
-        <LineChart height={300} chartData={chartData} options={options} />
+        <LineChart chartData={chartData} options={options} />
         <About />
       </Box>
     </Container>

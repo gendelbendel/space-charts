@@ -3,7 +3,12 @@ import Typography from "@mui/material/Typography";
 
 import { normalizeSpectralIntensityRGB } from "../utils/space-colors";
 
-export default function Star({ temperature, className }) {
+interface StarProps {
+  temperature: number;
+  className?: string;
+}
+
+export default function Star({ temperature, className }: StarProps) {
   return (
     <Box
       className={className}
