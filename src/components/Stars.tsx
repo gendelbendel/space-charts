@@ -7,6 +7,8 @@ import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 
+import Link from "./Link";
+
 const simbadSearchUrl = "https://simbad.u-strasbg.fr/simbad/sim-basic?Ident=";
 const googleImageUrl = "https://www.google.com/search?tbm=isch&q=";
 
@@ -58,14 +60,10 @@ export default function Stars() {
               </TableCell>
               <TableCell>{row.temp}</TableCell>
               <TableCell>
-                <a href={row.simbad} target="_blank" rel="noreferrer">
-                  SIMBAD
-                </a>
+                <Link href={row.simbad}>SIMBAD</Link>
               </TableCell>
               <TableCell>
-                <a href={row.googleImage} target="_blank" rel="noreferrer">
-                  Google images
-                </a>
+                <Link href={row.googleImage}>Google images</Link>
               </TableCell>
             </TableRow>
           ))}

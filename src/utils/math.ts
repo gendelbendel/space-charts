@@ -29,4 +29,14 @@ function integrate(
   return sum * dx;
 }
 
-export { integrate, normalize, planck };
+function numberToScientificNotationLatex(
+  num: number,
+  decimals: number = 3
+): string {
+  return (
+    num.toExponential(decimals).replace(/e/, "\\times 10^{").replace(/\+/, "") +
+    "}"
+  );
+}
+
+export { integrate, normalize, numberToScientificNotationLatex, planck };
