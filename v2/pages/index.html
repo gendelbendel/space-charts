@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="en">
+<head>
+<!-- include: head -->
+<style>
+/* inline: src/base.css */
+
+/*
+  Everything that reacts to the slider (star, readout, chart, color map,
+  controls) shares the first screen. Four tiers:
+    phone     < 600px wide             tabs for the visuals, controls docked at the bottom
+    tablet    600–899px, not short     chart and color map side by side, controls docked
+    short     landscape, ≤ 520px tall  readout + controls left, tabbed visuals right
+    desktop   ≥ 900px, not short       controls left; chart and color map side by side
+*/
+.core { display: grid; gap: 12px; }
+.b-left { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.b-top { display: grid; gap: 14px; align-items: center; }
+.tabs { display: none; }
+.panel { display: flex; flex-direction: column; min-width: 0; }
+.panel > .card { flex: 1; display: flex; flex-direction: column; min-height: 0; }
+.panel[data-view-panel=spectrum] { grid-area: spectrum; }
+.panel[data-view-panel=map] { grid-area: map; }
+.panel[data-view-panel=numbers] { grid-area: numbers; display: grid; gap: 12px; align-content: start; }
+.chart-box { flex: 1; height: auto; min-height: 160px; }
+.colormap svg.cie { flex: 1 1 auto; min-height: 0; margin: 0 auto; }
+.control { grid-template-columns: 1fr; gap: 4px; }
+.control > .lbl { font-size: 12px; }
+.after-core > .card { margin: 0 0 16px; }
+.after-core { margin-top: 20px; }
+
+/* ---------- phone + tablet: stacked, controls docked at the bottom ---------- */
+@media (max-width: 599px), (max-width: 899px) and (min-height: 521px) {
+  .wrap { padding: 0 12px; }
+  header.top { padding: 10px 0 2px; }
+  .core { min-height: 100svh; grid-template-rows: auto auto minmax(0, 1fr) auto; gap: 10px; }
+  .b-left { display: contents; }
+  .b-top { order: 1; grid-template-columns: 92px minmax(0, 1fr); }
+  .viz { order: 2; min-height: 0; }
+  .b-dock { order: 3; position: sticky; bottom: 0; z-index: 2; margin: 0 -12px; padding: 8px 12px calc(10px + env(safe-area-inset-bottom)); background: rgba(5, 6, 10, .94); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-top: 1px solid var(--line-strong); }
+  .b-top .stage { aspect-ratio: 1; border-radius: 12px; }
+  .b-top .stage .disc-wrap { width: 70%; }
+  .b-top .stage-hex { display: none; }
+  .b-top .stage.comparing { grid-column: 1 / -1; aspect-ratio: auto; height: 84px; }
+  .b-top .stage.comparing .disc-wrap { width: auto; height: 78%; }
+  .b-top .stage.comparing .disc { width: auto; height: 100%; }
+  .b-top .stage.comparing figcaption { font-size: 10px; }
+  .b-top:has(.stage.comparing) .readout-block { grid-column: 1 / -1; }
+  .temp-big { font-size: 38px; }
+  .class-chip { font-size: 11px; padding: 5px 8px; }
+  .verdict { font-size: 13.5px; margin-top: 6px; min-height: calc(3 * 1.45em); }
+  .stage-note { font-size: 12px; }
+  .card { padding: 12px; }
+  .card h2 { font-size: 15px; }
+  .card .sub { font-size: 12.5px; margin-bottom: 8px; }
+  .spectrum .card-head .seg button { padding: 4px 8px; font-size: 12px; }
+  .b-dock .controls { margin-top: 6px; gap: 4px 10px; grid-template-columns: 1fr auto; align-items: center; }
+  .b-dock .control { display: contents; }
+  .b-dock .control > .lbl { font-size: 11px; }
+  .b-dock .control:nth-child(1) > .lbl { grid-row: 1; grid-column: 1; }
+  .b-dock .control:nth-child(3) > .lbl { display: none; }
+  .b-dock .control:nth-child(3) > .check { grid-row: 1; grid-column: 2; font-size: 12px; }
+  .b-dock .control:nth-child(1) > .seg { grid-row: 2; grid-column: 1 / -1; }
+  .b-dock .control:nth-child(2) > .lbl { grid-row: 3; grid-column: 1 / -1; margin-top: 2px; }
+  .b-dock .control:nth-child(2) > .seg { grid-row: 4; grid-column: 1 / -1; }
+  .b-dock .seg { display: flex; flex-wrap: nowrap; width: 100%; }
+  .b-dock .seg button { flex: 1; padding: 6px 4px; font-size: 13px; white-space: nowrap; }
+  .after-core { margin-top: 16px; }
+}
+
+/* phone: one visual at a time */
+@media (max-width: 599px) {
+  /* Sized by the space left over, not by its content, so the container query below can ask how much room there is. */
+  .viz { container: viz / size; display: flex; flex-direction: column; gap: 8px; }
+  .tabs .both { display: none; }
+  .panel .spectrum .sub .long { display: none; }
+  .legend { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; font-size: 11px; margin-top: 4px; }
+  .legend span { white-space: nowrap; }
+  .tabs { display: flex; }
+  .panel, .panel[data-view-panel=numbers] { display: none; }
+  .panel.active { display: flex; flex: 1; min-height: 0; overflow: auto; }
+  .panel[data-view-panel=numbers].active { display: grid; gap: 10px; }
+  .panel .spectrum h2, .panel .colormap h2, .panel .colormap .sub { display: none; }
+  .panel .spectrum .card-head { flex-wrap: nowrap; align-items: center; }
+  .panel .spectrum .sub { margin: 0; }
+  .chart-box { min-height: 150px; }
+  .colormap svg.cie { min-height: 150px; height: 100%; width: 100%; }
+  .colormap .cie-readout { text-align: center; }
+  .panel .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+  /* Tall phones have room for the chart and the color map together. */
+  @container viz (min-height: 430px) {
+    .tabs [data-view=map] { display: none; }
+    .tabs .solo { display: none; }
+    .tabs .both { display: inline; }
+    .panel[data-view-panel=spectrum].active ~ .panel[data-view-panel=map],
+    .panel[data-view-panel=spectrum]:has(~ .panel[data-view-panel=map].active) { display: flex; flex: 1.1; min-height: 0; }
+    .panel[data-view-panel=spectrum].active, .panel[data-view-panel=spectrum]:has(~ .panel[data-view-panel=map].active) { display: flex; flex: 1; min-height: 0; }
+    .tabs:has(~ .panel[data-view-panel=map].active) [data-view=spectrum] { background: var(--surface-2); color: var(--text); box-shadow: inset 0 0 0 1px var(--line-strong); }
+    .chart-box { min-height: 110px; }
+    .colormap svg.cie { min-height: 120px; }
+  }
+}
+
+/* tablet portrait: chart and color map side by side */
+@media (min-width: 600px) and (max-width: 899px) and (min-height: 521px) {
+  .wrap { padding: 0 16px; }
+  .b-dock { margin: 0 -16px; padding-left: 16px; padding-right: 16px; }
+  .b-top { grid-template-columns: 132px minmax(0, 1fr); }
+  .temp-big { font-size: 48px; }
+  .verdict { min-height: calc(2 * 1.45em); }
+  .viz { display: grid; gap: 12px; grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); grid-template-areas: "spectrum map" "numbers numbers"; align-content: start; }
+  .chart-box { min-height: 220px; }
+  .colormap svg.cie { width: 100%; max-height: 300px; }
+  .b-dock .controls { grid-template-columns: 1fr 1fr auto; }
+  .b-dock .control:nth-child(1) > .lbl { grid-row: 1; grid-column: 1; }
+  .b-dock .control:nth-child(1) > .seg { grid-row: 2; grid-column: 1; }
+  .b-dock .control:nth-child(2) > .lbl { grid-row: 1; grid-column: 2; margin: 0; }
+  .b-dock .control:nth-child(2) > .seg { grid-row: 2; grid-column: 2; }
+  .b-dock .control:nth-child(3) > .check { grid-row: 2; grid-column: 3; }
+}
+
+/* short landscape (phones on their side): two columns, visuals tabbed */
+@media (max-height: 520px) and (min-width: 600px) {
+  .wrap { padding: 0 max(12px, env(safe-area-inset-left)) 0 max(12px, env(safe-area-inset-right)); max-width: none; }
+  header.top { padding: 8px 0 0; }
+  .core { grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr); grid-template-areas: "head head" "left viz"; gap: 8px 14px; align-items: start; }
+  .core > header.top { grid-area: head; }
+  .b-left { grid-area: left; gap: 10px; }
+  .b-top { grid-template-columns: 72px minmax(0, 1fr); gap: 12px; }
+  .b-top .stage { aspect-ratio: 1; border-radius: 10px; }
+  .b-top .stage .disc-wrap { width: 70%; }
+  .b-top .stage-hex { display: none; }
+  .b-top .stage.comparing { grid-column: 1 / -1; aspect-ratio: auto; height: 64px; }
+  .b-top .stage.comparing .disc-wrap { width: auto; height: 76%; }
+  .b-top .stage.comparing .disc { width: auto; height: 100%; }
+  .b-top .stage.comparing figcaption { display: none; }
+  .b-top:has(.stage.comparing) .readout-block { grid-column: 1 / -1; }
+  .temp-big { font-size: 32px; }
+  .verdict { font-size: 13px; margin-top: 4px; }
+  .stage-note { font-size: 12px; }
+  .b-dock .controls { margin-top: 4px; gap: 3px 10px; grid-template-columns: 1fr auto; align-items: center; }
+  .b-dock .control { display: contents; }
+  .b-dock .control > .lbl { font-size: 11px; }
+  .b-dock .control:nth-child(1) > .lbl { grid-row: 1; grid-column: 1; }
+  .b-dock .control:nth-child(3) > .lbl { display: none; }
+  .b-dock .control:nth-child(3) > .check { grid-row: 1; grid-column: 2; font-size: 12px; }
+  .b-dock .control:nth-child(1) > .seg { grid-row: 2; grid-column: 1 / -1; }
+  .b-dock .control:nth-child(2) > .lbl { grid-row: 3; grid-column: 1 / -1; }
+  .b-dock .control:nth-child(2) > .seg { grid-row: 4; grid-column: 1 / -1; }
+  .b-dock .seg button { padding: 5px 9px; font-size: 13px; }
+  .viz { grid-area: viz; position: sticky; top: 8px; height: calc(100svh - 52px); display: flex; flex-direction: column; gap: 6px; }
+  .tabs { display: flex; }
+  .panel, .panel[data-view-panel=numbers] { display: none; }
+  .panel.active { display: flex; flex: 1; min-height: 0; overflow: auto; }
+  .panel[data-view-panel=numbers].active { display: grid; gap: 8px; }
+  .panel > .card { padding: 10px; }
+  .panel .spectrum h2, .panel .colormap h2, .panel .colormap .sub, .panel .spectrum .sub { display: none; }
+  .chart-box { min-height: 120px; }
+  .colormap svg.cie { width: 100%; height: 100%; }
+  .colormap .cie-readout { text-align: center; margin-top: 2px; }
+  .panel .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+/* desktop: controls left; chart and color map side by side, the same height; numbers below */
+@media (min-width: 900px) and (min-height: 521px) {
+  :root { --viz-h: clamp(190px, 32vh, 360px); }
+  .wrap { max-width: 1440px; }
+  .core { grid-template-columns: 300px minmax(0, 1fr); grid-template-areas: "head head" "left viz"; gap: 14px 18px; align-items: start; padding-bottom: 4px; }
+  .core > header.top { grid-area: head; }
+  .b-left { grid-area: left; }
+  .b-top { grid-template-columns: minmax(0, 1fr); }
+  .b-top .stage { height: clamp(160px, 26vh, 260px); }
+  .temp-big { font-size: clamp(44px, 5.5vh, 60px); }
+  .verdict { min-height: calc(3 * 1.45em); }
+  .viz { grid-area: viz; display: grid; gap: 14px; grid-template-columns: minmax(0, 1.25fr) minmax(250px, 1fr); grid-template-areas: "spectrum map" "stats stats" "how how"; align-items: start; }
+  .panel[data-view-panel=numbers] { display: contents; }
+  .viz .stats { grid-area: stats; grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .viz .how { grid-area: how; }
+  .chart-box { flex: none; height: var(--viz-h); }
+  .colormap svg.cie { flex: none; width: 100%; height: calc(var(--viz-h) + 64px); }
+}
+@media (min-width: 1200px) and (min-height: 521px) {
+  .core { grid-template-columns: 330px minmax(0, 1fr); }
+  .viz { grid-template-areas: "spectrum map" "stats map" "how how"; }
+  .colormap svg.cie { height: calc(var(--viz-h) + 80px); }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+<main class="core" data-scroll-anchor>
+<!-- include: header -->
+  <div class="b-left">
+    <div class="b-top">
+<!-- include: stage -->
+<!-- include: readout -->
+    </div>
+    <div class="b-dock">
+<!-- include: controls -->
+    </div>
+  </div>
+  <div class="viz" id="viz">
+    <div class="tabs" data-tabs role="tablist" aria-label="Visualization">
+      <button type="button" role="tab" data-view="spectrum"><span class="solo">Spectrum</span><span class="both">Spectrum + map</span></button>
+      <button type="button" role="tab" data-view="map">Color map</button>
+      <button type="button" role="tab" data-view="numbers">Numbers</button>
+    </div>
+    <div class="panel" data-view-panel="spectrum">
+<!-- include: spectrum -->
+    </div>
+    <div class="panel" data-view-panel="map">
+<!-- include: cie -->
+    </div>
+    <div class="panel" data-view-panel="numbers">
+<!-- include: stats -->
+<!-- include: how -->
+    </div>
+  </div>
+</main>
+<div class="after-core">
+<!-- include: objects -->
+<!-- include: faq -->
+</div>
+<!-- include: footer -->
+</div>
+<!-- inline-script: src/app.js -->
+</body>
+</html>

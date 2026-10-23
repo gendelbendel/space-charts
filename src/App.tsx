@@ -14,6 +14,16 @@ export default function App() {
 
   return (
     <div className="App">
+      <p style={{ margin: 0, padding: "0.6em 1em", background: "#05060a" }}>
+        <a
+          href="/"
+          // v2 understands v1's ?temp= parameter, so the visitor keeps their temperature.
+          onClick={(e) => (e.currentTarget.href = "/" + window.location.search)}
+          style={{ color: "#ffc58a" }}
+        >
+          This is the original version. Try the new one →
+        </a>
+      </p>
       <BlackbodyRadiation
         temp={temp}
         max={appDefaults.maximumTemperature}

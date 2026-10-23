@@ -1,0 +1,112 @@
+<section class="card" id="faq">
+  <div class="faq-tools">
+    <h2 style="margin:0">Questions</h2>
+    <input type="search" id="faqSearch" placeholder="Search the questions…" aria-label="Search the questions">
+  </div>
+  <p class="sub" id="faqEmpty" hidden>No questions match that search.</p>
+
+  <div class="faq-group"><h3>The basics</h3>
+    <details><summary>What am I looking at?</summary><div>
+      <p>Everything with a temperature glows. This page takes one number, a temperature, and shows the light an ideal glowing object (a <a href="https://en.wikipedia.org/wiki/Black_body">blackbody</a>) gives off: how much of each wavelength (the spectrum), and what color and brightness that mix of light looks like to a human eye (the star).</p>
+      <p>Stars are close enough to blackbodies that this is a good way to understand why Betelgeuse looks orange and Rigel looks blue-white.</p>
+    </div></details>
+    <details><summary>What is a blackbody, and are stars really one?</summary><div>
+      <p>A blackbody absorbs every bit of light that hits it and re-emits energy purely because of its temperature. Its spectrum depends on temperature and nothing else.</p>
+      <p>Real stars come close but not all the way: their outer layers absorb some wavelengths (the dark lines in a stellar spectrum), and the light comes from a range of depths at different temperatures. A star's "effective temperature" is the temperature of a blackbody that would give off the same total power per square meter, which is why the comparison works so well. The <strong>Real stars</strong> color model shows what those differences do to the color.</p>
+    </div></details>
+    <details><summary>Why kelvin, and why not "degrees Kelvin"?</summary><div>
+      <p>Kelvin starts at absolute zero, so it ties directly to physics: double the kelvin and every atom has twice the average thermal energy. 0 °C is 273.15 K, room temperature is about 295 K, and you are about 310 K.</p>
+      <p>Since 1967 the unit has just been "kelvin" (symbol K), with no "degrees".</p>
+    </div></details>
+    <details><summary>How do I use it?</summary><div>
+      <p>Drag the slider, type a temperature, or tap one of the stars. The slider is logarithmic, so it gives the same room to 300–3,000 K as to 3,000–30,000 K. The URL updates as you go, so you can share any temperature.</p>
+      <p><strong>Color model</strong> picks how the color is worked out. <strong>Brightness</strong> picks whether to show just the hue or how bright it would really look. <strong>Compare</strong> shows all three models at once.</p>
+    </div></details>
+  </div>
+
+  <div class="faq-group"><h3>The color models</h3>
+    <details><summary>What's the difference between Simple, CIE 1931 and Real stars?</summary><div>
+      <p><strong>Simple</strong> is the original v1 method. It adds up the light in three bands (red 620–680 nm, green 500–550 nm, blue 430–480 nm) and uses those three totals directly as red, green and blue. It's easy to follow, but it ignores how your eye responds, skips the gaps between bands, and has no gamma correction, so cool objects come out pure red and hot ones too blue.</p>
+      <p><strong>CIE 1931</strong> is standard colorimetry. It weights the whole visible spectrum of a perfect blackbody by three measured curves describing average human vision (the <a href="https://en.wikipedia.org/wiki/CIE_1931_color_space#Color_matching_functions">color matching functions</a>), turns the result into a point in a standard color space, and converts that into the sRGB color your screen understands.</p>
+      <p><strong>Real stars</strong> uses colors that Harre &amp; Heller (2021) computed from detailed model spectra of real main-sequence stars, absorption lines and all, instead of a perfect blackbody. It covers 2,300–55,000 K (spectral types M9.5 V to O1 V). Outside that range there are no stars to model, so the page falls back to CIE 1931.</p>
+    </div></details>
+    <details><summary>Where does the Real stars data come from?</summary><div>
+      <p>From Table 5 of <a href="https://arxiv.org/abs/2101.06254">"Digital color codes of stars"</a> by J.-V. Harre and R. Heller (<em>Astronomische Nachrichten</em>, 2021). They ran PHOENIX model atmospheres (up to 15,000 K) and TLUSTY models (hotter stars) through the human color matching functions and published the resulting colors for 105 main-sequence temperatures. This page interpolates between those rows.</p>
+      <p>One correction is applied. The paper's hex codes come straight from linear values, without the sRGB gamma step every screen expects, so they look more saturated than intended. A 2026 study of white dwarf colors by Hollands, Gänsicke, Tremblay and Koester pointed this out. This page applies the gamma step, and the "How the color was computed" panel shows both versions.</p>
+    </div></details>
+    <details><summary>Do real stars really look different from blackbodies?</summary><div>
+      <p>A little, and researchers disagree about how much. Harre &amp; Heller (2021) concluded the differences are substantial: the coolest red dwarfs look orange rather than red, and F, A, B and O stars look somewhat bluer than blackbodies at the same temperature.</p>
+      <p>Hollands et al. (2026, <em>RAS Techniques and Instruments</em>) found that for main-sequence stars, absorption in the atmosphere causes only minor shifts once the light is filtered through the broad sensitivity of human vision. Part of the gap between the studies is method: Harre &amp; Heller used the newer CIE 2006 color matching functions and skipped the gamma step, while this page's blackbody model uses CIE 1931. Turn on Compare to judge for yourself.</p>
+    </div></details>
+    <details><summary>Why do cold objects go black instead of deep red?</summary><div>
+      <p>Because almost none of their light is visible. At 300 K (room temperature, or you) the peak is near 10 µm in the infrared, and the visible light coming off it is about thirty orders of magnitude fainter than the Sun's.</p>
+      <p>Heated objects start to faintly glow at about 800 K, the <a href="https://en.wikipedia.org/wiki/Draper_point">Draper point</a>. At first the glow looks grey rather than red, because at that brightness only your rods respond, and rods don't see color. Around 1,000 K a dull red appears, then orange, then yellowish white.</p>
+      <p>The <strong>Your eye</strong> brightness setting models this. The thresholds are approximate, because real vision depends on adaptation, viewing angle and the individual.</p>
+    </div></details>
+    <details><summary>Why are there no green stars?</summary><div>
+      <p>A blackbody's spectrum is a broad hump, never a narrow spike. Even when the peak lands in the green, as it does for the Sun, there's nearly as much red and blue light alongside it, and the mix looks white. On the color map you can see the Planckian locus curve right past the green region without touching it.</p>
+      <p>You can occasionally <em>see</em> green from a star because of Earth's atmosphere. The best-known case is the <a href="https://en.wikipedia.org/wiki/Green_flash">green flash</a> at sunset, but the light leaving the Sun isn't green.</p>
+    </div></details>
+    <details><summary>Why are there no purple stars either?</summary><div>
+      <p>For the same reason. As a blackbody gets hotter, the visible part of its spectrum tilts toward blue but never piles up at the violet end. The color heads toward a pale sky blue and stops there.</p>
+    </div></details>
+    <details><summary>Why does the color stop changing above about 20,000 K?</summary><div>
+      <p>Once the peak is far into the ultraviolet, the visible part of the spectrum lies on the long-wavelength tail of the curve. That tail keeps the same shape (proportional to T/λ⁴) and only gets taller. Every hot star converges on the same pale blue, around x = 0.240, y = 0.235 on the color map.</p>
+    </div></details>
+    <details><summary>Isn't the Sun yellow?</summary><div>
+      <p>Out in space, the Sun is very close to white, with a slight warm tint on this page. It looks yellow from the ground because the atmosphere scatters some of its blue light across the sky, and orange-red at sunset when its light passes through much more air.</p>
+      <p>"White" on a screen is defined by the sRGB standard as the D65 white point, which is close to a 6,500 K blackbody. Anything cooler than that looks slightly warm here, and anything hotter looks slightly blue.</p>
+    </div></details>
+    <details><summary>Why do most stars look white at night?</summary><div>
+      <p>Stars are tiny points of light, and most are too faint to wake up the cones that see color. Only the brightest show their color clearly: orange Betelgeuse and Arcturus, red Antares, blue-white Rigel and Vega. Binoculars help, because they collect more light.</p>
+    </div></details>
+    <details><summary>Is the color on my screen exactly right?</summary><div>
+      <p>Close, but not exact. Screens can only show colors inside their gamut, and the deep reds of objects below about 1,500 K lie outside standard sRGB. This page pulls those in by mixing in a little white, so they look slightly paler than reality. Your display's calibration and brightness, and the room you're in, matter too.</p>
+    </div></details>
+  </div>
+
+  <div class="faq-group"><h3>The chart</h3>
+    <details><summary>What do the chart's units mean?</summary><div>
+      <p>Spectral radiance is how much power leaves the surface, per square meter, per steradian (a unit of viewing direction), per nanometer of wavelength: W·m⁻²·sr⁻¹·nm⁻¹. v1 used "per meter of wavelength", which gives the same curve but numbers a billion times larger.</p>
+    </div></details>
+    <details><summary>Why does the peak move when I change the temperature?</summary><div>
+      <p>That's <a href="https://en.wikipedia.org/wiki/Wien%27s_displacement_law">Wien's displacement law</a>: the peak wavelength is inversely proportional to temperature.</p>
+      <math display="block"><msub><mi>λ</mi><mi>max</mi></msub><mo>=</mo><mfrac><mi>b</mi><mi>T</mi></mfrac><mo>,</mo><mspace width="1em"/><mi>b</mi><mo>≈</mo><mn>2.898</mn><mo>×</mo><msup><mn>10</mn><mn>−3</mn></msup><mtext> m·K</mtext></math>
+      <p>The Sun peaks near 502 nm. A 3,000 K red dwarf peaks near 966 nm, in the infrared, which is why it puts out so little visible light.</p>
+    </div></details>
+    <details><summary>Why is the horizontal axis logarithmic?</summary><div>
+      <p>Across the temperatures on this page the peak moves from about 30 nm to 30 µm, a factor of a thousand. A log axis keeps both the peak and the visible band on screen at every temperature. Switch the vertical axis to Log to see how faint the visible part is for cool objects.</p>
+    </div></details>
+  </div>
+
+  <div class="faq-group"><h3>The math</h3>
+    <details><summary>What is Planck's law?</summary><div>
+      <math display="block"><msub><mi>B</mi><mi>λ</mi></msub><mo stretchy="false">(</mo><mi>T</mi><mo stretchy="false">)</mo><mo>=</mo><mfrac><mrow><mn>2</mn><mi>h</mi><msup><mi>c</mi><mn>2</mn></msup></mrow><msup><mi>λ</mi><mn>5</mn></msup></mfrac><mfrac><mn>1</mn><mrow><msup><mi>e</mi><mrow><mi>h</mi><mi>c</mi><mo>/</mo><mo stretchy="false">(</mo><mi>λ</mi><msub><mi>k</mi><mi>B</mi></msub><mi>T</mi><mo stretchy="false">)</mo></mrow></msup><mo>−</mo><mn>1</mn></mrow></mfrac></math>
+      <p>h is Planck's constant, c is the speed of light, k<sub>B</sub> is Boltzmann's constant, λ is the wavelength in meters and T is the temperature in kelvin. Since 2019 all three constants are exact by definition:</p>
+      <p>h = 6.62607015 × 10⁻³⁴ J·s · c = 299,792,458 m/s · k<sub>B</sub> = 1.380649 × 10⁻²³ J/K</p>
+    </div></details>
+    <details><summary>How is the CIE 1931 color calculated?</summary><div>
+      <p>Weight the spectrum by each of the three color matching functions and add it up over the visible range:</p>
+      <math display="block"><mi>X</mi><mo>=</mo><mo>∫</mo><msub><mi>B</mi><mi>λ</mi></msub><mo stretchy="false">(</mo><mi>T</mi><mo stretchy="false">)</mo><mspace width="0.1em"/><mover><mi>x</mi><mo>‾</mo></mover><mo stretchy="false">(</mo><mi>λ</mi><mo stretchy="false">)</mo><mspace width="0.2em"/><mi>d</mi><mi>λ</mi></math>
+      <p>and the same for Y with ȳ and Z with z̄. Y is the brightness (times 683 lm/W it's luminance in cd/m²). X and Y divided by X+Y+Z give the chromaticity (x, y): the color with brightness removed. A standard 3×3 matrix turns XYZ into linear sRGB, colors outside the screen's gamut are pulled in by adding white, and the sRGB gamma curve is applied last.</p>
+    </div></details>
+    <details><summary>How do I know the math is right?</summary><div>
+      <p>The code is checked by automated tests against published reference values. The blackbody colors match the published Planckian locus to four decimal places at 1,000 K, 2,856 K (CIE Illuminant A), 5,000 K and 10,000 K. Integrating Planck's law over every wavelength reproduces the Stefan–Boltzmann law. The Real stars table is checked row by row against the paper's own hex codes.</p>
+    </div></details>
+    <details><summary>How hot is too hot, or too cold, for this to work?</summary><div>
+      <p>Planck's law holds at any temperature. The limits are practical: below about 600 K there's no visible light to speak of, and above about 50,000 K the color stops changing. The slider covers 100 K to 100,000 K, and you can type anything up to 1,000,000 K.</p>
+    </div></details>
+    <details><summary>I think something's wrong. Where do I report it?</summary><div>
+      <p>Please <a href="https://github.com/gendelbendel/space-charts/issues">open an issue on GitHub</a>.</p>
+    </div></details>
+  </div>
+
+  <div class="faq-group"><h3>About</h3>
+    <details><summary>Who made this?</summary><div>
+      <p>David, a software engineer who dabbles in astronomy. The source is on <a href="https://github.com/gendelbendel/space-charts">GitHub</a>, and <a href="/v1/">the original version</a> is still up.</p>
+    </div></details>
+    <details><summary>Why is it so fast?</summary><div>
+      <p>The page has no framework, no web fonts and no chart library. Everything ships in a single file, the chart is drawn directly, the equations are native browser math, and the numbers are computed on your device in well under a millisecond.</p>
+    </div></details>
+  </div>
+</section>

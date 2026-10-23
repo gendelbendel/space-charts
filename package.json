@@ -25,8 +25,11 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "react-scripts build",
+    "build": "npm run build:v1 && npm run build:v2",
+    "build:v1": "PUBLIC_URL=/v1 BUILD_PATH=build/v1 react-scripts build",
+    "build:v2": "node v2/build.mjs",
     "test": "react-scripts test",
+    "test:v2": "node --test \"v2/test/*.test.js\"",
     "eject": "react-scripts eject",
     "init": "tsc --init"
   },
@@ -49,7 +52,8 @@
     ]
   },
   "devDependencies": {
-    "@types/react-katex": "^3.0.0"
+    "@types/react-katex": "^3.0.0",
+    "esbuild": "0.28.2"
   },
   "engines": {
     "node": "24.x"

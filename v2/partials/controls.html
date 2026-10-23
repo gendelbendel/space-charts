@@ -1,0 +1,32 @@
+<div class="control-panel">
+  <div class="slider-grid">
+    <input type="range" id="slider" min="0" max="1000" step="1" aria-label="Temperature">
+    <input class="num" type="number" id="num" min="1" max="1000000" step="1" inputmode="numeric" aria-label="Temperature in kelvin">
+    <div class="ticks" id="ticks">
+      <div class="tick-row classes" id="classTicks" aria-hidden="true"></div>
+      <div class="tick-row marks" id="markTicks"></div>
+    </div>
+  </div>
+  <div class="controls">
+    <div class="control">
+      <span class="lbl" id="modelLbl">Color model</span>
+      <div class="seg" role="group" aria-labelledby="modelLbl" data-key="model">
+        <button type="button" data-v="simple">Simple</button>
+        <button type="button" data-v="cie">CIE 1931</button>
+        <button type="button" data-v="star">Real stars</button>
+      </div>
+    </div>
+    <div class="control">
+      <span class="lbl" id="lightLbl">Brightness</span>
+      <div class="seg" role="group" aria-labelledby="lightLbl" data-key="light">
+        <button type="button" data-v="hue">Hue only</button>
+        <button type="button" data-v="eye">Your eye</button>
+        <button type="button" data-v="sun">vs. Sun</button>
+      </div>
+    </div>
+    <div class="control">
+      <span class="lbl">Compare</span>
+      <label class="check"><input type="checkbox" id="compare"> Show all three</label>
+    </div>
+  </div>
+</div>
