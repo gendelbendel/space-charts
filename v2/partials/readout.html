@@ -1,8 +1,9 @@
 <div class="readout-block">
   <div class="readout">
     <div class="temp-big" id="tempBig" aria-live="polite">5,772<span>K</span></div>
-    <div class="class-chip" id="classChip">Class G</div>
+    <button type="button" class="class-chip" id="classChip" aria-expanded="false" aria-controls="classInfo">Class G</button>
   </div>
   <p class="verdict" id="verdict"></p>
   <p class="stage-note" id="stageNote"></p>
 </div>
+<div class="class-info" id="classInfo" role="dialog" aria-label="Spectral class" hidden></div>

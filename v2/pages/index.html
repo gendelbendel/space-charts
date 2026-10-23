@@ -15,7 +15,7 @@
 */
 .core { display: grid; gap: 12px; }
 .b-left { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
-.b-top { display: grid; gap: 14px; align-items: center; }
+.b-top { position: relative; display: grid; gap: 14px; align-items: center; }
 .tabs { display: none; }
 .panel { display: flex; flex-direction: column; min-width: 0; }
 .panel > .card { flex: 1; display: flex; flex-direction: column; min-height: 0; }
@@ -162,27 +162,28 @@
   .panel .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
-/* desktop: controls left; chart and color map side by side, the same height; numbers below */
+/* desktop: controls left; chart and color map side by side, the same height; stats beside the
+   controls; the computation pipelines span the full width below, so nothing leaves an empty column */
 @media (min-width: 900px) and (min-height: 521px) {
-  :root { --viz-h: clamp(190px, 32vh, 360px); }
+  /* The star and the chart scale with the same viewport height, offset by the difference in the
+     fixed-height content around them, so the left column and the chart column end together. */
+  :root { --stage-h: clamp(150px, 20vh, 240px); --viz-h: clamp(190px, calc(var(--stage-h) + 135px), 400px); }
   .wrap { max-width: 1440px; }
-  .core { grid-template-columns: 300px minmax(0, 1fr); grid-template-areas: "head head" "left viz"; gap: 14px 18px; align-items: start; padding-bottom: 4px; }
+  .core { grid-template-columns: 300px minmax(0, 1.25fr) minmax(250px, 1fr); grid-template-rows: auto auto 1fr auto; grid-template-areas: "head head head" "left spectrum map" "left stats stats" "how how how"; gap: 14px 18px; align-items: start; padding-bottom: 4px; }
   .core > header.top { grid-area: head; }
   .b-left { grid-area: left; }
   .b-top { grid-template-columns: minmax(0, 1fr); }
-  .b-top .stage { height: clamp(160px, 26vh, 260px); }
+  .b-top .stage { height: var(--stage-h); }
   .temp-big { font-size: clamp(44px, 5.5vh, 60px); }
   .verdict { min-height: calc(3 * 1.45em); }
-  .viz { grid-area: viz; display: grid; gap: 14px; grid-template-columns: minmax(0, 1.25fr) minmax(250px, 1fr); grid-template-areas: "spectrum map" "stats stats" "how how"; align-items: start; }
-  .panel[data-view-panel=numbers] { display: contents; }
+  .viz, .panel[data-view-panel=numbers] { display: contents; }
   .viz .stats { grid-area: stats; grid-template-columns: repeat(4, minmax(0, 1fr)); }
   .viz .how { grid-area: how; }
   .chart-box { flex: none; height: var(--viz-h); }
   .colormap svg.cie { flex: none; width: 100%; height: calc(var(--viz-h) + 64px); }
 }
 @media (min-width: 1200px) and (min-height: 521px) {
-  .core { grid-template-columns: 330px minmax(0, 1fr); }
-  .viz { grid-template-areas: "spectrum map" "stats map" "how how"; }
+  .core { grid-template-columns: 330px minmax(0, 1.25fr) minmax(250px, 1fr); grid-template-areas: "head head head" "left spectrum map" "left stats map" "how how how"; }
   .colormap svg.cie { height: calc(var(--viz-h) + 80px); }
 }
 </style>

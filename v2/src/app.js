@@ -4,7 +4,7 @@ import {
   displayColor, simpleHue, cieHue, starHue, encodeSrgb, toHex, linearSrgbToXy, parseTemperature,
 } from "./physics.js";
 import { CIE1931_2DEG, CMF_START_NM, CMF_STEP_NM, CMF_ROWS } from "./data/cie1931.js";
-import { OBJECTS, SPECTRAL_CLASSES, SLIDER_MARKS } from "./data/objects.js";
+import { OBJECTS, SPECTRAL_CLASSES, CLASS_INFO, SLIDER_MARKS } from "./data/objects.js";
 
 const MODEL_KEYS = Object.keys(MODELS);
 const LIGHT_KEYS = ["hue", "eye", "sun"];
@@ -42,6 +42,17 @@ function formatSci(v, digits = 2) {
 const formatTriple = values => values.map(v => v.toFixed(3)).join(", ");
 const swatch = hex => `<span class="swatch" style="background:${hex}"></span>${hex}`;
 const spectralClass = T => SPECTRAL_CLASSES.find(([, lo, hi]) => T >= lo && T < hi)[0];
+function classRange(letter) {
+  const [, lo, hi] = SPECTRAL_CLASSES.find(([l]) => l === letter);
+  if (lo === 0) return `below ${formatK(hi)} K`;
+  if (hi === Infinity) return `above ${formatK(lo)} K`;
+  return `${formatK(lo)}–${formatK(hi)} K`;
+}
+// A representative temperature for jumping to a class: the middle of its range on the log slider.
+function classMidpoint(letter) {
+  const [, lo, hi] = SPECTRAL_CLASSES.find(([l]) => l === letter);
+  return Math.round(Math.sqrt(Math.max(lo, T_MIN) * Math.min(hi, T_MAX)) / 10) * 10;
+}
 
 const tToSlider = T => (1000 * Math.log(Math.min(Math.max(T, T_MIN), T_MAX) / T_MIN)) / Math.log(T_MAX / T_MIN);
 const sliderToT = s => Math.round(T_MIN * (T_MAX / T_MIN) ** (s / 1000));
@@ -95,8 +106,12 @@ function buildSliderMarks() {
     classRow.appendChild(line);
   }
   for (const [name, lo, hi] of SPECTRAL_CLASSES) {
-    const label = document.createElement("span");
+    const label = document.createElement("button");
+    label.type = "button";
     label.textContent = name;
+    label.title = `Class ${name}: ${CLASS_INFO[name].name.toLowerCase()}, ${classRange(name)}`;
+    label.setAttribute("aria-label", `Jump to class ${name}, ${CLASS_INFO[name].name.toLowerCase()}`);
+    label.addEventListener("click", () => setTemperature(classMidpoint(name)));
     label.dataset.cls = name;
     label.dataset.f = sliderFraction(Math.sqrt(Math.max(lo, T_MIN) * Math.min(hi, T_MAX)));
     label.dataset.width = sliderFraction(Math.min(hi, T_MAX)) - sliderFraction(Math.max(lo, T_MIN));
@@ -135,7 +150,7 @@ function placeWithoutOverlap(row, labels) {
 
 function layoutSliderMarks() {
   const current = spectralClass(state.T);
-  const classLabels = [...$("classTicks").querySelectorAll("span")];
+  const classLabels = [...$("classTicks").querySelectorAll("button")];
   for (const label of classLabels) label.classList.toggle("current", label.dataset.cls === current);
   classLabels.sort((a, b) => (b.dataset.cls === current) - (a.dataset.cls === current) || b.dataset.width - a.dataset.width);
   placeWithoutOverlap($("classTicks"), classLabels);
@@ -150,6 +165,55 @@ function paintTrack() {
   const stops = [];
   for (let s = 0; s <= 1000; s += 25) stops.push(`${displayColor(sliderToT(s), state.model, state.light).hex} ${alongSlider(s / 1000)}`);
   slider.style.setProperty("--track", `linear-gradient(90deg, ${stops.join(",")})`);
+}
+
+// ---------- spectral class info ----------
+
+const classChip = $("classChip"), classInfo = $("classInfo");
+
+function renderClassInfo() {
+  const letter = spectralClass(state.T);
+  classChip.textContent = `Class ${letter}`;
+  if (classInfo.hidden) return;
+  const info = CLASS_INFO[letter];
+  classInfo.innerHTML = `
+    <div class="ci-head"><strong>Class ${letter} · ${info.name}</strong><button type="button" class="ci-close" aria-label="Close">×</button></div>
+    <p class="ci-range">${classRange(letter)}</p>
+    <p>${info.about}</p>
+    <p class="ci-examples">Examples: ${info.examples}</p>
+    <p class="ci-foot">Classes describe stars and brown dwarfs. <a href="#faq-classes" data-open-faq>All classes</a></p>`;
+}
+
+function setClassInfoOpen(open) {
+  classInfo.hidden = !open;
+  classChip.setAttribute("aria-expanded", String(open));
+  renderClassInfo();
+}
+
+classChip.addEventListener("click", () => setClassInfoOpen(classInfo.hidden));
+classInfo.addEventListener("click", e => {
+  if (e.target.closest(".ci-close")) setClassInfoOpen(false);
+  const link = e.target.closest("[data-open-faq]");
+  if (link) {
+    setClassInfoOpen(false);
+    $("faq-classes").open = true;
+  }
+});
+document.addEventListener("click", e => {
+  if (!classInfo.hidden && !classInfo.contains(e.target) && e.target !== classChip) setClassInfoOpen(false);
+});
+document.addEventListener("keydown", e => {
+  if (e.key === "Escape" && !classInfo.hidden) {
+    setClassInfoOpen(false);
+    classChip.focus();
+  }
+});
+
+function buildClassList() {
+  $("classList").innerHTML = SPECTRAL_CLASSES.map(([letter]) => {
+    const info = CLASS_INFO[letter];
+    return `<div><dt><span class="cl-letter">${letter}</span>${info.name} <span class="cl-range">${classRange(letter)}</span></dt><dd>${info.about} Examples: ${info.examples}.</dd></div>`;
+  }).join("");
 }
 
 // ---------- star ----------
@@ -520,7 +584,7 @@ function render() {
   slider.setAttribute("aria-valuetext", `${formatK(T)} kelvin`);
   if (document.activeElement !== num) num.value = T;
   $("tempBig").innerHTML = `${formatK(T)}<span>K</span>`;
-  $("classChip").textContent = `Class ${spectralClass(T)}`;
+  renderClassInfo();
   $("verdict").innerHTML = visibilityVerdict(Lv, peakNm);
 
   document.querySelectorAll(".seg[data-key]").forEach(group => {
@@ -547,5 +611,6 @@ function render() {
 }
 
 buildSliderMarks();
+buildClassList();
 buildCieBase();
 render();

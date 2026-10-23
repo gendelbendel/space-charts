@@ -42,7 +42,15 @@ header.top { display: flex; align-items: center; justify-content: space-between;
 .readout { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
 .temp-big { font: 600 clamp(40px, 7vw, 72px)/1 var(--sans); letter-spacing: -0.03em; font-variant-numeric: tabular-nums; }
 .temp-big span { font-size: .45em; color: var(--muted); font-weight: 500; margin-left: 4px; }
-.class-chip { font: 600 12px/1 var(--mono); padding: 6px 9px; border-radius: 999px; border: 1px solid var(--line-strong); color: var(--muted); }
+.class-chip { font: 600 12px/1 var(--mono); padding: 6px 9px; border-radius: 999px; border: 1px solid var(--line-strong); color: var(--muted); background: none; cursor: pointer; }
+.class-chip::after { content: " ⓘ"; font-weight: 400; }
+.class-chip:hover, .class-chip[aria-expanded=true] { border-color: var(--accent); color: var(--text); }
+.class-info { position: absolute; z-index: 5; left: 0; right: 0; top: calc(100% + 6px); max-width: 420px; background: var(--surface-2); border: 1px solid var(--line-strong); border-radius: 12px; padding: 12px 14px; box-shadow: 0 12px 32px rgba(0, 0, 0, .55); font-size: 14px; line-height: 1.45; color: #c9cddb; }
+.class-info p { margin: 4px 0 0; }
+.ci-head { display: flex; justify-content: space-between; align-items: start; gap: 8px; color: var(--text); }
+.ci-close { background: none; border: 0; color: var(--muted); font-size: 22px; line-height: .8; cursor: pointer; padding: 0 2px; }
+.ci-range { font: 13px var(--mono); color: var(--accent); }
+.ci-examples, .ci-foot { font-size: 13px; color: var(--muted); }
 .verdict { margin: 8px 0 0; color: var(--muted); min-height: calc(2 * 1.45em); line-height: 1.45; }
 .verdict strong { color: var(--text); font-weight: 600; }
 .stage-note { margin: 4px 0 0; font-size: 13px; line-height: 1.4; color: var(--accent); }
@@ -59,8 +67,9 @@ input[type=range]::-moz-range-thumb { box-sizing: border-box; width: 26px; heigh
 .tick-row { position: relative; height: 16px; }
 .tick-row > * { position: absolute; top: 0; white-space: nowrap; }
 .tick-row.classes i { top: 0; width: 1px; height: 5px; background: var(--line-strong); }
-.tick-row.classes span { top: 4px; }
-.tick-row.classes span.current { color: var(--accent); font-weight: 700; }
+.tick-row.classes button { top: 4px; background: none; border: 0; padding: 0 2px; margin: -4px 0; line-height: 19px; color: var(--muted); font: inherit; cursor: pointer; }
+.tick-row.classes button:hover { color: var(--text); }
+.tick-row.classes button.current { color: var(--accent); font-weight: 700; }
 .tick-row.marks button { top: 2px; background: none; border: 0; padding: 0; color: var(--muted); font: inherit; cursor: pointer; }
 .tick-row.marks button:hover { color: var(--text); text-decoration: underline; }
 .controls { display: grid; gap: 10px; margin-top: 14px; }
@@ -127,6 +136,14 @@ svg.cie .grid { stroke: rgba(255, 255, 255, .05); }
 .obj-name { font-weight: 600; font-size: 15px; }
 .obj-meta { font: 12.5px var(--mono); color: var(--muted); }
 .obj-note { font-size: 13px; color: var(--muted); margin-top: 4px; }
+
+/* spectral class list (FAQ) */
+.class-list { margin: 12px 0; display: grid; gap: 10px; }
+.class-list > div { border-left: 2px solid var(--line-strong); padding-left: 10px; }
+.class-list dt { color: var(--text); font-weight: 600; }
+.cl-letter { font-family: var(--mono); color: var(--accent); margin-right: 8px; }
+.cl-range { font: 400 12.5px var(--mono); color: var(--muted); margin-left: 6px; white-space: nowrap; }
+.class-list dd { margin: 2px 0 0; font-size: 14px; }
 
 /* FAQ */
 .faq-tools { display: flex; gap: 12px; align-items: center; justify-content: space-between; flex-wrap: wrap; margin-bottom: 4px; }

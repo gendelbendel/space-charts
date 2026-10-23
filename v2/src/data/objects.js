@@ -26,6 +26,21 @@ export const SPECTRAL_CLASSES = [
   ["G", 5200, 6000], ["F", 6000, 7500], ["A", 7500, 10000], ["B", 10000, 30000], ["O", 30000, Infinity],
 ];
 
+// What each class is, for the class chip, the slider letters and the FAQ.
+// Temperature ranges are approximate and apply to dwarf (main-sequence) stars.
+export const CLASS_INFO = {
+  O: { name: "Blue stars", about: "The hottest, most massive and rarest stars. They burn out in a few million years.", examples: "Zeta Puppis, the stars of Orion's Belt (Alnitak, Mintaka)" },
+  B: { name: "Blue-white stars", about: "Very luminous and short-lived. Many of the bright stars in winter constellations.", examples: "Rigel, Spica" },
+  A: { name: "White stars", about: "Their spectra have the strongest hydrogen lines of any class.", examples: "Sirius A, Vega, Altair, Deneb" },
+  F: { name: "Yellow-white stars", about: "A little hotter and bigger than the Sun.", examples: "Procyon A, Polaris" },
+  G: { name: "Sun-like stars", about: "Our Sun is a G2 star. Close to white seen from space.", examples: "The Sun, Alpha Centauri A, Capella" },
+  K: { name: "Orange stars", about: "Cooler and longer-lived than the Sun. Many bright giants are K stars.", examples: "Arcturus, Pollux, Alpha Centauri B" },
+  M: { name: "Red dwarfs and red giants", about: "The most common stars: about three in four of our stellar neighbors are M dwarfs.", examples: "Proxima Centauri, Betelgeuse, Antares" },
+  L: { name: "The smallest stars and brown dwarfs", about: "Dusty atmospheres. They glow a dull deep red and are brightest in the infrared.", examples: "Luhman 16 A" },
+  T: { name: "Brown dwarfs", about: "Not massive enough to fuse hydrogen. Methane in their atmospheres.", examples: "Gliese 229 B" },
+  Y: { name: "The coldest brown dwarfs", about: "Some are about as warm as a summer day. Found only by infrared telescopes.", examples: "WISE 0855−0714" },
+};
+
 // Reference marks under the slider, in priority order: when space is tight,
 // later ones are hidden rather than overlapping earlier ones.
 export const SLIDER_MARKS = [["Sun", 5772], ["You", 310], ["Draper", 798], ["Rigel", 12100], ["Betelgeuse", 3600], ["Zeta Puppis", 40000]];
