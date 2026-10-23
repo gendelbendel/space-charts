@@ -39,8 +39,9 @@ header.top { display: flex; align-items: center; justify-content: space-between;
 .stage-hex { position: absolute; bottom: 10px; left: 0; right: 0; text-align: center; font: 12px var(--mono); color: var(--muted); }
 
 /* readout */
-.readout { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
-.temp-big { font: 600 clamp(40px, 7vw, 72px)/1 var(--sans); letter-spacing: -0.03em; font-variant-numeric: tabular-nums; }
+.readout { display: flex; align-items: baseline; gap: 10px; flex-wrap: nowrap; min-width: 0; }
+.readout .class-chip { flex: none; }
+.temp-big { font: 600 clamp(40px, 7vw, 72px)/1 var(--sans); letter-spacing: -0.03em; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .temp-big span { font-size: .45em; color: var(--muted); font-weight: 500; margin-left: 4px; }
 .class-chip { font: 600 12px/1 var(--mono); padding: 6px 9px; border-radius: 999px; border: 1px solid var(--line-strong); color: var(--muted); background: none; cursor: pointer; }
 .class-chip::after { content: " ⓘ"; font-weight: 400; }
@@ -53,9 +54,8 @@ header.top { display: flex; align-items: center; justify-content: space-between;
 .ci-examples, .ci-foot { font-size: 13px; color: var(--muted); }
 .verdict { margin: 8px 0 0; color: var(--muted); min-height: calc(2 * 1.45em); line-height: 1.45; }
 .verdict strong { color: var(--text); font-weight: 600; }
-.stage-note { margin: 4px 0 0; font-size: 13px; line-height: 1.4; color: var(--accent); }
-.stage-note:empty { display: none; }
-.note-slot .stage-note { display: block; min-height: 1.4em; }
+.stage-note { margin: 4px 0 0; font-size: 13px; line-height: 1.4; min-height: 1.4em; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.stage-note.warn { color: var(--accent); }
 
 /* controls */
 .slider-grid { display: grid; grid-template-columns: minmax(0, 1fr) auto; column-gap: 12px; align-items: center; }
@@ -91,7 +91,8 @@ input[type=range]::-moz-range-thumb { box-sizing: border-box; width: 26px; heigh
 .stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin: 0; }
 .stat { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; min-width: 0; }
 .stat dt { font-size: 12px; color: var(--muted); }
-.stat dd { margin: 2px 0 0; font: 15px var(--mono); overflow-wrap: anywhere; }
+/* Two lines reserved: some values wrap at some temperatures, and the row shouldn't grow mid-slide. */
+.stat dd { margin: 2px 0 0; font: 15px/1.35 var(--mono); overflow-wrap: anywhere; min-height: calc(2 * 1.35em); }
 
 /* cards */
 .card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 18px; }
@@ -105,7 +106,10 @@ input[type=range]::-moz-range-thumb { box-sizing: border-box; width: 26px; heigh
 .chart-box { position: relative; height: 340px; }
 .chart-box canvas { width: 100%; height: 100%; display: block; touch-action: pan-y; }
 .tip { position: absolute; pointer-events: none; background: #000c; border: 1px solid var(--line-strong); border-radius: 8px; padding: 6px 8px; font: 12px var(--mono); white-space: nowrap; }
-.legend { display: flex; gap: 6px 14px; flex-wrap: wrap; font-size: 12px; color: var(--muted); margin-top: 8px; }
+/* Always one line, so changing models never changes the card's height. */
+.legend { display: flex; gap: 14px; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; font-size: 12px; line-height: 1.5; color: var(--muted); margin-top: 8px; }
+.legend::-webkit-scrollbar { display: none; }
+.legend span { white-space: nowrap; }
 .legend i { display: inline-block; width: 14px; height: 3px; vertical-align: middle; margin-right: 6px; border-radius: 2px; }
 
 /* how the color was computed */
@@ -124,7 +128,8 @@ ol.pipe .v { font: 12.5px/1.5 var(--mono); color: var(--accent); overflow-wrap: 
 svg.cie { width: 100%; height: auto; display: block; max-height: 100%; }
 svg.cie .lbl { fill: #8b91a5; font-size: 10px; }
 svg.cie .grid { stroke: rgba(255, 255, 255, .05); }
-.cie-readout { font: 12px var(--mono); color: var(--muted); margin: 6px 0 0; }
+/* Two lines reserved: the real-star line comes and goes with the model and the temperature. */
+.cie-readout { font: 12px/1.45 var(--mono); color: var(--muted); margin: 6px 0 0; min-height: calc(2 * 1.45em); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
 /* objects */
 .objects { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 8px; }

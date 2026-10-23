@@ -46,7 +46,12 @@
   .b-top .stage.comparing .disc { width: auto; height: 100%; }
   .b-top .stage.comparing figcaption { font-size: 10px; }
   .b-top:has(.stage.comparing) .readout-block { grid-column: 1 / -1; }
+  /* Fixed row height, with smaller type for long numbers, so the row never changes size while sliding. */
+  .readout { height: 40px; }
   .temp-big { font-size: 38px; }
+  .temp-big[data-len="6"] { font-size: 35px; }
+  .temp-big[data-len="7"] { font-size: 32px; }
+  .temp-big[data-len="9"] { font-size: 26px; }
   .class-chip { font-size: 11px; padding: 5px 8px; }
   .verdict { font-size: 13.5px; margin-top: 6px; min-height: calc(3 * 1.45em); }
   .stage-note { font-size: 12px; }
@@ -68,14 +73,22 @@
   .after-core { margin-top: 16px; }
 }
 
+/* the narrowest phones: smaller star and type so the temperature row fits */
+@media (max-width: 359px) {
+  .b-top { grid-template-columns: 76px minmax(0, 1fr); }
+  .temp-big { font-size: 30px; }
+  .temp-big[data-len="6"] { font-size: 28px; }
+  .temp-big[data-len="7"] { font-size: 25px; }
+  .temp-big[data-len="9"] { font-size: 20px; }
+}
+
 /* phone: one visual at a time */
 @media (max-width: 599px) {
   /* Sized by the space left over, not by its content, so the container query below can ask how much room there is. */
   .viz { container: viz / size; display: flex; flex-direction: column; gap: 8px; }
   .tabs .both { display: none; }
   .panel .spectrum .sub .long { display: none; }
-  .legend { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; font-size: 11px; margin-top: 4px; }
-  .legend span { white-space: nowrap; }
+  .legend { font-size: 11px; margin-top: 4px; }
   .tabs { display: flex; }
   .panel, .panel[data-view-panel=numbers] { display: none; }
   .panel.active { display: flex; flex: 1; min-height: 0; overflow: auto; }
@@ -124,7 +137,7 @@
 @media (max-height: 520px) and (min-width: 600px) {
   .wrap { padding: 0 max(12px, env(safe-area-inset-left)) 0 max(12px, env(safe-area-inset-right)); max-width: none; }
   header.top { padding: 8px 0 0; }
-  .core { grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr); grid-template-areas: "head head" "left viz"; gap: 8px 14px; align-items: start; }
+  .core { grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); grid-template-areas: "head head" "left viz"; gap: 8px 14px; align-items: start; }
   .core > header.top { grid-area: head; }
   .b-left { grid-area: left; gap: 10px; }
   .b-top { grid-template-columns: 72px minmax(0, 1fr); gap: 12px; }
@@ -136,8 +149,12 @@
   .b-top .stage.comparing .disc { width: auto; height: 100%; }
   .b-top .stage.comparing figcaption { display: none; }
   .b-top:has(.stage.comparing) .readout-block { grid-column: 1 / -1; }
-  .temp-big { font-size: 32px; }
-  .verdict { font-size: 13px; margin-top: 4px; }
+  .readout { height: 32px; }
+  .temp-big { font-size: 28px; }
+  .temp-big[data-len="6"] { font-size: 26px; }
+  .temp-big[data-len="7"] { font-size: 24px; }
+  .temp-big[data-len="9"] { font-size: 20px; }
+  .verdict { font-size: 13px; margin-top: 4px; min-height: calc(3 * 1.45em); }
   .stage-note { font-size: 12px; }
   .b-dock .controls { margin-top: 4px; gap: 3px 10px; grid-template-columns: 1fr auto; align-items: center; }
   .b-dock .control { display: contents; }
@@ -167,20 +184,26 @@
 @media (min-width: 900px) and (min-height: 521px) {
   /* The star and the chart scale with the same viewport height, offset by the difference in the
      fixed-height content around them, so the left column and the chart column end together. */
-  :root { --stage-h: clamp(150px, 20vh, 240px); --viz-h: clamp(190px, calc(var(--stage-h) + 135px), 400px); }
+  :root { --stage-h: clamp(150px, 20vh, 240px); --viz-h: clamp(190px, calc(var(--stage-h) + 165px), 400px); }
   .wrap { max-width: 1440px; }
   .core { grid-template-columns: 300px minmax(0, 1.25fr) minmax(250px, 1fr); grid-template-rows: auto auto 1fr auto; grid-template-areas: "head head head" "left spectrum map" "left stats stats" "how how how"; gap: 14px 18px; align-items: start; padding-bottom: 4px; }
   .core > header.top { grid-area: head; }
   .b-left { grid-area: left; }
   .b-top { grid-template-columns: minmax(0, 1fr); }
   .b-top .stage { height: var(--stage-h); }
+  .readout { height: clamp(44px, 5.5vh, 60px); }
   .temp-big { font-size: clamp(44px, 5.5vh, 60px); }
+  .temp-big[data-len="9"] { font-size: clamp(34px, 4.2vh, 46px); }
   .verdict { min-height: calc(3 * 1.45em); }
   .viz, .panel[data-view-panel=numbers] { display: contents; }
   .viz .stats { grid-area: stats; grid-template-columns: repeat(4, minmax(0, 1fr)); }
   .viz .how { grid-area: how; }
   .chart-box { flex: none; height: var(--viz-h); }
   .colormap svg.cie { flex: none; width: 100%; height: calc(var(--viz-h) + 64px); }
+}
+/* 900–1199px puts the stats in a full-width row, so the chart gets less of the height budget. */
+@media (min-width: 900px) and (max-width: 1199px) and (min-height: 521px) {
+  :root { --viz-h: clamp(170px, calc(var(--stage-h) + 95px), 400px); }
 }
 @media (min-width: 1200px) and (min-height: 521px) {
   .core { grid-template-columns: 330px minmax(0, 1.25fr) minmax(250px, 1fr); grid-template-areas: "head head head" "left spectrum map" "left stats map" "how how how"; }

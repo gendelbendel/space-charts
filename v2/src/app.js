@@ -229,8 +229,6 @@ const discs = MODEL_KEYS.map(model => {
 function renderStage(Lv) {
   const models = shownModels();
   $("stage").classList.toggle("comparing", state.compare);
-  // Modes that can show a note keep a line reserved for it, so the layout doesn't jump while sliding.
-  document.body.classList.toggle("note-slot", state.light !== "eye" || state.model === "star");
   const hexes = [];
   for (const { model, figure, disc, caption } of discs) {
     figure.hidden = !models.includes(model);
@@ -247,15 +245,19 @@ function renderStage(Lv) {
   }
   $("labelHex").textContent = hexes.join(" · ");
 
-  let note = "";
+  // Every mode has a one-line note, so the line is always there and switching modes never shifts the layout.
+  let note = "As seen by a dark-adapted eye.", warn = false;
   if (state.model === "star" && !state.compare && !starHue(state.T).available) {
-    note = "No real-star data here; showing CIE 1931.";
-  } else if (state.light === "hue" && Lv < VISION.fullColor) {
-    note = "Hue only: in reality this would look darker or black.";
+    note = "No star data here; using CIE 1931.";
+    warn = true;
+  } else if (state.light === "hue") {
+    warn = Lv < VISION.fullColor;
+    note = warn ? "Tint only; it would look darker." : "Tint at full brightness.";
   } else if (state.light === "sun") {
-    note = "Brightness relative to the Sun's surface.";
+    note = "Brightness relative to the Sun.";
   }
   $("stageNote").textContent = note;
+  $("stageNote").classList.toggle("warn", warn);
 }
 
 // ---------- how the color was computed ----------
@@ -438,9 +440,9 @@ function drawChart() {
   ctx.fillText(`peak ${formatWavelength(peak)}`, px + (flip ? -6 : 6), pad.t + 12);
 
   const legend = [["#f3f4f8", "Planck curve"], ["linear-gradient(90deg,#8040ff,#00f,#0ff,#0f0,#ff0,#f00)", "Visible light"]];
-  if (models.includes("simple")) legend.push(["rgba(255,255,255,.35)", "Simple's R, G, B bands (shaded)"]);
-  if (models.includes("cie")) legend.push([CMF_COLORS[0], "x̄"], [CMF_COLORS[1], "ȳ (eye's brightness response)"], [CMF_COLORS[2], "z̄"]);
-  if (models.includes("star")) legend.push(["transparent", "Real stars: colors come from model star spectra, not this curve"]);
+  if (models.includes("simple")) legend.push(["rgba(255,255,255,.35)", "Simple's bands"]);
+  if (models.includes("cie")) legend.push([`linear-gradient(90deg,${CMF_COLORS[0]} 33%,${CMF_COLORS[1]} 33% 66%,${CMF_COLORS[2]} 66%)`, "x̄ ȳ z̄ eye response"]);
+  if (models.includes("star")) legend.push(["transparent", "Real stars use model spectra"]);
   $("legend").innerHTML = legend.map(([c, t]) => `<span><i style="background:${c}"></i>${t}</span>`).join("");
 }
 
@@ -504,14 +506,14 @@ function drawCie() {
   const star = starHue(state.T);
   const showStar = star.available && shownModels().includes("star");
   let marks = `<circle cx="${sx(h.x)}" cy="${sy(h.y)}" r="7" fill="${displayColor(state.T, "cie", "hue").hex}" stroke="#fff" stroke-width="2"/>`;
-  let readout = `blackbody x ${h.x.toFixed(3)} y ${h.y.toFixed(3)}`;
+  let readout = `Blackbody: x ${h.x.toFixed(3)}, y ${h.y.toFixed(3)}`;
   if (showStar) {
     const s = linearSrgbToXy(star.linear);
     marks += `<circle cx="${sx(s.x)}" cy="${sy(s.y)}" r="9" fill="none" stroke="#9cc4ff" stroke-width="2" stroke-dasharray="3 2"/>`;
-    readout += ` · real star x ${s.x.toFixed(3)} y ${s.y.toFixed(3)}`;
+    readout += `<br>Star (ring): x ${s.x.toFixed(3)}, y ${s.y.toFixed(3)}`;
   }
   $("cie").innerHTML = `${cieBase}${marks}`;
-  $("cieReadout").textContent = readout;
+  $("cieReadout").innerHTML = readout;
 }
 
 // ---------- objects ----------
@@ -584,6 +586,8 @@ function render() {
   slider.setAttribute("aria-valuetext", `${formatK(T)} kelvin`);
   if (document.activeElement !== num) num.value = T;
   $("tempBig").innerHTML = `${formatK(T)}<span>K</span>`;
+  // Long numbers get a smaller font (see CSS) so the row never wraps.
+  $("tempBig").dataset.len = formatK(T).length;
   renderClassInfo();
   $("verdict").innerHTML = visibilityVerdict(Lv, peakNm);
 
