@@ -33,7 +33,7 @@ Feature numbers match the brainstorm list (reproduced at the end). The main page
 
 Phase 0 is done and deployed, with P2.B. P1.A and P1.B are merged on `main` (31.1 KB gzipped together), not yet pushed.
 
-- **Ready now, can run in parallel:** the rest of wave 2: P1.C, P1.D, P3.D, P4.B. Their decisions (D4, D8) are answered. Up to three sessions at a time. About 9 KB of the 40 KB budget is left for everything after wave 2's first two packages, so watch the per-package estimates.
+- **Ready now, can run in parallel:** the rest of wave 2: P1.C, P1.D, P3.D, P4.B. Their decisions (D4, D8) are answered. Up to three sessions at a time. Budget: 8.9 KB of the 40 KB is left, but the remaining main-page estimates (P1.C, P1.D, P2.A, P3.A–P3.D, P4.A) add up to about 13.5 KB, so expect to trim or raise D1 before wave 4.
 - **Starting a package:** run `npm install`, then `npm run snapshot:save` on the starting commit if the package should leave existing states looking the same. Baselines are local (`v2/.snapshots/`, gitignored), so every session saves its own. Finish with `npm run test:v2`, `npm run check:layout` and, where relevant, `npm run snapshot:compare`; add a snapshot state for any new control.
 - **Known issue to fold into the next package that touches the chart (P2.A):** at 375×667 the chart legend gets only about 6 px of height and is clipped, with or without JS. It predates Phase 0.
 
