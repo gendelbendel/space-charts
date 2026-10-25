@@ -30,6 +30,7 @@ v2/
   build.mjs              builds each page into one self-contained HTML file in build/
   test/                  node --test golden tests (physics, slider scales)
   tools/layout-stability.js  browser check: nothing moves, overlaps or spills when modes change
+  tools/check-layout.mjs     runs that check with Playwright at every tier's sizes (npm run check:layout)
 vercel.json              redirects /v1 -> /v1/ and /b -> /
 ```
 
@@ -40,10 +41,10 @@ v2: plain JavaScript (ES modules), no framework, no runtime dependencies, no web
 ## Core rules
 
 1. **Never change v1's behavior.** Its only allowed edit is the banner linking back to v2. Don't upgrade, restyle or fix it. (Why: `docs/WHY.md#v1-is-preserved-as-it-stands`)
-2. **v2 stays framework-free and ships each page as one file.** No runtime dependencies, no fonts, no chart library. Check the gzip size `build.mjs` prints; the main page is ~25 KB. (Why: `docs/WHY.md#v2-has-no-framework-and-ships-one-file-per-page`)
+2. **v2 stays framework-free and ships each page as one file.** No runtime dependencies, no fonts, no chart library. `build.mjs` fails a page over its gzip budget (`BUDGETS_KB`; the main page is ~25 KB of a 40 KB budget). (Why: `docs/WHY.md#v2-has-no-framework-and-ships-one-file-per-page`)
 3. **Physics changes need a golden test.** Compare against a published value, never against the code's own output. `npm run test:v2` must stay green. (Why: `docs/WHY.md#the-math-is-checked-against-published-values`)
 4. **Cold objects render black or grey, never saturated red**, in the default "Your eye" mode. Brightness comes from real luminance. (Why: `docs/WHY.md#cold-objects-render-black-not-red`)
-5. **Switching modes or dragging the slider must not move the layout.** Anything whose text changes gets a fixed or reserved height, and type never changes size with content length. Run `v2/tools/layout-stability.js` after UI changes. (Why: `docs/WHY.md#nothing-moves-when-modes-change`)
+5. **Switching modes or dragging the slider must not move the layout.** Anything whose text changes gets a fixed or reserved height, and type never changes size with content length. Run `npm run check:layout` after UI changes. (Why: `docs/WHY.md#nothing-moves-when-modes-change`)
 6. **The star, readout, chart, color map and controls share the first screen** at every size, so the effect of the slider is visible without scrolling. (Why: `docs/WHY.md#everything-the-slider-changes-stays-on-one-screen`)
 7. **Never hand-edit generated files**: `v2/src/data/harre-heller-2021.js` (from the paper's text) and anything in `build/`.
 8. **Commit and push only when the owner asks.** In this project the owner asks for commits straight on `main` and for pushes. Pushing `main` deploys to production, so never push unasked.
@@ -63,10 +64,11 @@ python3 -m http.server 4173 --directory build # or the "site" config in .claude/
 
 ```bash
 npm run test:v2    # physics + slider-scale golden tests
-npm run build:v2   # must build; note the gzip sizes it prints
+npm run build:v2   # must build; fails if a page is over its gzip budget
+npm run check:layout  # UI changes: Playwright runs the layout check at 12 sizes (~10 s)
 npm run build      # before touching deploy config or v1
 ```
-For UI changes, check the page in the browser at 375px, a tall phone (430×932), tablet (768×1024), a landscape phone (667×375) and desktop (1440×900). There is no light theme. Run `v2/tools/layout-stability.js` at a few of those sizes (see `.claude/rules/ui.md` for the one-liner) and confirm it reports no shifts and no overlaps. Judge layout from measurements (`getBoundingClientRect`, that check), not screenshots alone: browser-pane screenshots can come back scaled or stale, especially while the pane is hidden. Only Chrome has been tested; Safari renders form controls differently, so be conservative with input sizing.
+For UI changes, run `npm run check:layout`. At every size from 320×568 to 1920×1080 it checks that nothing moves, overlaps or spills across every mode and temperature, that the star, readout, chart, color map and controls fit on the first screen, and that the desktop columns end together. It saves a screenshot per size to `build/__shots/`; look at the ones your change affects. There is no light theme. Judge layout from measurements (`getBoundingClientRect`, that check), not screenshots alone: browser-pane screenshots can come back scaled or stale, especially while the pane is hidden. Only Chrome has been tested; Safari renders form controls differently, so be conservative with input sizing.
 
 ## Known benign noise (don't chase these)
 

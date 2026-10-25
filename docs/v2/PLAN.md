@@ -27,8 +27,8 @@ Layout tiers (all in `v2/pages/index.html`), each checked for overflow and first
 
 - Source: `v2/src` (physics, UI, slider scale and marks, CSS), `v2/src/data` (CIE table, star table, objects and classes), `v2/partials` (shared HTML), `v2/pages/index.html` (the page and its layout tiers).
 - Build: `npm run build` builds v1 into `build/v1` (CRA with `PUBLIC_URL=/v1`), then v2 into `build/`. `npm run build:v2` rebuilds only v2 (about 0.1 s).
-- Tests: `npm run test:v2`: 20 tests (15 physics, 5 slider scale), Node's built-in runner. UI: `v2/tools/layout-stability.js` checks for movement, overlaps and spills across every mode and temperature.
-- The page is a single self-contained HTML file of about 25 KB gzipped.
+- Tests: `npm run test:v2`: 20 tests (15 physics, 5 slider scale), Node's built-in runner. UI: `npm run check:layout` runs `v2/tools/layout-stability.js` in Playwright at 12 sizes, checking for movement, overlaps and spills across every mode and temperature, plus first-screen fit and desktop column balance.
+- The page is a single self-contained HTML file of about 25 KB gzipped. The build fails over 40 KB (owner's decision D1 in `ROADMAP.md`).
 
 ---
 
@@ -191,7 +191,7 @@ v2/
   pages/index.html     the page  -> /
   build.mjs            expands partials, inlines CSS, bundles JS with esbuild
   test/                golden tests: physics, slider scale (node --test)
-  tools/               layout-stability.js (browser check)
+  tools/               layout-stability.js (browser check), check-layout.mjs (runs it with Playwright)
 ```
 
 I chose plain JavaScript with esbuild over Vite + TypeScript. The code is small, the only build step is bundling and inlining, and esbuild is the only new dependency. Adding TypeScript later (with JSDoc or `.ts` plus esbuild) is easy if you want it.
@@ -225,7 +225,7 @@ The interactive part is one slider driving about 400 Planck evaluations and one 
 | LCP (Moto G4, 4G) | < 1.0 s | — | — |
 | Lighthouse performance and accessibility | 100 / 100 | — | — |
 
-Not enforced yet: `build.mjs` prints the gzip size, but nothing fails the build. A size check and a Lighthouse CI run are open items (section 9).
+`build.mjs` fails the build when a page is over its gzip budget (`BUDGETS_KB`: 40 KB for the main page since 2026-10-25, which replaces the JS-only budget above). Lighthouse CI is still an open item (section 9).
 
 ---
 
@@ -278,7 +278,7 @@ Compared with v1, it drops the "Libraries" and "Todos" entries, fixes "it's" →
 - **`slider-scale.test.js`:** the mapping spans the bar, never runs backwards, and round-trips. ≤1,000 K gets at most 10% of the bar, O stars at most 6%, and M–A stars at least 45%.
 - **UI:** `v2/tools/layout-stability.js`, run in the browser at several sizes. It checks for movement, overlap and containment across every model, brightness mode and slider position, plus a typed 1,000,000 K.
 
-Not done: an automated browser test (Playwright or similar) in CI.
+`npm run check:layout` runs it automatically with Playwright (a dev dependency) at 12 sizes, and adds first-screen fit and desktop column balance. It runs locally; there's no CI service yet.
 
 ---
 
@@ -300,6 +300,6 @@ Not done: an automated browser test (Playwright or similar) in CI.
 4. **Scotopic vision:** use the CIE 1951 V′(λ) curve for the rod-only "grey glow" range instead of photopic luminance.
 5. **Star temperatures:** Pollux and Altair sources disagree (Altair's poles and equator differ by ~1,600 K). Pick and cite a source per star.
 6. **White point:** D65, so 6,500 K is white and the Sun is faintly peach. A Sun-adapted option could be a setting; for now it's an FAQ entry.
-7. **Performance guardrails:** a size check that fails the build, and Lighthouse CI on Vercel previews.
+7. **Performance guardrails:** the size check is done (2026-10-25). Lighthouse CI on Vercel previews is still open.
 8. **Tag v1:** `git tag v1.0.0` on the last commit before v2, if the owner wants it.
 9. **"NASA's version":** the owner mentioned it on 2026-10-22. No NASA-specific method was found; CIE 1931 plus the Real stars model covers it unless the owner had a specific page in mind.

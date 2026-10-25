@@ -30,6 +30,7 @@
     "build:v2": "node v2/build.mjs",
     "test": "react-scripts test",
     "test:v2": "node --test \"v2/test/*.test.js\"",
+    "check:layout": "npm run build:v2 && node v2/tools/check-layout.mjs",
     "eject": "react-scripts eject",
     "init": "tsc --init"
   },
@@ -53,7 +54,8 @@
   },
   "devDependencies": {
     "@types/react-katex": "^3.0.0",
-    "esbuild": "0.28.2"
+    "esbuild": "0.28.2",
+    "playwright": "1.64.1"
   },
   "engines": {
     "node": "24.x"

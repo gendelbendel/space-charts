@@ -53,8 +53,10 @@ header.top { display: flex; align-items: center; justify-content: space-between;
 .temp-measure { position: absolute; visibility: hidden; white-space: pre; left: 0; top: 0; font: inherit; letter-spacing: inherit; }
 .class-chip { font: 600 12px/1 var(--mono); padding: 6px 9px; border-radius: 999px; border: 1px solid var(--line-strong); color: var(--muted); background: none; cursor: pointer; }
 .class-chip::after { content: " ⓘ"; font-weight: 400; }
-/* The badge leads the verdict line. Kept shorter than the line so the paragraph's height never depends on it. */
-.verdict .class-chip { font-size: 11px; line-height: 1.1; padding: 2px 7px; margin-right: 4px; vertical-align: 1px; }
+/* The badge leads the verdict line. Its padded box is about as tall as a 13px line, so the negative
+   vertical margins keep it from claiming more than the line's height; otherwise a three-line verdict
+   grows a fraction of a pixel past its reserved height and nudges everything below. */
+.verdict .class-chip { font-size: 11px; line-height: 1.1; padding: 2px 7px; margin: -2px 4px -2px 0; vertical-align: 1px; }
 .class-chip:hover, .class-chip[aria-expanded=true] { border-color: var(--accent); color: var(--text); }
 .class-info { position: absolute; z-index: 5; left: 0; right: 0; top: calc(100% + 6px); max-width: 420px; background: var(--surface-2); border: 1px solid var(--line-strong); border-radius: 12px; padding: 12px 14px; box-shadow: 0 12px 32px rgba(0, 0, 0, .55); font-size: 14px; line-height: 1.45; color: #c9cddb; }
 .class-info p { margin: 4px 0 0; }

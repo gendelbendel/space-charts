@@ -61,7 +61,7 @@ A follow-up fix shrank the temperature's type for long numbers so the row couldn
 
 That fix fixed the readout row at 40 px. The text box inside it renders about 1.2× its type size, because browsers size inputs from the font's natural height and ignore line-height, so it spilled 7 px into the verdict line (owner, 2026-10-25: "Top text regressed, it overlaps"). It barely touched in Chrome, overlapped in Safari, and the movement check couldn't see it, since nothing moved. Now `.temp-big` and the input have an explicit `1.15em` height, tied to their own type size rather than a pixel row height. The check also tests that blocks don't overlap and that children stay inside their parents. Run against the old build, it flags the spill in all 198 states.
 
-`v2/tools/layout-stability.js` repeats the measurement across every model, brightness mode and slider position.
+`v2/tools/layout-stability.js` repeats the measurement across every model, brightness mode and slider position, and `npm run check:layout` runs it at 12 sizes. Its first run at every size found a quarter-pixel shift at 667×375 that the by-hand checks had missed: the class chip was a fraction taller than a 13 px line, so a three-line verdict outgrew its reserved height.
 
 ## Everything the slider changes stays on one screen
 

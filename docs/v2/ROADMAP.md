@@ -8,7 +8,7 @@ Written 2026-10-25. The owner asked for all 25 ideas from the brainstorm, built 
 
 | Package | Features | Depends on | Status | Gzip cost |
 |---|---|---|---|---|
-| P0.1 Automated checks | #23, #24 | — | not started | 0 |
+| P0.1 Automated checks | #23, #24 | — | done 2026-10-25 | 0 |
 | P0.2 Split `app.js`, object records | (enabler) | P0.1 | not started | ~0 |
 | P0.3 CIE table vs. official CSV | #25 | — | not started | 0 |
 | P0.4 Prerender the first screen | #22 | P0.2 | not started | est. +1.5 |
@@ -88,6 +88,7 @@ About 18 sessions in total, or 5 waves if run in parallel.
 - `npm run check:layout`: Playwright builds the site, serves `build/`, and runs `v2/tools/layout-stability.js` at the sizes in CLAUDE.md (375×667, 430×932, 768×1024, 667×375, 1440×900, plus 320×568 and 1024×768). It fails on any shift, overlap or spill, and saves screenshots to `build/__shots/` for review. It also re-measures `.b-left` against `.stats` at 1024×768, 1280×720 and 1440×900 (the desktop balance rule in `ui.md`).
 - Update CLAUDE.md "Verifying changes" and `.claude/rules/ui.md` to point at the new scripts.
 - **Done when:** both scripts pass on today's `main`, and deliberately breaking a fixed height makes `check:layout` fail.
+- **Done (2026-10-25).** The budget is `BUDGETS_KB` in `build.mjs` (no separate `check:size`). `npm run check:layout` takes about 10 s for 12 sizes. Its first run found and fixed a quarter-pixel verdict shift at 667×375. WebKit is supported (`--browser webkit`) but its browser isn't installed or tried yet; doing that would be a cheap first look at `PLAN.md` open question 2 (Safari).
 
 ### P0.2 Split `app.js` into modules; objects become records
 

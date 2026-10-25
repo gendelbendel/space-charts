@@ -11,6 +11,9 @@ const root = dirname(fileURLToPath(import.meta.url));
 const out = join(root, "..", "build");
 const publicDir = join(root, "..", "public");
 const PUBLIC_ASSETS = ["favicon.ico", "preview.webp", "robots.txt"];
+// Gzipped size limit per page, in KB. Every page needs an entry; the build
+// fails when one is missing or over. Raise a budget only on the owner's say-so.
+const BUDGETS_KB = { "index.html": 40 };
 
 async function listPages(dir) {
   const entries = await readdir(dir, { withFileTypes: true });
@@ -72,6 +75,7 @@ async function inlineScripts(html) {
 
 await cleanOutput();
 const pagesDir = join(root, "pages");
+const overBudget = [];
 for (const page of await listPages(pagesDir)) {
   let html = await readFile(page, "utf8");
   html = await expandIncludes(html);
@@ -81,6 +85,15 @@ for (const page of await listPages(pagesDir)) {
   const target = join(out, relative(pagesDir, page));
   await mkdir(dirname(target), { recursive: true });
   await writeFile(target, html);
-  console.log(`${relative(join(root, ".."), target).padEnd(22)} ${(html.length / 1024).toFixed(1).padStart(6)} KB  ${(gzipSync(html, { level: 9 }).length / 1024).toFixed(1).padStart(5)} KB gzip`);
+  const name = relative(pagesDir, page);
+  const gzipKb = gzipSync(html, { level: 9 }).length / 1024;
+  const budget = BUDGETS_KB[name];
+  console.log(`${relative(join(root, ".."), target).padEnd(22)} ${(html.length / 1024).toFixed(1).padStart(6)} KB  ${gzipKb.toFixed(1).padStart(5)} KB gzip  (budget ${budget ?? "none"})`);
+  if (budget === undefined) overBudget.push(`${name} has no size budget; add one to BUDGETS_KB in v2/build.mjs`);
+  else if (gzipKb > budget) overBudget.push(`${name} is ${gzipKb.toFixed(1)} KB gzipped, over its ${budget} KB budget`);
 }
 await Promise.all(PUBLIC_ASSETS.map(name => copyFile(join(publicDir, name), join(out, name))));
+if (overBudget.length) {
+  console.error(overBudget.map(line => `Size budget: ${line}`).join("\n"));
+  process.exit(1);
+}
