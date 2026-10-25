@@ -14,6 +14,11 @@
       <p>A blackbody absorbs every bit of light that hits it and re-emits energy purely because of its temperature. Its spectrum depends on temperature and nothing else.</p>
       <p>Real stars come close but not all the way: their outer layers absorb some wavelengths (the dark lines in a stellar spectrum), and the light comes from a range of depths at different temperatures. A star's "effective temperature" is the temperature of a blackbody that would give off the same total power per square meter, which is why the comparison works so well. The <strong>Real stars</strong> color model shows what those differences do to the color.</p>
     </div></details>
+    <details><summary>What is the cosmic microwave background?</summary><div>
+      <p>The oldest light there is. For its first 380,000 years or so, the universe was a hot plasma that light couldn't cross. When it had cooled to about 3,000 K, electrons and nuclei joined into neutral atoms (recombination), the universe turned transparent, and the light it was glowing with went free.</p>
+      <p>That light has been traveling ever since, and the expansion of the universe has stretched its wavelengths by a factor of about 1,100. A blackbody stretched that way stays a blackbody, only colder: 3,000 K divided by 1,100 is 2.7 K. Today it peaks near 1 mm, in microwaves, and arrives from every direction in the sky. It's the most perfect blackbody ever measured; its temperature, 2.72548 ± 0.00057 K, is from <a href="https://arxiv.org/abs/0911.1955">Fixsen (2009)</a>.</p>
+      <p>It's colder than the slider goes, so pick it from the list of stars and other objects, next to "When the universe turned transparent", the same light as it set out.</p>
+    </div></details>
     <details id="faq-classes"><summary>What do the letters O, B, A, F, G, K, M, L, T and Y mean?</summary><div>
       <p>They're spectral classes. Around 1900, astronomers at Harvard sorted hundreds of thousands of stars by the pattern of dark lines in their spectra. The letters were first handed out alphabetically, then Annie Jump Cannon reordered them into a smooth sequence that later turned out to be a temperature sequence, which is why they're out of order. Generations of students have remembered it as "Oh Be A Fine Girl/Guy, Kiss Me".</p>
       <p>L and T were added in 1999 and Y in 2011, for the brown dwarfs that infrared surveys started finding. Each class is split into tenths (the Sun is a G2 star), and a Roman numeral gives the size: V for dwarfs like the Sun, III for giants, I for supergiants. The temperature ranges below are approximate and apply to dwarfs.</p>
@@ -63,6 +68,10 @@
       <p>Out in space, the Sun is very close to white, with a slight warm tint on this page. It looks yellow from the ground because the atmosphere scatters some of its blue light across the sky, and orange-red at sunset when its light passes through much more air.</p>
       <p>"White" on a screen is defined by the sRGB standard as the D65 white point, which is close to a 6,500 K blackbody. Anything cooler than that looks slightly warm here, and anything hotter looks slightly blue.</p>
     </div></details>
+    <details><summary>Why is a 2,700 K bulb called <em>warm</em> when it's colder?</summary><div>
+      <p>Because the names describe how the light feels, not the physics. Orange-tinted light like candlelight and firelight feels cozy, so it's called warm; bluish light like an overcast sky feels cool. For a blackbody it's the other way round: the hotter it is, the bluer it glows, so "cool white" light matches a hotter blackbody than "warm white".</p>
+      <p>An LED's rating is a <em>correlated color temperature</em>: the temperature of the blackbody whose color it matches most closely. The LED itself barely gets warm. An old incandescent bulb's filament really is at about 2,700 K.</p>
+    </div></details>
     <details><summary>Why do most stars look white at night?</summary><div>
       <p>Stars are tiny points of light, and most are too faint to wake up the cones that see color. Only the brightest show their color clearly: orange Betelgeuse and Arcturus, red Antares, blue-white Rigel and Vega. Binoculars help, because they collect more light.</p>
     </div></details>
@@ -101,7 +110,7 @@
       <p>The code is checked by automated tests against published reference values. The blackbody colors match the published Planckian locus to four decimal places at 1,000 K, 2,856 K (CIE Illuminant A), 5,000 K and 10,000 K. Integrating Planck's law over every wavelength reproduces the Stefan–Boltzmann law. Both CIE tables are checked against CIE's official data files, and rod (scotopic) luminance reproduces published scotopic-to-photopic ratios, such as 1.41 for an incandescent lamp. The Real stars table is checked row by row against the paper's own hex codes.</p>
     </div></details>
     <details><summary>How hot is too hot, or too cold, for this to work?</summary><div>
-      <p>Planck's law holds at any temperature. The limits are practical: below about 600 K there's no visible light to speak of, and above about 50,000 K the color stops changing. The slider covers 100 K to 100,000 K, and you can type anything up to 1,000,000 K.</p>
+      <p>Planck's law holds at any temperature. The limits are practical: below about 600 K there's no visible light to speak of, and above about 50,000 K the color stops changing. The slider covers 100 K to 100,000 K, and you can type anything up to 1,000,000 K. The cosmic microwave background, at 2.7 K, is in the list of objects.</p>
     </div></details>
     <details><summary>I think something's wrong. Where do I report it?</summary><div>
       <p>Please <a href="https://github.com/gendelbendel/space-charts/issues">open an issue on GitHub</a>.</p>
