@@ -51,14 +51,15 @@ export function drawChart() {
   ctx.strokeStyle = "rgba(255,255,255,.07)";
   ctx.fillStyle = "#8b91a5";
   ctx.lineWidth = 1;
-  const xSteps = narrow ? [1] : [1, 2, 5];
+  // Above 100 K the axis spans at most 3 decades; colder ones (the CMB) span more and get one tick per decade.
+  const xSteps = narrow || hi / lo > 1000 ? [1] : [1, 2, 5];
   for (const decade of [1, 10, 100, 1000, 1e4, 1e5, 1e6]) for (const m of xSteps) {
     const nm = decade * m;
     if (nm < lo || nm > hi) continue;
     const x = xOf(nm);
     ctx.beginPath(); ctx.moveTo(x, pad.t); ctx.lineTo(x, base); ctx.stroke();
     ctx.textAlign = "center";
-    ctx.fillText(nm >= 1000 ? `${nm / 1000} µm` : `${nm} nm`, x, H - 10);
+    ctx.fillText(nm >= 1e6 ? `${nm / 1e6} mm` : nm >= 1000 ? `${nm / 1000} µm` : `${nm} nm`, x, H - 10);
   }
   ctx.textAlign = "right";
   const top = yMax / 1.08;

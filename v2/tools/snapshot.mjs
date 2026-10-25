@@ -57,7 +57,8 @@ const STATES = [
     await page.fill("#num", "wise 0855");
     await page.press("#num", "Enter");
   }],
-  ["card", "?t=5772", page => page.locator("#objects button").nth(7).click()],
+  ["card", "?t=5772", page => page.locator("#objects button", { hasText: "Betelgeuse" }).click()],
+  ["cmb-card", "?t=5772", page => page.locator("#objects button", { hasText: "Cosmic microwave background" }).click()],
   ["chart-hover", "?t=5772", async page => {
     const box = await page.locator("#chart").boundingBox();
     if (box) await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);

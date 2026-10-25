@@ -13,7 +13,7 @@ Written 2026-10-25. The owner asked for all 25 ideas from the brainstorm, built 
 | P0.3 CIE table vs. official CSV | #25 | — | done 2026-10-25 | 0 |
 | P0.4 Prerender the first screen | #22 | P0.2 | done 2026-10-25 | +2.2 |
 | P1.A Readout takes names and units | #4, #5 | P0.2 | done 2026-10-25 | +0.4 |
-| P1.B Everyday and cosmic objects | #6, #7 | P0.2 | not started | est. +1 |
+| P1.B Everyday and cosmic objects | #6, #7 | P0.2 | done 2026-10-25 | +2.7 |
 | P1.C Color output: P3, copy, share | #16, #17, #19 | P0.2 | not started | est. +1 |
 | P1.D Heat it up, keyboard shortcuts | #1, #21 | P0.2 | not started | est. +1 |
 | P2.A Chart: per-frequency, lines, energy split | #10, #11, #12 | P0.2 | not started | est. +2 |
@@ -31,9 +31,9 @@ Feature numbers match the brainstorm list (reproduced at the end). The main page
 
 ### Next up (updated 2026-10-25)
 
-Phase 0 is done. P0.1, P0.2 and P0.4 are deployed; P0.3 (tests only, no page change) and P2.B (scotopic vision) are on `main`, not yet pushed.
+Phase 0 is done and deployed, with P2.B. P1.A and P1.B are merged on `main` (31.1 KB gzipped together), not yet pushed.
 
-- **Ready now, can run in parallel:** wave 2: P1.A, P1.B, P1.C, P1.D, P3.D, P4.B. Their decisions (D4, D5, D8) are answered. Suggested order: P1.B and P1.A first (later packages build on their object data), up to three sessions at a time.
+- **Ready now, can run in parallel:** the rest of wave 2: P1.C, P1.D, P3.D, P4.B. Their decisions (D4, D8) are answered. Up to three sessions at a time. About 9 KB of the 40 KB budget is left for everything after wave 2's first two packages, so watch the per-package estimates.
 - **Starting a package:** run `npm install`, then `npm run snapshot:save` on the starting commit if the package should leave existing states looking the same. Baselines are local (`v2/.snapshots/`, gitignored), so every session saves its own. Finish with `npm run test:v2`, `npm run check:layout` and, where relevant, `npm run snapshot:compare`; add a snapshot state for any new control.
 - **Known issue to fold into the next package that touches the chart (P2.A):** at 375×667 the chart legend gets only about 6 px of height and is clipped, with or without JS. It predates Phase 0.
 
@@ -138,6 +138,7 @@ No behavior change. Suggested modules: `state.js` (state, URL read/write), `form
 - Group the list by `category` (Stars · Brown dwarfs · Everyday light · Cosmic), with headings. It's below the fold, so there's no first-screen risk.
 - FAQ: "Why is a 2,700 K bulb called *warm* when it's colder?" and "What is the cosmic microwave background?"
 - Note: the CMB is below the slider's 100 K floor, so the thumb pins at the left end. Check that the marks and track handle it.
+- **Done (2026-10-25).** Ten new records appended to `OBJECTS` (existing rows untouched): warm-white and neutral LEDs (ANSI C78.377), daylight D65 (noted as ~6,504 K and not a blackbody), stove element 1,140 K, basaltic lava 1,440 K (USGS, 1,170 °C), molten steel 1,920 K, a TIG welding arc 20,000 K, lightning 30,000 K (NWS), the recombination card at 3,000 K and the CMB at 2.72548 K, each with `source` and a few `aliases` for P1.A. New category `cosmic`; `CATEGORIES` in `objects.js` holds the list headings, and the list renders one heading and grid per category, coldest first. Golden tests: the CMB peaks at 1.063 mm, and the recombination card matches T_CMB × (1 + z*) with Planck 2018's z* = 1089.92. At 2.7 K the slider thumb pins at 0, the marks and track are unchanged and nothing errors; two fixes for temperatures below 100 K only: the chart's x axis gets one tick per decade (it spans 4.5 decades, and labels overlapped) and labels in mm, and the verdict says "in microwaves" for peaks past 1 mm. Until P1.A lands, `?t=2.72548` reloads as 3 K (the card click sets the exact value). The snapshot's card state now clicks Betelgeuse by name (the grouped list changed button order), and a `cmb-card` state was added (114 states). Snapshot against the starting commit: canvas, URL and focus identical everywhere; the DOM differs only inside the objects list and the FAQ. Size: 28.3 → 31.0 KB, over the +1 estimate: ~0.8 KB is the prerendered cards, ~0.7 KB the FAQ answers, the rest the records in the script (~0.4 KB of it citations). With the remaining estimates the main page would pass 40 KB, so later packages need to watch size.
 
 ### P1.C Color output: wide gamut, copy, share (#16, #17, #19)
 
