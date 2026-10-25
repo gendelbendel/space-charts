@@ -11,7 +11,7 @@ Written 2026-10-25. The owner asked for all 25 ideas from the brainstorm, built 
 | P0.1 Automated checks | #23, #24 | — | done 2026-10-25 | 0 |
 | P0.2 Split `app.js`, object records | (enabler) | P0.1 | done 2026-10-25 | +0.3 |
 | P0.3 CIE table vs. official CSV | #25 | — | not started | 0 |
-| P0.4 Prerender the first screen | #22 | P0.2 | not started | est. +1.5 |
+| P0.4 Prerender the first screen | #22 | P0.2 | done 2026-10-25 | +2.2 |
 | P1.A Readout takes names and units | #4, #5 | P0.2 | not started | est. +0.5 |
 | P1.B Everyday and cosmic objects | #6, #7 | P0.2 | not started | est. +1 |
 | P1.C Color output: P3, copy, share | #16, #17, #19 | P0.2 | not started | est. +1 |
@@ -110,6 +110,7 @@ No behavior change. Suggested modules: `state.js` (state, URL read/write), `form
 - `app.js` hydrates: on load it renders the URL's state over the baked one. A `?t=` link briefly shows the Sun first; accept that, or hide the changing parts until the first render when `?t=` is present. Decide while building and record it in `docs/WHY.md`.
 - Use `npm run snapshot:save` before and `snapshot:compare` after: with JS on, every state should still match (the baked markup is replaced by the same render).
 - **Done when:** with JS disabled, the page shows the Sun's full readout; with JS, `check:layout` passes and the first render causes no shift.
+- **Done (2026-10-25).** `{{name}}` slots in the partials, filled by `build.mjs` from `v2/src/prerender.js`; `check:layout` now also compares the page with JS off and on. The color map and the slider's labels aren't baked (see `docs/WHY.md#the-first-screen-is-prerendered-from-the-same-builders`). `?t=` links: the script renders before the first paint in Chromium, so the Sun never shows; accepted for slow connections. Snapshot against P0.2: identical everywhere except 768×1024, where the chart and color map cards are 18 px shorter after fixing a canvas feedback loop the new check found. P5.A can call `prerender(T)` per star.
 
 ## Phase 1: quick wins
 

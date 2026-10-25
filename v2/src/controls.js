@@ -1,14 +1,8 @@
 // The slider (with its painted track and marks), the segmented controls and the Compare checkbox.
-import { displayColor } from "./physics.js";
-import { SLIDER_KNOTS, makeScale } from "./slider-scale.js";
-import { createSliderMarks, trackGradient } from "./slider-marks.js";
+import { createSliderMarks, sliderScale, tToSlider, sliderToT, sliderTrack } from "./slider-marks.js";
 import { formatK } from "./format.js";
 import { state, update, setTemperature } from "./state.js";
 import { $ } from "./dom.js";
-
-const scale = makeScale(SLIDER_KNOTS);
-const tToSlider = T => 1000 * scale.toFraction(T);
-const sliderToT = s => Math.round(scale.toT(s / 1000));
 
 const slider = $("slider");
 slider.addEventListener("input", () => setTemperature(sliderToT(+slider.value)));
@@ -22,14 +16,14 @@ document.querySelectorAll(".seg[data-key]").forEach(group => {
   });
 });
 
-const layoutSliderMarks = createSliderMarks({ classRow: $("classTicks"), markRow: $("markTicks"), scale, onPick: setTemperature });
+const layoutSliderMarks = createSliderMarks({ classRow: $("classTicks"), markRow: $("markTicks"), scale: sliderScale, onPick: setTemperature });
 
 let trackKey = "";
 function paintTrack() {
   const key = state.model + state.light;
   if (key === trackKey) return;
   trackKey = key;
-  slider.style.setProperty("--track", trackGradient(scale, T => displayColor(T, state.model, state.light).hex));
+  slider.style.setProperty("--track", sliderTrack(state.model, state.light));
 }
 
 export function renderSlider() {

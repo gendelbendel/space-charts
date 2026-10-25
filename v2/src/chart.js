@@ -8,7 +8,7 @@ import { $ } from "./dom.js";
 const SIMPLE_BAND_FILLS = ["rgba(255,80,80,.16)", "rgba(80,255,120,.14)", "rgba(90,140,255,.18)"];
 const CMF_COLORS = ["#ff7a7a", "#7dff9a", "#7aa8ff"];
 
-const canvas = $("chart"), tip = $("tip");
+let canvas, tip;
 let chartGeom = null;
 
 function wavelengthColor(nm, alpha) {
@@ -131,24 +131,33 @@ export function drawChart() {
   ctx.textAlign = flip ? "right" : "left";
   ctx.fillText(`peak ${formatWavelength(peak)}`, px + (flip ? -6 : 6), pad.t + 12);
 
+  $("legend").innerHTML = legendHtml();
+}
+
+export function legendHtml() {
+  const models = shownModels();
   const legend = [["#f3f4f8", "Planck curve"], ["linear-gradient(90deg,#8040ff,#00f,#0ff,#0f0,#ff0,#f00)", "Visible light"]];
   if (models.includes("simple")) legend.push(["rgba(255,255,255,.35)", "Simple's bands"]);
   if (models.includes("cie")) legend.push([`linear-gradient(90deg,${CMF_COLORS[0]} 33%,${CMF_COLORS[1]} 33% 66%,${CMF_COLORS[2]} 66%)`, "x̄ ȳ z̄ eye response"]);
   if (models.includes("star")) legend.push(["transparent", "Real stars use model spectra"]);
-  $("legend").innerHTML = legend.map(([c, t]) => `<span><i style="background:${c}"></i>${t}</span>`).join("");
+  return legend.map(([c, t]) => `<span><i style="background:${c}"></i>${t}</span>`).join("");
 }
 
-canvas.addEventListener("pointermove", e => {
-  if (!chartGeom) return;
-  const rect = canvas.getBoundingClientRect();
-  const x = e.clientX - rect.left;
-  const { nmOf, yOf, pad, pw, T } = chartGeom;
-  if (x < pad.l || x > pad.l + pw) { tip.hidden = true; return; }
-  const nm = nmOf(x), v = planck(nm, T) * 1e-9;
-  tip.hidden = false;
-  tip.textContent = `${formatWavelength(nm)} · ${v.toExponential(3)} W·m⁻²·sr⁻¹·nm⁻¹`;
-  tip.style.left = Math.max(4, Math.min(x + 12, rect.width - tip.offsetWidth - 4)) + "px";
-  tip.style.top = Math.max(4, yOf(v) - 34) + "px";
-});
-canvas.addEventListener("pointerleave", () => (tip.hidden = true));
-new ResizeObserver(() => drawChart()).observe(canvas);
+export function initChart() {
+  canvas = $("chart");
+  tip = $("tip");
+  canvas.addEventListener("pointermove", e => {
+    if (!chartGeom) return;
+    const rect = canvas.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const { nmOf, yOf, pad, pw, T } = chartGeom;
+    if (x < pad.l || x > pad.l + pw) { tip.hidden = true; return; }
+    const nm = nmOf(x), v = planck(nm, T) * 1e-9;
+    tip.hidden = false;
+    tip.textContent = `${formatWavelength(nm)} · ${v.toExponential(3)} W·m⁻²·sr⁻¹·nm⁻¹`;
+    tip.style.left = Math.max(4, Math.min(x + 12, rect.width - tip.offsetWidth - 4)) + "px";
+    tip.style.top = Math.max(4, yOf(v) - 34) + "px";
+  });
+  canvas.addEventListener("pointerleave", () => (tip.hidden = true));
+  new ResizeObserver(() => drawChart()).observe(canvas);
+}

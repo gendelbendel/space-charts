@@ -1,17 +1,17 @@
 // Wires the page together: every module renders from `state`, and any change
 // goes through update() in state.js, which calls render() here.
-import { luminance, wienPeakNm, radiantExitance, visibleFraction } from "./physics.js";
-import { formatWavelength, formatSci } from "./format.js";
+import { luminance, wienPeakNm } from "./physics.js";
+import { statsText } from "./format.js";
 import { state, onUpdate, update, updateUrl } from "./state.js";
 import { $ } from "./dom.js";
 import { renderSlider, renderControls, renderTrack } from "./controls.js";
 import { renderReadout } from "./readout.js";
 import { renderStage } from "./stage.js";
 import { renderPipelines } from "./pipelines.js";
-import { drawChart } from "./chart.js";
-import { buildCieBase, drawCie } from "./cie-diagram.js";
-import { renderObjects } from "./objects-list.js";
-import { buildClassList } from "./faq.js";
+import { drawChart, initChart } from "./chart.js";
+import { drawCie } from "./cie-diagram.js";
+import { renderObjects, initObjectsList } from "./objects-list.js";
+import { initFaq } from "./faq.js";
 
 // ---------- visualization tabs (used by the compact layout) ----------
 
@@ -31,12 +31,7 @@ function renderTabs() {
 // ---------- stats ----------
 
 function renderStats(Lv, peakNm) {
-  const T = state.T;
-  $("sPeak").textContent = formatWavelength(peakNm);
-  const vf = visibleFraction(T);
-  $("sVis").textContent = vf < 1e-4 ? formatSci(vf * 100) + " %" : (vf * 100).toFixed(vf < 0.1 ? 2 : 1) + " %";
-  $("sLum").textContent = formatSci(Lv) + " cd/m²";
-  $("sFlux").textContent = formatSci(radiantExitance(T)) + " W";
+  for (const [id, text] of Object.entries(statsText(state.T, Lv, peakNm))) $(id).textContent = text;
 }
 
 // ---------- render ----------
@@ -59,7 +54,10 @@ function render() {
   updateUrl();
 }
 
+// The HTML arrives prerendered for the default state (v2/src/prerender.js);
+// this first render replaces it with the URL's state.
 onUpdate(render);
-buildClassList();
-buildCieBase();
+initChart();
+initObjectsList();
+initFaq();
 render();

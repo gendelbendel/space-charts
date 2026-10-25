@@ -39,8 +39,8 @@ export async function launchBrowser(name = "chromium") {
 }
 
 // Opens `url` at the given viewport size. Page errors are collected in `page.errors`.
-export async function openPage(browser, url, width, height) {
-  const page = await browser.newPage({ viewport: { width, height } });
+export async function openPage(browser, url, width, height, { javaScript = true, reducedMotion = "no-preference" } = {}) {
+  const page = await browser.newPage({ viewport: { width, height }, javaScriptEnabled: javaScript, reducedMotion });
   page.errors = [];
   page.on("pageerror", error => page.errors.push(error.message));
   // The Vercel analytics script only exists on Vercel.

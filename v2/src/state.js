@@ -16,7 +16,8 @@ export function readState(search) {
   };
 }
 
-export const state = readState(location.search);
+// The build has no `location`; it sets this state itself before prerendering.
+export const state = readState(globalThis.location?.search ?? "");
 export const shownModels = () => (state.compare ? MODEL_KEYS : [state.model]);
 
 // Modules change state through update(); app.js registers render() as the listener.

@@ -1,10 +1,17 @@
-import { T_MIN, T_MAX } from "./physics.js";
+import { T_MIN, T_MAX, displayColor } from "./physics.js";
+import { SLIDER_KNOTS, makeScale } from "./slider-scale.js";
 import { SPECTRAL_CLASSES, CLASS_INFO, SLIDER_MARKS } from "./data/objects.js";
 
 // The range thumb's center travels from THUMB_INSET to width − THUMB_INSET, so
 // everything drawn along a slider uses the same mapping.
 export const THUMB_INSET = 14;
 export const alongSlider = f => `calc(${THUMB_INSET}px + (100% - ${2 * THUMB_INSET}px) * ${f})`;
+
+// The page's temperature slider runs 0–1000 on the owner's weighted scale.
+export const sliderScale = makeScale(SLIDER_KNOTS);
+export const tToSlider = T => 1000 * sliderScale.toFraction(T);
+export const sliderToT = s => Math.round(sliderScale.toT(s / 1000));
+export const sliderTrack = (model, light) => trackGradient(sliderScale, T => displayColor(T, model, light).hex);
 
 const formatK = T => T.toLocaleString("en-US");
 export const spectralClass = T => SPECTRAL_CLASSES.find(([, lo, hi]) => T >= lo && T < hi)[0];

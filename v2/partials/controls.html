@@ -1,6 +1,6 @@
 <div class="control-panel">
   <div class="slider-block">
-    <input type="range" id="slider" min="0" max="1000" step="1" aria-label="Temperature">
+    <input type="range" id="slider" min="0" max="1000" step="1" aria-label="Temperature" aria-valuetext="{{sliderValueText}}" style="--track: {{sliderTrack}};" value="{{sliderValue}}">
     <div class="ticks" id="ticks">
       <div class="tick-row classes" id="classTicks" role="group" aria-label="Spectral classes"></div>
       <div class="tick-row marks" id="markTicks"></div>
@@ -10,17 +10,17 @@
     <div class="control">
       <span class="lbl" id="modelLbl">Color model</span>
       <div class="seg" role="group" aria-labelledby="modelLbl" data-key="model">
-        <button type="button" data-v="simple">Simple</button>
-        <button type="button" data-v="cie">CIE 1931</button>
-        <button type="button" data-v="star">Real stars</button>
+        <button type="button" data-v="simple" aria-pressed="false">Simple</button>
+        <button type="button" data-v="cie" aria-pressed="true">CIE 1931</button>
+        <button type="button" data-v="star" aria-pressed="false">Real stars</button>
       </div>
     </div>
     <div class="control">
       <span class="lbl" id="lightLbl">Brightness</span>
       <div class="seg" role="group" aria-labelledby="lightLbl" data-key="light">
-        <button type="button" data-v="hue">Hue only</button>
-        <button type="button" data-v="eye">Your eye</button>
-        <button type="button" data-v="sun">vs. Sun</button>
+        <button type="button" data-v="hue" aria-pressed="false">Hue only</button>
+        <button type="button" data-v="eye" aria-pressed="true">Your eye</button>
+        <button type="button" data-v="sun" aria-pressed="false">vs. Sun</button>
       </div>
     </div>
     <div class="control">

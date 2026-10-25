@@ -6,6 +6,8 @@ import { readFile, writeFile, mkdir, readdir, rm, copyFile } from "node:fs/promi
 import { gzipSync } from "node:zlib";
 import { dirname, join, relative } from "node:path";
 import { fileURLToPath } from "node:url";
+import { SUN_TEFF } from "./src/physics.js";
+import { prerender } from "./src/prerender.js";
 
 const root = dirname(fileURLToPath(import.meta.url));
 const out = join(root, "..", "build");
@@ -26,6 +28,14 @@ async function expandIncludes(html) {
   const names = [...new Set([...html.matchAll(pattern)].map(m => m[1]))];
   const partials = Object.fromEntries(await Promise.all(names.map(async n => [n, await readFile(join(root, "partials", `${n}.html`), "utf8")])));
   return html.replace(pattern, (_, name) => partials[name].trimEnd());
+}
+
+// Fills each {{name}} with the prerendered value. A name with no value fails the build.
+function fillPrerender(html, values) {
+  return html.replace(/\{\{(\w+)\}\}/g, (_, name) => {
+    if (!(name in values)) throw new Error(`No prerendered value for {{${name}}}`);
+    return values[name];
+  });
 }
 
 async function inlineCss(html) {
@@ -79,6 +89,7 @@ const overBudget = [];
 for (const page of await listPages(pagesDir)) {
   let html = await readFile(page, "utf8");
   html = await expandIncludes(html);
+  html = fillPrerender(html, prerender(SUN_TEFF));
   html = await inlineCss(html);
   html = await minifyCss(html);
   html = await inlineScripts(html);

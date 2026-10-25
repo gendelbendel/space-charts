@@ -51,7 +51,9 @@ function pipelineCard(title, sub, steps) {
   return `<div class="pipe-card"><h3>${title}</h3><p class="sub">${sub}</p><ol class="pipe">${items}</ol></div>`;
 }
 
+export const pipelinesHtml = () => shownModels().map(pipelineHtml).join("");
+
 export function renderPipelines() {
-  $("pipes").innerHTML = shownModels().map(pipelineHtml).join("");
+  $("pipes").innerHTML = pipelinesHtml();
   $("pipes").classList.toggle("multi", state.compare);
 }

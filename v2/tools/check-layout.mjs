@@ -1,6 +1,7 @@
 // Runs layout-stability.js in a real browser at every layout tier's sizes, plus
-// the two checks it can't do from inside one viewport: everything the slider
-// changes fits on the first screen, and the desktop columns end together.
+// the checks it can't do from inside one viewport: everything the slider
+// changes fits on the first screen, the desktop columns end together, and the
+// prerendered page (JS off) is laid out exactly like the page after its script runs.
 // Serves build/ itself, so run `npm run build:v2` first (`npm run check:layout` does).
 //
 //   node v2/tools/check-layout.mjs                      every size, Chromium
@@ -25,6 +26,16 @@ const SIZES = [
 // end at the same height on desktop (`--stage-h` and `--viz-h` scale together).
 const COLUMN_BALANCE_SIZES = ["1024x768", "1280x720", "1440x900"];
 const COLUMN_BALANCE_TOLERANCE_PX = 20;
+// Blocks that must sit in the same place before and after the script's first render, within
+// 1 px: the script rounds the readout's width up to a whole pixel, which CSS can't match.
+const HYDRATION_TOLERANCE_PX = 1;
+const HYDRATION_BLOCKS = [".b-top", ".stage", ".readout-block", ".temp-big .unit", ".verdict", "#stageNote", ".b-dock", "#slider", ".ticks", ".controls", ".viz", "#spectrum", ".chart-box", ".legend", "#colormap", ".stats", "#how", "#stars", "#faq"];
+const measureBlocks = selectors => Object.fromEntries(selectors.map(s => {
+  const box = document.querySelector(s)?.getBoundingClientRect();
+  return [s, box ? { top: box.top, h: box.height, left: box.left, w: box.width } : null];
+}));
+const describe = box => (box ? Object.entries(box).map(([k, v]) => `${k} ${Math.round(v * 10) / 10}`).join(" ") : "missing");
+const moved = (a, b) => !a || !b ? a !== b : Object.keys(a).some(k => Math.abs(a[k] - b[k]) > HYDRATION_TOLERANCE_PX);
 
 const { values: args } = parseArgs({ options: { sizes: { type: "string" }, browser: { type: "string", default: "chromium" } } });
 const sizes = args.sizes ? SIZES.filter(([, w, h]) => args.sizes.split(",").includes(`${w}x${h}`)) : SIZES;
@@ -49,8 +60,15 @@ function abbreviate(detail, keep = 4) {
 let failures = 0;
 for (const [tier, width, height] of sizes) {
   const size = `${width}x${height}`;
+  const staticPage = await openPage(browser, `${server.origin}/`, width, height, { javaScript: false });
+  const beforeScript = await staticPage.evaluate(measureBlocks, HYDRATION_BLOCKS);
+  await staticPage.screenshot({ path: join(shotsDir, `${size}-no-js.png`) });
+  await staticPage.close();
+
   const page = await openPage(browser, `${server.origin}/`, width, height);
   await page.screenshot({ path: join(shotsDir, `${size}.png`) });
+  const afterScript = await page.evaluate(measureBlocks, HYDRATION_BLOCKS);
+  const hydrationMoves = HYDRATION_BLOCKS.filter(s => moved(beforeScript[s], afterScript[s])).map(s => `${s}: ${describe(beforeScript[s])} -> ${describe(afterScript[s])}`);
 
   const firstScreen = await page.evaluate(() => {
     // Whatever the tier shows of these must end inside the first screen.
@@ -67,6 +85,7 @@ for (const [tier, width, height] of sizes) {
   const stability = await page.evaluate(stabilityCheck);
 
   const problems = [];
+  if (hydrationMoves.length) problems.push(["moves when the script runs", hydrationMoves]);
   if (Object.keys(firstScreen.offScreen).length) problems.push(["off the first screen", firstScreen.offScreen]);
   if (tier === "desktop" && COLUMN_BALANCE_SIZES.includes(size) && Math.abs(firstScreen.columnGap) > COLUMN_BALANCE_TOLERANCE_PX) {
     problems.push(["columns don't end together", `.stats ends ${firstScreen.columnGap} px below .b-left (tolerance ±${COLUMN_BALANCE_TOLERANCE_PX})`]);

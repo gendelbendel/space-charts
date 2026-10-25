@@ -28,7 +28,7 @@ Layout tiers (all in `v2/pages/index.html`), each checked for overflow and first
 - Source: `v2/src` (physics, state, one module per UI part wired by `app.js`, slider scale and marks, CSS), `v2/src/data` (CIE table, star table, objects and classes), `v2/partials` (shared HTML), `v2/pages/index.html` (the page and its layout tiers).
 - Build: `npm run build` builds v1 into `build/v1` (CRA with `PUBLIC_URL=/v1`), then v2 into `build/`. `npm run build:v2` rebuilds only v2 (about 0.1 s).
 - Tests: `npm run test:v2`: 22 tests (15 physics, 5 slider scale, 2 object data), Node's built-in runner. UI: `npm run check:layout` runs `v2/tools/layout-stability.js` in Playwright at 12 sizes, checking for movement, overlaps and spills across every mode and temperature, plus first-screen fit and desktop column balance.
-- The page is a single self-contained HTML file of about 25 KB gzipped. The build fails over 40 KB (owner's decision D1 in `ROADMAP.md`).
+- The page is a single self-contained HTML file of about 27.5 KB gzipped, with the first screen prerendered for the Sun (`v2/src/prerender.js`). The build fails over 40 KB (owner's decision D1 in `ROADMAP.md`).
 
 ---
 
@@ -185,6 +185,7 @@ v2/
   src/app.js           wires the UI modules and calls render()
   src/state.js         page state, URL read/write, update()
   src/format.js        pure formatters and the verdict text (Node-importable)
+  src/prerender.js     bakes the first screen into the HTML at build time
   src/*.js             one module per UI part: controls, readout, stage, chart,
                        cie-diagram, pipelines, objects-list, faq
   src/slider-scale.js  temperature <-> slider position (weighted piecewise log)
@@ -293,7 +294,7 @@ Compared with v1, it drops the "Libraries" and "Todos" entries, fixes "it's" →
 2. **Physics core and tests.** Done.
 3. **Static shell.** Done: one page, FAQ with MathML, v2 at `/` and v1 at `/v1/`.
 4. **Interactive layer.** Done: three color models, Compare, weighted slider, editable readout, class info.
-5. **Prerender the default state, and Lighthouse CI.** Not started.
+5. **Prerender the default state, and Lighthouse CI.** Prerender done (2026-10-25, roadmap P0.4). Lighthouse CI not started.
 6. **Content pass.** Partly done: star temperatures corrected and cited in notes; FAQ rewritten. Per-temperature OG image not started.
 7. **Launch.** Done (2026-10-24): v2 at `/`, v1 at `/v1/` with a banner back.
 

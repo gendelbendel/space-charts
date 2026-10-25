@@ -80,7 +80,8 @@ const results = {};
 const differences = [];
 for (const [width, height] of sizes) {
   for (const [name, query, act] of STATES) {
-    const page = await openPage(browser, `${server.origin}/${query}`, width, height);
+    // Reduced motion turns transitions off, so a capture never lands mid-transition.
+    const page = await openPage(browser, `${server.origin}/${query}`, width, height, { reducedMotion: "reduce" });
     if (act) await act(page);
     await page.waitForTimeout(250); // the URL is written back after 150 ms
     const dom = await page.evaluate(() => ({

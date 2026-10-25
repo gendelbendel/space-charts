@@ -9,7 +9,7 @@ const sx = x => BOX.x0 + x * BOX.s;
 const sy = y => BOX.y0 - y * BOX.s;
 let cieBase = "";
 
-export function buildCieBase() {
+function buildCieBase() {
   const spectral = [];
   for (let i = 0; i < CMF_ROWS && CMF_START_NM + i * CMF_STEP_NM <= 700; i++) {
     const X = CIE1931_2DEG[3 * i], Y = CIE1931_2DEG[3 * i + 1], Z = CIE1931_2DEG[3 * i + 2];
@@ -42,7 +42,9 @@ export function buildCieBase() {
     ${labels}`;
 }
 
-export function drawCie() {
+// The diagram's SVG content and the readout under it.
+export function cieMarkup() {
+  if (!cieBase) buildCieBase();
   const h = cieHue(state.T);
   const star = starHue(state.T);
   const showStar = star.available && shownModels().includes("star");
@@ -53,6 +55,11 @@ export function drawCie() {
     marks += `<circle cx="${sx(s.x)}" cy="${sy(s.y)}" r="9" fill="none" stroke="#9cc4ff" stroke-width="2" stroke-dasharray="3 2"/>`;
     readout += `<br>Star (ring): x ${s.x.toFixed(3)}, y ${s.y.toFixed(3)}`;
   }
-  $("cie").innerHTML = `${cieBase}${marks}`;
+  return { svg: `${cieBase}${marks}`, readout };
+}
+
+export function drawCie() {
+  const { svg, readout } = cieMarkup();
+  $("cie").innerHTML = svg;
   $("cieReadout").innerHTML = readout;
 }

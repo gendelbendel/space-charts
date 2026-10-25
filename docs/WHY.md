@@ -93,3 +93,20 @@ The slider started as a plain log scale from 100 K to 100,000 K. That gave a thi
 | C, Star-focused | 4% | 72% | 4% |
 
 The owner chose B (2026-10-25: "Go with scale B (Balanced) as the default"). Its knots are in `v2/src/slider-scale.js`: piecewise linear in log T, with most of the bar for 2,400–12,000 K. C was rejected as too extreme: it leaves almost no room for brown dwarfs, the Draper point or the cold end, where the "objects go black" behavior lives. A test pins the shares (≤1,000 K at most 10%, O at most 6%, M–A at least 45%), so a future tweak can't drift back toward plain log without noticing. The comparison page was deleted once the choice was made.
+
+## The first screen is prerendered from the same builders
+
+The roadmap's P0.4 (2026-10-25): the page should be complete before its script runs, and without it. `build.mjs` fills `{{name}}` slots in the partials with values from `v2/src/prerender.js`, which sets the shared `state` to the Sun and calls the same string builders the page uses (`discLooks`, `pipelinesHtml`, `objectsHtml`, `legendHtml`, `statsText`, …). A second, build-only copy of the markup was rejected: it would drift from what the script renders, and every drift is a jump when the script runs.
+
+**Modules imported by the build must not touch the page when they load.** Listeners and element lookups go in an `init…()` function called from `app.js` (`initChart`, `initObjectsList`, `initFaq`), or happen lazily on the first render (the star's discs). `state.js` reads `location` only when it exists.
+
+**What is baked, and what isn't.** The readout, class chip, verdict, star, hex, mode note, slider track and position, legend, stats, pipelines, objects list and FAQ class list are baked. The chart (a canvas) and the color map are not: the color map's SVG is 1.4 KB gzipped of pure graphics with no text worth having without JS, and both boxes are sized by CSS, so nothing moves when they draw. The slider's class letters and marks aren't baked either: their collision-hiding needs real text widths, and their row has a fixed height. The modes are always the defaults, so `aria-pressed`, `aria-selected` and the active panel are written statically in the partials. The prerender adds about 2.2 KB gzipped.
+
+**`?t=` links start from the Sun.** The baked page is the Sun, and the first render switches to the URL's temperature. Measured in Chromium (2026-10-25), the inline script renders 20–30 ms before the first paint, so the Sun never shows. On a slow connection the browser could paint the top of the page before the script at the end arrives, so a brief Sun is possible there. Accepted rather than hiding the readout until the script runs, which would make every slow load worse to fix a rare one.
+
+**What the hydration check found.** `npm run check:layout` loads each size with JavaScript off and on and fails if a block moves by more than 1 px (the script rounds the readout's width up to a whole pixel, which CSS can't match). Its first run found two things:
+
+- The legend was filled by the chart code, so it was empty until the script ran and then pushed the chart down. It's baked now.
+- At 768×1024 the chart's height depended on load history. The canvas was in the flow with `height: 100%` inside an auto-height box, and the script copies its laid-out height into its pixel height, which became its intrinsic height, which held the card at whatever height it first got (315 px when the legend was still empty, 297 px with it; a resize didn't settle it either). The canvas is now absolutely positioned inside its box, so the box's size comes from CSS alone. This is the one visible change from P0.4: at tablet size the chart and color map cards are 18 px shorter.
+
+Before the script runs, the readout's text box gets its width from `field-sizing: content` plus 2 px for the caret (only while it has no inline style), so the "K" doesn't jump. Browsers without `field-sizing` show a wider box until the script runs.

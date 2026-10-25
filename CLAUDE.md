@@ -22,6 +22,7 @@ v2/
   pages/index.html       the v2 page, served at /
   partials/*.html        shared HTML pieces, expanded at build (<!-- include: name -->)
   src/physics.js         Planck, CIE 1931 pipeline, real-star lookup, brightness model, input parsing
+  src/prerender.js       bakes the first screen into the HTML at build time, from the same builders
   src/app.js             wires the UI modules: state.js (state, URL) -> render() -> controls, readout,
                          stage, chart, cie-diagram, pipelines, objects-list, faq; format.js is pure
   src/slider-scale.js    temperature <-> slider position (piecewise log, weighted toward 2,400–12,000 K)

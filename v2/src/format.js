@@ -1,5 +1,5 @@
 // Pure text formatting, with no DOM access, so the build can use it too.
-import { VISION } from "./physics.js";
+import { VISION, visibleFraction, radiantExitance } from "./physics.js";
 
 export const formatK = T => T.toLocaleString("en-US");
 export function formatWavelength(nm) {
@@ -26,4 +26,15 @@ export function visibilityVerdict(Lv, peakNm) {
   if (peakNm < 380) return `<strong>Blinding blue-white.</strong> Mostly ultraviolet light (peak ${peak}).`;
   if (peakNm > 780) return `<strong>Clearly visible,</strong> though most of its output is infrared (peak ${peak}).`;
   return `<strong>Clearly visible.</strong> Its peak (${peak}) is visible light.`;
+}
+
+// The four stats under the chart, keyed by element id.
+export function statsText(T, Lv, peakNm) {
+  const vf = visibleFraction(T);
+  return {
+    sPeak: formatWavelength(peakNm),
+    sVis: vf < 1e-4 ? formatSci(vf * 100) + " %" : (vf * 100).toFixed(vf < 0.1 ? 2 : 1) + " %",
+    sLum: formatSci(Lv) + " cd/m²",
+    sFlux: formatSci(radiantExitance(T)) + " W",
+  };
 }

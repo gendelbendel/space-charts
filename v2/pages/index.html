@@ -213,11 +213,11 @@
   </div>
   <div class="viz" id="viz">
     <div class="tabs" data-tabs role="tablist" aria-label="Visualization">
-      <button type="button" role="tab" data-view="spectrum"><span class="solo">Spectrum</span><span class="both">Spectrum + map</span></button>
-      <button type="button" role="tab" data-view="map">Color map</button>
-      <button type="button" role="tab" data-view="numbers">Numbers</button>
+      <button type="button" role="tab" data-view="spectrum" aria-selected="true"><span class="solo">Spectrum</span><span class="both">Spectrum + map</span></button>
+      <button type="button" role="tab" data-view="map" aria-selected="false">Color map</button>
+      <button type="button" role="tab" data-view="numbers" aria-selected="false">Numbers</button>
     </div>
-    <div class="panel" data-view-panel="spectrum">
+    <div class="panel active" data-view-panel="spectrum">
 <!-- include: spectrum -->
     </div>
     <div class="panel" data-view-panel="map">
