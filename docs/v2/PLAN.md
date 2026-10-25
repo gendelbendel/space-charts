@@ -2,7 +2,7 @@
 
 ## Status (2026-10-25)
 
-This section is current. Sections 1–8 below are the original plan from 2026-10-23, updated where the build changed it. Section 9 lists what's still open.
+This section is current. Sections 1–8 below are the original plan from 2026-10-23, updated where the build changed it. Section 9 lists what's still open. New features are planned in `ROADMAP.md`; several of its packages close open questions here (3, 4, 6 and 7).
 
 v2 is built and is the default page. v1 is served at `/v1/`. Its only change is a banner link back to v2 that keeps the current `?temp=`.
 

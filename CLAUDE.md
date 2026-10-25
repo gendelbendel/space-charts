@@ -12,6 +12,8 @@ Path-scoped detail lives in `.claude/rules/` (`physics.md`, `ui.md`, `deployment
 
 `docs/v2/PLAN.md` holds the v2 plan: the audit of v1's bugs, the color models and their data sources, verified reference values, architecture, size budget and open questions. It's the source of truth for those decisions. This file is a summary and defers to it on conflict. Update its "Status" section when routes, layout tiers or open questions change.
 
+`docs/v2/ROADMAP.md` is the build plan for the next 25 features, split into work packages a session can start from ("build package P1.A"). Tick its status table when a package lands, and record the owner's answers to its decisions there.
+
 ## Repo layout
 
 ```
