@@ -27,7 +27,15 @@ Written 2026-10-25. The owner asked for all 25 ideas from the brainstorm, built 
 | P5.A Per-star pages and preview images | #18 | P0.4, P1.B | not started | own pages |
 | P5.B Embed page | #20 | P0.4 | not started | own page |
 
-Feature numbers match the brainstorm list (reproduced at the end). The main page is 24.7 KB gzipped today; the estimates add up to about 40 KB (see D1).
+Feature numbers match the brainstorm list (reproduced at the end). The main page is 27.5 KB gzipped after Phase 0 (budget 40 KB, see D1); the remaining estimates add up to about 40 KB.
+
+### Next up (updated 2026-10-25)
+
+Phase 0 is done and live except P0.3. Everything through P0.4 is on `main` and deployed.
+
+- **Ready now, can run in parallel:** P0.3 and P2.B (data and tests only), then wave 2: P1.A, P1.B, P1.C, P1.D, P3.D, P4.B. P1.C and P1.D need D4 answered first (where the new controls go).
+- **Starting a package:** run `npm install`, then `npm run snapshot:save` on the starting commit if the package should leave existing states looking the same. Baselines are local (`v2/.snapshots/`, gitignored), so every session saves its own. Finish with `npm run test:v2`, `npm run check:layout` and, where relevant, `npm run snapshot:compare`; add a snapshot state for any new control.
+- **Known issue to fold into the next package that touches the chart (P2.A):** at 375×667 the chart legend gets only about 6 px of height and is clipped, with or without JS. It predates Phase 0.
 
 ## Decisions for the owner
 

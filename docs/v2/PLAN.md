@@ -301,7 +301,7 @@ Compared with v1, it drops the "Libraries" and "Todos" entries, fixes "it's" →
 ## 9. Open questions
 
 1. ~~**Vercel routing**~~ Resolved 2026-10-25. Verified on the live site (2026-10-25): `/v1?temp=3600` → `/v1/?temp=3600`, and `/b?t=4000` and `/b/?t=4000` → `/?t=4000`, all as 307 (temporary) redirects that keep the query string.
-2. **Real devices and Safari:** everything was checked in Chrome at emulated sizes. Safari sizes form controls differently. The readout's text box overlap (fixed 2026-10-25) is the kind of bug that shows up there first.
+2. **Real devices and Safari:** everything was checked in Chrome at emulated sizes. Safari sizes form controls differently. The readout's text box overlap (fixed 2026-10-25) is the kind of bug that shows up there first. A cheap first look: `npx playwright install webkit`, then `node v2/tools/check-layout.mjs --browser webkit` (not tried yet).
 3. **CIE table:** diff `v2/src/data/cie1931.js` against CIE's official CSV (doi:10.25039/CIE.DS.xvudnb9b). It matches the published Planckian locus to four decimals but was typed in, not downloaded.
 4. **Scotopic vision:** use the CIE 1951 V′(λ) curve for the rod-only "grey glow" range instead of photopic luminance.
 5. **Star temperatures:** Pollux and Altair sources disagree (Altair's poles and equator differ by ~1,600 K). Pick and cite a source per star.
@@ -309,3 +309,4 @@ Compared with v1, it drops the "Libraries" and "Todos" entries, fixes "it's" →
 7. **Performance guardrails:** the size check is done (2026-10-25). Lighthouse CI on Vercel previews is still open.
 8. **Tag v1:** `git tag v1.0.0` on the last commit before v2, if the owner wants it.
 9. **"NASA's version":** the owner mentioned it on 2026-10-22. No NASA-specific method was found; CIE 1931 plus the Real stars model covers it unless the owner had a specific page in mind.
+10. **Legend clipped on small phones:** at 375×667 the chart legend gets about 6 px of height and is cut off, with or without JS (found 2026-10-25, predates the prerender). Planned for roadmap P2.A, which reworks the chart.
