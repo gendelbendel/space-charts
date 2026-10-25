@@ -111,7 +111,7 @@ No behavior change. Suggested modules: `state.js` (state, URL read/write), `form
 
 - Download CIE 1931 2° from doi:10.25039/CIE.DS.xvudnb9b, check its license, and add a test that compares every 5 nm row of `v2/src/data/cie1931.js` with it. If the license doesn't allow committing the CSV, commit a script that downloads it and diffs it, and record the result in `PLAN.md`.
 - Closes `PLAN.md` open question 3.
-- **Done (2026-10-25).** The CSV is CC BY-SA 4.0, so it's committed unmodified, with CIE's metadata file (license and DOI), in `v2/test/data/`. Every embedded value is the official one rounded to six decimals (largest gap 4.9 × 10⁻⁷, x̄ at 780 nm), so the table stays as it is and the test allows half a unit in the sixth decimal. Changing one entry by 2 × 10⁻⁶ fails it. No change to the page.
+- **Done (2026-10-25).** The CSV is CC BY-SA 4.0, so it's committed unmodified, with CIE's metadata file (license and DOI), in `v2/test/data/`. Every embedded value is the official one rounded to six decimals (largest gap 4.9 × 10⁻⁷, x̄ at 780 nm), so the table stays as it is and the test allows half a unit in the sixth decimal. Changing one entry by 2 × 10⁻⁶ fails it. No change to the page. Afterwards the owner asked for CC BY-SA attribution: the FAQ "How is the CIE 1931 color calculated?" credits both CIE datasets (this one and P2.B's) with DOIs and the license.
 
 ### P0.4 Prerender the first screen (#22)
 
