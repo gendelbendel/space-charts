@@ -31,7 +31,7 @@ The owner asked to "ensure that the math is correct" (2026-10-22). Tests compare
 - π∫B dλ equals σT⁴ (Stefan–Boltzmann), which catches nm/m unit slips anywhere in `planck()`.
 - Every row of the real-star table reproduces the paper's own hex code.
 
-The CIE 1931 table in `v2/src/data/cie1931.js` was typed in from memory and then verified against the locus values above, which it matches to four decimals. It hasn't been diffed against CIE's official CSV (doi:10.25039/CIE.DS.xvudnb9b) yet; that's an open item in `docs/v2/PLAN.md`.
+The CIE 1931 table in `v2/src/data/cie1931.js` was typed in from memory and then verified against the locus values above, which it matches to four decimals. On 2026-10-25 it was diffed against CIE's official CSV (doi:10.25039/CIE.DS.xvudnb9b, CC BY-SA 4.0): every entry is the official value rounded to six decimals (largest gap 4.9 × 10⁻⁷). The CSV is committed unmodified, with its metadata, in `v2/test/data/`, and a test checks every 5 nm row against it, so the embedded table can't drift from the source. It was kept rather than replaced with the full-precision values because the difference changes no displayed color and the shorter numbers keep the page smaller.
 
 ## Cold objects render black not red
 

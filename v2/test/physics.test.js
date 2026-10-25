@@ -1,11 +1,12 @@
 import { test } from "node:test";
+import { readFileSync } from "node:fs";
 import assert from "node:assert/strict";
 import {
   PHYS, planck, trapezoid, cieHue, simpleHue, starHue, displayColor, luminance,
   wienPeakNm, radiantExitance, parseTemperature, encodeSrgb, toHex,
 } from "../src/physics.js";
 import { HARRE_HELLER_2021 } from "../src/data/harre-heller-2021.js";
-import { CIE1931_2DEG } from "../src/data/cie1931.js";
+import { CIE1931_2DEG, CMF_START_NM, CMF_STEP_NM, CMF_ROWS } from "../src/data/cie1931.js";
 
 const close = (actual, expected, tol, msg) =>
   assert.ok(Math.abs(actual - expected) <= tol, `${msg}: expected ${expected} ± ${tol}, got ${actual}`);
@@ -25,6 +26,26 @@ test("the color matching table is balanced: an equal-energy spectrum is white (1
   const total = sums[0] + sums[1] + sums[2];
   close(sums[0] / total, 1 / 3, 2e-4, "x");
   close(sums[1] / total, 1 / 3, 2e-4, "y");
+});
+
+// The embedded table was typed in, not downloaded. This compares every 5 nm row
+// with CIE's official dataset (doi:10.25039/CIE.DS.xvudnb9b, CIE 018:2019 Table 6,
+// 360–830 nm at 1 nm, CC BY-SA 4.0), committed unmodified in test/data with its
+// metadata. The embedded values are the official ones rounded to six decimals, so
+// no entry may be off by more than half a unit in the sixth decimal (diffed
+// 2026-10-25: the largest gap is 4.9 × 10⁻⁷, x̄ at 780 nm).
+test("the color matching table is CIE's official CSV, rounded to six decimals", () => {
+  const csv = readFileSync(new URL("./data/CIE_xyz_1931_2deg.csv", import.meta.url), "utf8");
+  const official = new Map(csv.trim().split(/\r?\n/).map(line => {
+    const [nm, ...xyz] = line.split(",").map(Number);
+    return [nm, xyz];
+  }));
+  assert.equal(official.size, 471, "the official CSV covers 360–830 nm at 1 nm");
+  assert.equal(CMF_START_NM + (CMF_ROWS - 1) * CMF_STEP_NM, 780);
+  for (let i = 0; i < CMF_ROWS; i++) {
+    const nm = CMF_START_NM + i * CMF_STEP_NM;
+    official.get(nm).forEach((expected, k) => close(CIE1931_2DEG[3 * i + k], expected, 5e-7 + 1e-12, `${"xyz"[k]}̄ at ${nm} nm`));
+  }
 });
 
 test("Wien's law puts the Sun's peak near 502 nm", () => {

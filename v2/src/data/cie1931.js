@@ -1,5 +1,7 @@
 // CIE 1931 2° standard observer color matching functions, 380–780 nm at 5 nm,
-// flattened as [x̄, ȳ, z̄] triples. Source: CIE, doi:10.25039/CIE.DS.xvudnb9b.
+// flattened as [x̄, ȳ, z̄] triples. Source: CIE, doi:10.25039/CIE.DS.xvudnb9b
+// (CC BY-SA 4.0). These are the official values rounded to six decimals; a test
+// checks every row against the official CSV in v2/test/data.
 export const CMF_START_NM = 380;
 export const CMF_STEP_NM = 5;
 

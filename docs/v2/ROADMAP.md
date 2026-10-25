@@ -10,7 +10,7 @@ Written 2026-10-25. The owner asked for all 25 ideas from the brainstorm, built 
 |---|---|---|---|---|
 | P0.1 Automated checks | #23, #24 | — | done 2026-10-25 | 0 |
 | P0.2 Split `app.js`, object records | (enabler) | P0.1 | done 2026-10-25 | +0.3 |
-| P0.3 CIE table vs. official CSV | #25 | — | not started | 0 |
+| P0.3 CIE table vs. official CSV | #25 | — | done 2026-10-25 | 0 |
 | P0.4 Prerender the first screen | #22 | P0.2 | done 2026-10-25 | +2.2 |
 | P1.A Readout takes names and units | #4, #5 | P0.2 | not started | est. +0.5 |
 | P1.B Everyday and cosmic objects | #6, #7 | P0.2 | not started | est. +1 |
@@ -31,9 +31,9 @@ Feature numbers match the brainstorm list (reproduced at the end). The main page
 
 ### Next up (updated 2026-10-25)
 
-Phase 0 is done and live except P0.3. Everything through P0.4 is on `main` and deployed.
+Phase 0 is done. P0.1, P0.2 and P0.4 are deployed; P0.3 (tests only, no page change) is on `main`, not yet pushed.
 
-- **Ready now, can run in parallel:** P0.3 and P2.B (data and tests only), then wave 2: P1.A, P1.B, P1.C, P1.D, P3.D, P4.B. P1.C and P1.D need D4 answered first (where the new controls go).
+- **Ready now, can run in parallel:** P2.B (physics only), then wave 2: P1.A, P1.B, P1.C, P1.D, P3.D, P4.B. P1.C and P1.D need D4 answered first (where the new controls go).
 - **Starting a package:** run `npm install`, then `npm run snapshot:save` on the starting commit if the package should leave existing states looking the same. Baselines are local (`v2/.snapshots/`, gitignored), so every session saves its own. Finish with `npm run test:v2`, `npm run check:layout` and, where relevant, `npm run snapshot:compare`; add a snapshot state for any new control.
 - **Known issue to fold into the next package that touches the chart (P2.A):** at 375×667 the chart legend gets only about 6 px of height and is clipped, with or without JS. It predates Phase 0.
 
@@ -111,6 +111,7 @@ No behavior change. Suggested modules: `state.js` (state, URL read/write), `form
 
 - Download CIE 1931 2° from doi:10.25039/CIE.DS.xvudnb9b, check its license, and add a test that compares every 5 nm row of `v2/src/data/cie1931.js` with it. If the license doesn't allow committing the CSV, commit a script that downloads it and diffs it, and record the result in `PLAN.md`.
 - Closes `PLAN.md` open question 3.
+- **Done (2026-10-25).** The CSV is CC BY-SA 4.0, so it's committed unmodified, with CIE's metadata file (license and DOI), in `v2/test/data/`. Every embedded value is the official one rounded to six decimals (largest gap 4.9 × 10⁻⁷, x̄ at 780 nm), so the table stays as it is and the test allows half a unit in the sixth decimal. Changing one entry by 2 × 10⁻⁶ fails it. No change to the page.
 
 ### P0.4 Prerender the first screen (#22)
 

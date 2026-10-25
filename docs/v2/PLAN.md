@@ -131,7 +131,7 @@ These become unit tests (§6).
 
 | Data | Required? | Size | Source |
 |---|---|---|---|
-| CIE 1931 2° color matching functions (x̄ȳz̄), 380–780 nm at 5 nm | **Yes** | 81 rows, about 2 KB | CIE official dataset, [doi:10.25039/CIE.DS.xvudnb9b](https://doi.org/10.25039/CIE.DS.xvudnb9b). v2 embeds this table (`v2/src/data/cie1931.js`), and it matches the reference locus values above. Before release, diff it against the downloaded official CSV. |
+| CIE 1931 2° color matching functions (x̄ȳz̄), 380–780 nm at 5 nm | **Yes** | 81 rows, about 2 KB | CIE official dataset, [doi:10.25039/CIE.DS.xvudnb9b](https://doi.org/10.25039/CIE.DS.xvudnb9b). v2 embeds this table (`v2/src/data/cie1931.js`), and it matches the reference locus values above. Diffed 2026-10-25: it is the official CSV rounded to six decimals. The CSV (CC BY-SA 4.0) is in `v2/test/data/`, and a test checks every row. |
 | sRGB matrix and transfer function | **Yes** | 9 numbers | IEC 61966-2-1 |
 | CODATA 2018 exact constants (h, c, k_B) plus σ and Wien's b | **Yes** | 5 numbers | NIST CODATA |
 | Visual thresholds (absolute threshold, cone onset, full color) | **Yes**, for brightness | 3 numbers | Standard vision-science ranges (photopic / mesopic / scotopic). They're approximate, and the FAQ says so. |
@@ -302,7 +302,7 @@ Compared with v1, it drops the "Libraries" and "Todos" entries, fixes "it's" →
 
 1. ~~**Vercel routing**~~ Resolved 2026-10-25. Verified on the live site (2026-10-25): `/v1?temp=3600` → `/v1/?temp=3600`, and `/b?t=4000` and `/b/?t=4000` → `/?t=4000`, all as 307 (temporary) redirects that keep the query string.
 2. **Real devices and Safari:** everything was checked in Chrome at emulated sizes. Safari sizes form controls differently. The readout's text box overlap (fixed 2026-10-25) is the kind of bug that shows up there first. A cheap first look: `npx playwright install webkit`, then `node v2/tools/check-layout.mjs --browser webkit` (not tried yet).
-3. **CIE table:** diff `v2/src/data/cie1931.js` against CIE's official CSV (doi:10.25039/CIE.DS.xvudnb9b). It matches the published Planckian locus to four decimals but was typed in, not downloaded.
+3. ~~**CIE table**~~ Resolved 2026-10-25 (roadmap P0.3). Every entry of `v2/src/data/cie1931.js` is CIE's official value (doi:10.25039/CIE.DS.xvudnb9b) rounded to six decimals; the largest gap is 4.9 × 10⁻⁷ (x̄ at 780 nm). The CSV is CC BY-SA 4.0, so it's committed unmodified with its metadata in `v2/test/data/`, and `physics.test.js` compares every 5 nm row with it.
 4. **Scotopic vision:** use the CIE 1951 V′(λ) curve for the rod-only "grey glow" range instead of photopic luminance.
 5. **Star temperatures:** Pollux and Altair sources disagree (Altair's poles and equator differ by ~1,600 K). Pick and cite a source per star.
 6. **White point:** D65, so 6,500 K is white and the Sun is faintly peach. A Sun-adapted option could be a setting; for now it's an FAQ entry.
