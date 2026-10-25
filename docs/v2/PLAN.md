@@ -135,7 +135,7 @@ These become unit tests (§6).
 | sRGB matrix and transfer function | **Yes** | 9 numbers | IEC 61966-2-1 |
 | CODATA 2018 exact constants (h, c, k_B) plus σ and Wien's b | **Yes** | 5 numbers | NIST CODATA |
 | Visual thresholds (absolute threshold, cone onset, full color) | **Yes**, for brightness | 3 numbers | Standard vision-science ranges (photopic / mesopic / scotopic). They're approximate, and the FAQ says so. |
-| CIE 1951 scotopic luminosity V′(λ) | Recommended | 81 rows | CIE. Rods barely respond to deep red, so the "grey glow" threshold is more accurate with scotopic luminance than with the photopic Y v2 uses today. |
+| CIE 1951 scotopic luminosity V′(λ) | **Yes**, for brightness | 81 rows | CIE 018:2019 Table 2, [doi:10.25039/CIE.DS.gr6w4b5g](https://doi.org/10.25039/CIE.DS.gr6w4b5g) (CC BY-SA 4.0), embedded at 5 nm in `v2/src/data/cie1951-scotopic.js` and checked against the official CSV in `v2/test/data/`. Rods barely respond to deep red, so the "grey glow" range uses scotopic luminance (1,700 lm/W × ∫B·V′ dλ). |
 | Star catalog with sourced T_eff and spectral types | **Yes** | ~20 rows | SIMBAD and the primary papers. One citation per row. |
 | Harre & Heller model-atmosphere colors | Optional (third model) | Table by T_eff and log g | Paper supplement. Check the license before bundling. |
 | CIE 1964 10° observer | Optional | 81 rows | Only for matching Charity's table, which uses 10°. |
@@ -191,7 +191,7 @@ v2/
   src/slider-scale.js  temperature <-> slider position (weighted piecewise log)
   src/slider-marks.js  class letters and reference marks under the slider
   src/base.css         shared styles (layout tiers live in pages/index.html)
-  src/data/            cie1931.js, harre-heller-2021.js (generated), objects.js
+  src/data/            cie1931.js, cie1951-scotopic.js, harre-heller-2021.js (generated), objects.js
   partials/            HTML pieces: controls, stage, readout, chart, FAQ, …
   pages/index.html     the page  -> /
   build.mjs            expands partials, inlines CSS, bundles JS with esbuild
@@ -303,7 +303,7 @@ Compared with v1, it drops the "Libraries" and "Todos" entries, fixes "it's" →
 1. ~~**Vercel routing**~~ Resolved 2026-10-25. Verified on the live site (2026-10-25): `/v1?temp=3600` → `/v1/?temp=3600`, and `/b?t=4000` and `/b/?t=4000` → `/?t=4000`, all as 307 (temporary) redirects that keep the query string.
 2. **Real devices and Safari:** everything was checked in Chrome at emulated sizes. Safari sizes form controls differently. The readout's text box overlap (fixed 2026-10-25) is the kind of bug that shows up there first. A cheap first look: `npx playwright install webkit`, then `node v2/tools/check-layout.mjs --browser webkit` (not tried yet).
 3. ~~**CIE table**~~ Resolved 2026-10-25 (roadmap P0.3). Every entry of `v2/src/data/cie1931.js` is CIE's official value (doi:10.25039/CIE.DS.xvudnb9b) rounded to six decimals; the largest gap is 4.9 × 10⁻⁷ (x̄ at 780 nm). The CSV is CC BY-SA 4.0, so it's committed unmodified with its metadata in `v2/test/data/`, and `physics.test.js` compares every 5 nm row with it.
-4. **Scotopic vision:** use the CIE 1951 V′(λ) curve for the rod-only "grey glow" range instead of photopic luminance.
+4. ~~**Scotopic vision**~~ Resolved 2026-10-25 (roadmap P2.B). "Your eye" brightness now follows `eyeLuminance(T)`: scotopic (CIE 1951 V′) luminance in the rod-only range, photopic once the cones fully respond, mixed in between. The absolute threshold is compared with it too. Checked against Crumey's (2014) published S/P ratios. See `docs/WHY.md#cold-objects-render-black-not-red`.
 5. **Star temperatures:** Pollux and Altair sources disagree (Altair's poles and equator differ by ~1,600 K). Pick and cite a source per star.
 6. **White point:** D65, so 6,500 K is white and the Sun is faintly peach. A Sun-adapted option could be a setting; for now it's an FAQ entry.
 7. **Performance guardrails:** the size check is done (2026-10-25). Lighthouse CI on Vercel previews is still open.

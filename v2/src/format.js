@@ -1,5 +1,5 @@
 // Pure text formatting, with no DOM access, so the build can use it too.
-import { VISION, visibleFraction, radiantExitance } from "./physics.js";
+import { VISION, visibleFraction, radiantExitance, eyeLuminance } from "./physics.js";
 
 export const formatK = T => T.toLocaleString("en-US");
 export function formatWavelength(nm) {
@@ -18,9 +18,9 @@ export function formatSci(v, digits = 2) {
 export const formatTriple = values => values.map(v => v.toFixed(3)).join(", ");
 export const swatch = hex => `<span class="swatch" style="background:${hex}"></span>${hex}`;
 
-export function visibilityVerdict(Lv, peakNm) {
+export function visibilityVerdict(T, Lv, peakNm) {
   const peak = formatWavelength(peakNm);
-  if (Lv < VISION.absolute) return `<strong>Invisible.</strong> Its light peaks at ${peak}, far in the infrared.`;
+  if (eyeLuminance(T, Lv) < VISION.absolute) return `<strong>Invisible.</strong> Its light peaks at ${peak}, far in the infrared.`;
   if (Lv < VISION.conesStart) return `<strong>A faint, colorless glow.</strong> Too dim for your cones; only rods see it.`;
   if (Lv < VISION.fullColor) return `<strong>Dim, washed-out color.</strong> Your cones are only partly responding.`;
   if (peakNm < 380) return `<strong>Blinding blue-white.</strong> Mostly ultraviolet light (peak ${peak}).`;

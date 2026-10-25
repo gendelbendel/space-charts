@@ -47,7 +47,7 @@
     <details><summary>Why do cold objects go black instead of deep red?</summary><div>
       <p>Because almost none of their light is visible. At 300 K (room temperature, or you) the peak is near 10 µm in the infrared, and the visible light coming off it is about thirty orders of magnitude fainter than the Sun's.</p>
       <p>Heated objects start to faintly glow at about 800 K, the <a href="https://en.wikipedia.org/wiki/Draper_point">Draper point</a>. At first the glow looks grey rather than red, because at that brightness only your rods respond, and rods don't see color. Around 1,000 K a dull red appears, then orange, then yellowish white.</p>
-      <p>The <strong>Your eye</strong> brightness setting models this. The thresholds are approximate, because real vision depends on adaptation, viewing angle and the individual.</p>
+      <p>Rods also barely respond to deep red, so a dull red glow looks fainter to them than a light meter (which measures like your cones) would say. The <strong>Your eye</strong> brightness setting models this: in the rod-only range it uses scotopic (rod) luminance, from the CIE 1951 V′(λ) curve, instead of the usual photopic luminance. The thresholds are approximate, because real vision depends on adaptation, viewing angle and the individual.</p>
     </div></details>
     <details><summary>Why are there no green stars?</summary><div>
       <p>A blackbody's spectrum is a broad hump, never a narrow spike. Even when the peak lands in the green, as it does for the Sun, there's nearly as much red and blue light alongside it, and the mix looks white. On the color map you can see the Planckian locus curve right past the green region without touching it.</p>
@@ -97,7 +97,7 @@
       <p>and the same for Y with ȳ and Z with z̄. Y is the brightness (times 683 lm/W it's luminance in cd/m²). X and Y divided by X+Y+Z give the chromaticity (x, y): the color with brightness removed. A standard 3×3 matrix turns XYZ into linear sRGB, colors outside the screen's gamut are pulled in by adding white, and the sRGB gamma curve is applied last.</p>
     </div></details>
     <details><summary>How do I know the math is right?</summary><div>
-      <p>The code is checked by automated tests against published reference values. The blackbody colors match the published Planckian locus to four decimal places at 1,000 K, 2,856 K (CIE Illuminant A), 5,000 K and 10,000 K. Integrating Planck's law over every wavelength reproduces the Stefan–Boltzmann law. The Real stars table is checked row by row against the paper's own hex codes.</p>
+      <p>The code is checked by automated tests against published reference values. The blackbody colors match the published Planckian locus to four decimal places at 1,000 K, 2,856 K (CIE Illuminant A), 5,000 K and 10,000 K. Integrating Planck's law over every wavelength reproduces the Stefan–Boltzmann law. Both CIE tables are checked against CIE's official data files, and rod (scotopic) luminance reproduces published scotopic-to-photopic ratios, such as 1.41 for an incandescent lamp. The Real stars table is checked row by row against the paper's own hex codes.</p>
     </div></details>
     <details><summary>How hot is too hot, or too cold, for this to work?</summary><div>
       <p>Planck's law holds at any temperature. The limits are practical: below about 600 K there's no visible light to speak of, and above about 50,000 K the color stops changing. The slider covers 100 K to 100,000 K, and you can type anything up to 1,000,000 K.</p>

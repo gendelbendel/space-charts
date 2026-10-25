@@ -17,7 +17,7 @@ Written 2026-10-25. The owner asked for all 25 ideas from the brainstorm, built 
 | P1.C Color output: P3, copy, share | #16, #17, #19 | P0.2 | not started | est. +1 |
 | P1.D Heat it up, keyboard shortcuts | #1, #21 | P0.2 | not started | est. +1 |
 | P2.A Chart: per-frequency, lines, energy split | #10, #11, #12 | P0.2 | not started | est. +2 |
-| P2.B Scotopic vision | #15 | — | not started | est. +0.5 |
+| P2.B Scotopic vision | #15 | — | done 2026-10-25 | +0.6 |
 | P3.A Compare two temperatures | #9 | P2.A | not started | est. +2 |
 | P3.B HR diagram view | #13 | P1.B | not started | est. +2 |
 | P3.C Daylight on another world | #8 | P3.B | not started | est. +2 |
@@ -31,9 +31,9 @@ Feature numbers match the brainstorm list (reproduced at the end). The main page
 
 ### Next up (updated 2026-10-25)
 
-Phase 0 is done. P0.1, P0.2 and P0.4 are deployed; P0.3 (tests only, no page change) is on `main`, not yet pushed.
+Phase 0 is done. P0.1, P0.2 and P0.4 are deployed; P0.3 (tests only, no page change) and P2.B (scotopic vision) are on `main`, not yet pushed.
 
-- **Ready now, can run in parallel:** P2.B (physics only), then wave 2: P1.A, P1.B, P1.C, P1.D, P3.D, P4.B. P1.C and P1.D need D4 answered first (where the new controls go).
+- **Ready now, can run in parallel:** wave 2: P1.A, P1.B, P1.C, P1.D, P3.D, P4.B. P1.C and P1.D need D4 answered first (where the new controls go).
 - **Starting a package:** run `npm install`, then `npm run snapshot:save` on the starting commit if the package should leave existing states looking the same. Baselines are local (`v2/.snapshots/`, gitignored), so every session saves its own. Finish with `npm run test:v2`, `npm run check:layout` and, where relevant, `npm run snapshot:compare`; add a snapshot state for any new control.
 - **Known issue to fold into the next package that touches the chart (P2.A):** at 375×667 the chart legend gets only about 6 px of height and is clipped, with or without JS. It predates Phase 0.
 
@@ -173,6 +173,7 @@ All three edit `chart.js` and the stats, so they're one package.
   - **Golden test:** published S/P ratios: CIE Illuminant A ≈ 1.41, a 6,500 K blackbody ≈ 2.2–2.5 (cite the source used).
   - Re-check the existing tests: 310 K → `#000000` and 798 K achromatic.
 - Closes `PLAN.md` open question 4. Physics only, no UI, so it can run alongside anything.
+- **Done (2026-10-25).** V′(λ) comes from CIE's official CSV (CIE 018:2019 Table 2, CC BY-SA 4.0), committed in `v2/test/data/` and matched exactly at 5 nm. `scotopicLuminance(T)` and `eyeLuminance(T)` are new in `physics.js`. In "Your eye" mode, brightness follows the eye's luminance: scotopic below `conesStart`, photopic from `fullColor`, mixed in between. Saturation still follows photopic luminance. The S/P golden test uses Crumey (2014, MNRAS 442, 2600, §1.3): 1.408 at 2,850 K (we get 1.4096, ±0.002 allowed), ρ(2850)/ρ(2360) = 1.220, and his Eq. 7 fit within 1 % from 2,500 to 50,000 K (6,500 K: 2.445). His fit is 2.2 % off at 2,000 K, the bottom of its range, so that end isn't tested. The roadmap's ≈2.2–2.5 at 6,500 K holds. One small UI-module change: the verdict and the disc's invisible flag compare the absolute threshold with `eyeLuminance` (`visibilityVerdict` now takes `T`), so they match the disc. Only "Your eye" colors from 631 to 999 K changed (Draper point `#3c3c3c` → `#292929`, threshold ~607 → 652 K), and the 310 K and 798 K tests still pass. FAQ "Why do cold objects go black" and "How do I know the math is right?" mention it. `check:layout` passes; `snapshot:compare` differs only in those colors, the cold end of the slider track and the FAQ text.
 
 ## Phase 3: new visuals
 

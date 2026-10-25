@@ -27,7 +27,7 @@ v2/
                          stage, chart, cie-diagram, pipelines, objects-list, faq; format.js is pure
   src/slider-scale.js    temperature <-> slider position (piecewise log, weighted toward 2,400–12,000 K)
   src/slider-marks.js    class letters and reference marks under a slider, collision-aware
-  src/data/              cie1931.js, harre-heller-2021.js (generated), objects.js (stars, classes, marks)
+  src/data/              cie1931.js, cie1951-scotopic.js, harre-heller-2021.js (generated), objects.js (stars, classes, marks)
   src/base.css           shared tokens and components; layout tiers live in pages/index.html
   build.mjs              builds each page into one self-contained HTML file in build/
   test/                  node --test golden tests (physics, slider scales)

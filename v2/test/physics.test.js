@@ -4,9 +4,11 @@ import assert from "node:assert/strict";
 import {
   PHYS, planck, trapezoid, cieHue, simpleHue, starHue, displayColor, luminance,
   wienPeakNm, radiantExitance, parseTemperature, encodeSrgb, toHex,
+  scotopicLuminance, eyeLuminance, VISION,
 } from "../src/physics.js";
 import { HARRE_HELLER_2021 } from "../src/data/harre-heller-2021.js";
 import { CIE1931_2DEG, CMF_START_NM, CMF_STEP_NM, CMF_ROWS } from "../src/data/cie1931.js";
+import { SCOTOPIC_V } from "../src/data/cie1951-scotopic.js";
 
 const close = (actual, expected, tol, msg) =>
   assert.ok(Math.abs(actual - expected) <= tol, `${msg}: expected ${expected} ± ${tol}, got ${actual}`);
@@ -28,6 +30,15 @@ test("the color matching table is balanced: an equal-energy spectrum is white (1
   close(sums[1] / total, 1 / 3, 2e-4, "y");
 });
 
+// CIE's datasets are CSV files of wavelength followed by one or more values.
+function readCieCsv(name) {
+  const csv = readFileSync(new URL(`./data/${name}`, import.meta.url), "utf8");
+  return new Map(csv.trim().split(/\r?\n/).map(line => {
+    const [nm, ...values] = line.split(",").map(Number);
+    return [nm, values];
+  }));
+}
+
 // The embedded table was typed in, not downloaded. This compares every 5 nm row
 // with CIE's official dataset (doi:10.25039/CIE.DS.xvudnb9b, CIE 018:2019 Table 6,
 // 360–830 nm at 1 nm, CC BY-SA 4.0), committed unmodified in test/data with its
@@ -35,17 +46,57 @@ test("the color matching table is balanced: an equal-energy spectrum is white (1
 // no entry may be off by more than half a unit in the sixth decimal (diffed
 // 2026-10-25: the largest gap is 4.9 × 10⁻⁷, x̄ at 780 nm).
 test("the color matching table is CIE's official CSV, rounded to six decimals", () => {
-  const csv = readFileSync(new URL("./data/CIE_xyz_1931_2deg.csv", import.meta.url), "utf8");
-  const official = new Map(csv.trim().split(/\r?\n/).map(line => {
-    const [nm, ...xyz] = line.split(",").map(Number);
-    return [nm, xyz];
-  }));
+  const official = readCieCsv("CIE_xyz_1931_2deg.csv");
   assert.equal(official.size, 471, "the official CSV covers 360–830 nm at 1 nm");
   assert.equal(CMF_START_NM + (CMF_ROWS - 1) * CMF_STEP_NM, 780);
   for (let i = 0; i < CMF_ROWS; i++) {
     const nm = CMF_START_NM + i * CMF_STEP_NM;
     official.get(nm).forEach((expected, k) => close(CIE1931_2DEG[3 * i + k], expected, 5e-7 + 1e-12, `${"xyz"[k]}̄ at ${nm} nm`));
   }
+});
+
+// The scotopic table was taken from CIE's official CSV (CIE 018:2019 Table 2,
+// doi:10.25039/CIE.DS.gr6w4b5g, CC BY-SA 4.0), every 5 nm row, without rounding.
+test("the scotopic V′(λ) table is CIE's official CSV at 5 nm", () => {
+  const official = readCieCsv("CIE_sle_scotopic.csv");
+  assert.equal(SCOTOPIC_V.length, CMF_ROWS, "same wavelength grid as the color matching table");
+  for (let i = 0; i < CMF_ROWS; i++) {
+    const nm = CMF_START_NM + i * CMF_STEP_NM;
+    assert.equal(SCOTOPIC_V[i], official.get(nm)[0], `V′ at ${nm} nm`);
+  }
+  assert.equal(official.get(507)[0], 1, "V′ peaks at 507 nm");
+});
+
+// Rods (CIE 1951 V′) and cones (CIE 1924 V, which is ȳ) weight a spectrum
+// differently, and the S/P ratio ρ = 1700∫E·V′ dλ / 683∫E·V dλ measures how.
+// Crumey (2014, MNRAS 442, 2600, §1.3) evaluates it for blackbodies with the
+// same CIE tables: ρ = 1.408 at 2,850 K (Blackwell's lamps, equivalent to CIE
+// Illuminant A, the usual "S/P 1.41"), ρ(2850 K)/ρ(2360 K) = 1.220, and his Eq. 7
+// fit, ρ = 5.738×10⁶/T² − 8.152×10³/T + 3.564, within about 1 % from 2,000 to
+// 50,000 K (2.45 for a 6,500 K blackbody). A wrong K′m (1,700 lm/W), a shifted
+// table or an nm/m slip in scotopicLuminance() breaks all three. We get 1.4096 at
+// 2,850 K whether the official tables are used at 5 nm or 1 nm, 380–780 nm or
+// 360–830 nm, so the 0.1 % gap to his 1.408 lies in his inputs (table edition or
+// rounding), and that check allows ±0.002. The fit agrees with our integration
+// to 0.01 % at 2,850, 6,500 and 30,000 K and within 1 % from 2,500 K up, but is
+// 2.2 % off at 2,000 K, the bottom of its range, so that end isn't checked.
+test("scotopic luminance gives Crumey's (2014) published S/P ratios", () => {
+  const sp = T => scotopicLuminance(T) / luminance(T);
+  close(sp(2850), 1.408, 2e-3, "S/P at 2,850 K");
+  close(sp(2850) / sp(2360), 1.220, 1e-3, "S/P ratio of 2,850 K to 2,360 K");
+  const eq7 = T => 5.738e6 / T ** 2 - 8.152e3 / T + 3.564;
+  for (const T of [2500, 2856, 4000, 5772, 6500, 10000, 20000, 30000, 50000]) close(sp(T) / eq7(T), 1, 0.01, `S/P vs Eq. 7 at ${T} K`);
+});
+
+// The eye's luminance is the rods' (scotopic) below the cone threshold and the
+// cones' (photopic) once color is fully seen, so the rod-only "grey glow" range
+// uses scotopic luminance and bright light is unchanged.
+test("the eye uses scotopic luminance in the rod-only range and photopic in full color", () => {
+  for (const T of [650, 700, 798]) {
+    assert.ok(luminance(T) < VISION.conesStart, `${T} K is rod-only`);
+    assert.equal(eyeLuminance(T), scotopicLuminance(T), `${T} K`);
+  }
+  for (const T of [1500, 5772]) assert.equal(eyeLuminance(T), luminance(T), `${T} K`);
 });
 
 test("Wien's law puts the Sun's peak near 502 nm", () => {

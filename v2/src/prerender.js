@@ -30,7 +30,7 @@ export function prerender(T) {
     sliderValueText: `${formatK(T)} kelvin`,
     sliderTrack: sliderTrack(state.model, state.light),
     classChip: `Class ${spectralClass(T)}`,
-    verdict: visibilityVerdict(Lv, peakNm),
+    verdict: visibilityVerdict(T, Lv, peakNm),
     discs: discsHtml(looks),
     labelHex: stageHex(looks),
     stageNote: note.note,

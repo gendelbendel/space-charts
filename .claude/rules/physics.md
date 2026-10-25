@@ -10,7 +10,8 @@ paths:
 - Constants are the exact 2019 SI values (h, c, k_B) plus CODATA 2018 σ and Wien's b. Never round them.
 - `planck(nm, T)` takes nanometers and returns W·m⁻²·sr⁻¹·**m**⁻¹. The chart and the visible-fraction stat multiply by 1e-9 for per-nm. It returns 0 (never NaN) for non-positive inputs or when the exponent overflows.
 - Every math change needs a test against a published value (Planckian locus, Stefan–Boltzmann, Wien), not against the code's previous output. (Why: `docs/WHY.md#the-math-is-checked-against-published-values`)
-- `cie1931.js` is CIE 1931 2°, 380–780 nm at 5 nm. Changing it must keep the locus tests at ±0.0005. If you replace it with CIE's official CSV, diff the two first.
+- `cie1931.js` is CIE 1931 2°, 380–780 nm at 5 nm: CIE's official values rounded to six decimals, checked row by row against the official CSV in `v2/test/data/`. Changing it must keep the locus tests at ±0.0005.
+- `cie1951-scotopic.js` is the CIE 1951 scotopic V′(λ) on the same grid, exactly the official CSV's 5 nm rows. `scotopicLuminance` uses K′m = 1,700 lm/W. "Your eye" brightness and the absolute-threshold checks use `eyeLuminance` (scotopic in the rod-only range, photopic from `fullColor`); saturation and the displayed luminance stat stay photopic.
 - Colors flow as linear sRGB until the very end: hue → `applyBrightness` (luminance, mesopic desaturation, overexposure to white) → `encodeSrgb` → hex. Never apply gamma twice, and never compute luminance from encoded values.
 - Out-of-gamut colors (below ~1,500 K) get white added until no channel is negative. That keeps the hue. Don't clip channels instead.
 - Hue functions clamp T to `HUE_T_FLOOR` (50 K), because the visible spectrum underflows to 0 below that. Brightness uses the real T, so cold objects still go black.

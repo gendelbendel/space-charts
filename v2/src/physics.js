@@ -1,5 +1,6 @@
 import { CIE1931_2DEG, CMF_START_NM, CMF_STEP_NM, CMF_ROWS } from "./data/cie1931.js";
 import { HARRE_HELLER_2021 } from "./data/harre-heller-2021.js";
+import { SCOTOPIC_V } from "./data/cie1951-scotopic.js";
 
 // Exact SI values since 2019, plus derived constants (CODATA 2018).
 export const PHYS = {
@@ -9,6 +10,7 @@ export const PHYS = {
   sigma: 5.670374419e-8,
   wien: 2.897771955e-3,
   Km: 683,
+  KmScotopic: 1700,
 };
 
 export const T_MIN = 100;
@@ -20,8 +22,9 @@ export const SUN_TEFF = 5772;
 const HUE_T_FLOOR = 50;
 
 // Approximate luminance thresholds (cd/m²) for a dark-adapted eye: below
-// `absolute` nothing is seen, below `conesStart` only rods respond (no color),
-// and above `fullColor` vision is fully photopic.
+// `absolute` (a rod threshold, compared with eyeLuminance) nothing is seen,
+// below `conesStart` only rods respond (no color), and above `fullColor`
+// vision is fully photopic.
 export const VISION = { absolute: 1e-6, conesStart: 1e-2, fullColor: 3 };
 
 export const SIMPLE_BANDS = [
@@ -75,6 +78,13 @@ export function cieXYZ(T) {
 /** Photopic surface luminance of a blackbody, in cd/m². */
 export const luminance = T => PHYS.Km * cieXYZ(T)[1];
 const SUN_LUMINANCE = luminance(SUN_TEFF);
+
+/** Scotopic (rod) luminance of a blackbody, in scotopic cd/m². */
+export function scotopicLuminance(T) {
+  let sum = 0;
+  for (let i = 0; i < CMF_ROWS; i++) sum += planck(CMF_START_NM + i * CMF_STEP_NM, T) * SCOTOPIC_V[i];
+  return PHYS.KmScotopic * sum * CMF_STEP_NM * 1e-9;
+}
 
 export const wienPeakNm = T => (PHYS.wien / T) * 1e9;
 export const radiantExitance = T => PHYS.sigma * T ** 4;
@@ -137,6 +147,22 @@ export const MODELS = {
   star: { label: "Real stars", hue: starHue },
 };
 
+// Where L sits between lo and hi on a log scale, from 0 to 1.
+const logPosition = (L, lo, hi) => clamp01(Math.log10(Math.max(L, 1e-300) / lo) / Math.log10(hi / lo));
+// How far the cones have taken over from the rods: 0 below `conesStart`, 1 from `fullColor`.
+const coneShare = Lv => logPosition(Lv, VISION.conesStart, VISION.fullColor);
+
+/**
+ * The luminance a dark-adapted eye responds to, in cd/m²: scotopic while only
+ * rods see, photopic once the cones fully respond, and a mix in between (the
+ * form of CIE 191:2010's mesopic model, simplified). Rods barely see deep red,
+ * so a dim red-hot glow is fainter to the eye than its photopic luminance says.
+ */
+export function eyeLuminance(T, Lv = luminance(T)) {
+  const m = coneShare(Lv);
+  return m === 1 ? Lv : m * Lv + (1 - m) * scotopicLuminance(T);
+}
+
 export function brightnessFor(T, mode) {
   const Lv = luminance(T);
   if (mode === "hue") return { scale: 1, saturation: 1, Lv };
@@ -144,11 +170,9 @@ export function brightnessFor(T, mode) {
     const relative = Lv / SUN_LUMINANCE;
     return { scale: 1 - Math.exp(-2 * relative), saturation: 1, Lv, overexpose: true };
   }
-  const logL = Math.log10(Math.max(Lv, 1e-300));
-  const lo = Math.log10(VISION.absolute), hi = Math.log10(VISION.fullColor), cones = Math.log10(VISION.conesStart);
   return {
-    scale: clamp01((logL - lo) / (hi - lo)) ** 3,
-    saturation: clamp01((logL - cones) / (hi - cones)),
+    scale: logPosition(eyeLuminance(T, Lv), VISION.absolute, VISION.fullColor) ** 3,
+    saturation: coneShare(Lv),
     Lv,
   };
 }

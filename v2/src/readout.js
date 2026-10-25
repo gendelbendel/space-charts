@@ -88,5 +88,5 @@ export function renderReadout(Lv, peakNm) {
     sizeReadout(num.value);
   }
   renderClassInfo();
-  $("verdict").innerHTML = visibilityVerdict(Lv, peakNm);
+  $("verdict").innerHTML = visibilityVerdict(state.T, Lv, peakNm);
 }
