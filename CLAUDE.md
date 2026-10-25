@@ -22,7 +22,8 @@ v2/
   pages/index.html       the v2 page, served at /
   partials/*.html        shared HTML pieces, expanded at build (<!-- include: name -->)
   src/physics.js         Planck, CIE 1931 pipeline, real-star lookup, brightness model, input parsing
-  src/app.js             the page's UI controller (state, render, chart, color map, FAQ search)
+  src/app.js             wires the UI modules: state.js (state, URL) -> render() -> controls, readout,
+                         stage, chart, cie-diagram, pipelines, objects-list, faq; format.js is pure
   src/slider-scale.js    temperature <-> slider position (piecewise log, weighted toward 2,400–12,000 K)
   src/slider-marks.js    class letters and reference marks under a slider, collision-aware
   src/data/              cie1931.js, harre-heller-2021.js (generated), objects.js (stars, classes, marks)
@@ -31,6 +32,7 @@ v2/
   test/                  node --test golden tests (physics, slider scales)
   tools/layout-stability.js  browser check: nothing moves, overlaps or spills when modes change
   tools/check-layout.mjs     runs that check with Playwright at every tier's sizes (npm run check:layout)
+  tools/snapshot.mjs         before/after comparison of 108 page states (npm run snapshot:save / snapshot:compare)
 vercel.json              redirects /v1 -> /v1/ and /b -> /
 ```
 
@@ -63,12 +65,13 @@ python3 -m http.server 4173 --directory build # or the "site" config in .claude/
 ## Verifying changes
 
 ```bash
-npm run test:v2    # physics + slider-scale golden tests
+npm run test:v2    # physics + slider-scale golden tests, object data checks
 npm run build:v2   # must build; fails if a page is over its gzip budget
 npm run check:layout  # UI changes: Playwright runs the layout check at 12 sizes (~10 s)
+npm run snapshot:compare  # refactors: must match a baseline saved before the change (~1 min)
 npm run build      # before touching deploy config or v1
 ```
-For UI changes, run `npm run check:layout`. At every size from 320×568 to 1920×1080 it checks that nothing moves, overlaps or spills across every mode and temperature, that the star, readout, chart, color map and controls fit on the first screen, and that the desktop columns end together. It saves a screenshot per size to `build/__shots/`; look at the ones your change affects. There is no light theme. Judge layout from measurements (`getBoundingClientRect`, that check), not screenshots alone: browser-pane screenshots can come back scaled or stale, especially while the pane is hidden. Only Chrome has been tested; Safari renders form controls differently, so be conservative with input sizing.
+For UI changes, run `npm run check:layout`. At every size from 320×568 to 1920×1080 it checks that nothing moves, overlaps or spills across every mode and temperature, that the star, readout, chart, color map and controls fit on the first screen, and that the desktop columns end together. It saves a screenshot per size to `build/__shots/`; look at the ones your change affects. There is no light theme. For refactors and anything meant to look the same, run `npm run snapshot:save` before the change and `npm run snapshot:compare` after: 108 states (6 sizes × 18 URL and interaction states) must match pixel for pixel, including the chart canvas, URL and DOM. Judge layout from measurements (`getBoundingClientRect`, that check), not screenshots alone: browser-pane screenshots can come back scaled or stale, especially while the pane is hidden. Only Chrome has been tested; Safari renders form controls differently, so be conservative with input sizing.
 
 ## Known benign noise (don't chase these)
 

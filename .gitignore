@@ -11,6 +11,9 @@
 # production
 /build
 
+# v2 snapshot baselines (npm run snapshot:save)
+/v2/.snapshots
+
 # misc
 .DS_Store
 .env.local

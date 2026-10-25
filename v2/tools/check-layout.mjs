@@ -8,15 +8,11 @@
 //   node v2/tools/check-layout.mjs --browser webkit     needs `npx playwright install webkit`
 //
 // Screenshots of each size's first screen go to build/__shots/ for review.
-import { chromium, webkit } from "playwright";
-import { createServer } from "node:http";
 import { readFile, mkdir } from "node:fs/promises";
-import { dirname, extname, join, normalize } from "node:path";
-import { fileURLToPath } from "node:url";
+import { join } from "node:path";
 import { parseArgs } from "node:util";
+import { root, buildDir, serveBuild, launchBrowser, openPage } from "./harness.mjs";
 
-const root = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
-const buildDir = join(root, "build");
 const shotsDir = join(buildDir, "__shots");
 
 const SIZES = [
@@ -33,35 +29,12 @@ const COLUMN_BALANCE_TOLERANCE_PX = 20;
 const { values: args } = parseArgs({ options: { sizes: { type: "string" }, browser: { type: "string", default: "chromium" } } });
 const sizes = args.sizes ? SIZES.filter(([, w, h]) => args.sizes.split(",").includes(`${w}x${h}`)) : SIZES;
 if (!sizes.length) throw new Error(`No known sizes in --sizes ${args.sizes}; pick from ${SIZES.map(([, w, h]) => `${w}x${h}`).join(", ")}`);
-const engine = { chromium, webkit }[args.browser];
-if (!engine) throw new Error(`--browser must be chromium or webkit`);
-
-const CONTENT_TYPES = { ".html": "text/html; charset=utf-8", ".js": "text/javascript", ".ico": "image/x-icon", ".webp": "image/webp", ".png": "image/png", ".txt": "text/plain" };
-const server = createServer(async (req, res) => {
-  let path = normalize(decodeURIComponent(new URL(req.url, "http://localhost").pathname));
-  if (path.endsWith("/")) path += "index.html";
-  try {
-    const body = await readFile(join(buildDir, path));
-    res.writeHead(200, { "content-type": CONTENT_TYPES[extname(path)] ?? "application/octet-stream" });
-    res.end(body);
-  } catch {
-    res.writeHead(404);
-    res.end();
-  }
-});
-await new Promise(resolve => server.listen(0, "127.0.0.1", resolve));
-const origin = `http://127.0.0.1:${server.address().port}`;
+const server = await serveBuild();
 
 const stabilityCheck = await readFile(join(root, "v2/tools/layout-stability.js"), "utf8");
 await mkdir(shotsDir, { recursive: true });
 
-let browser;
-try {
-  browser = await engine.launch();
-} catch (error) {
-  console.error(`Couldn't start ${args.browser}. Install it with: npx playwright install ${args.browser}\n${error.message.split("\n")[0]}`);
-  process.exit(1);
-}
+const browser = await launchBrowser(args.browser);
 
 // One broken rule usually fails in most of the ~200 states; show a few.
 function abbreviate(detail, keep = 4) {
@@ -76,12 +49,7 @@ function abbreviate(detail, keep = 4) {
 let failures = 0;
 for (const [tier, width, height] of sizes) {
   const size = `${width}x${height}`;
-  const page = await browser.newPage({ viewport: { width, height } });
-  const pageErrors = [];
-  page.on("pageerror", error => pageErrors.push(error.message));
-  // The Vercel analytics script only exists on Vercel.
-  await page.route("**/_vercel/**", route => route.fulfill({ status: 200, contentType: "text/javascript", body: "" }));
-  await page.goto(`${origin}/`);
+  const page = await openPage(browser, `${server.origin}/`, width, height);
   await page.screenshot({ path: join(shotsDir, `${size}.png`) });
 
   const firstScreen = await page.evaluate(() => {
@@ -105,7 +73,7 @@ for (const [tier, width, height] of sizes) {
   }
   for (const key of ["shifts", "overlaps", "readoutOverflow"]) if (stability[key] !== "none") problems.push([key, stability[key]]);
   if (stability.overflowX > 0) problems.push(["horizontal scroll", `${stability.overflowX} px`]);
-  if (pageErrors.length) problems.push(["page errors", pageErrors]);
+  if (page.errors.length) problems.push(["page errors", page.errors]);
 
   const balance = COLUMN_BALANCE_SIZES.includes(size) ? `  columns ${firstScreen.columnGap >= 0 ? "+" : ""}${firstScreen.columnGap} px` : "";
   console.log(`${problems.length ? "FAIL" : "ok  "}  ${tier.padEnd(7)} ${size.padEnd(9)}${balance}`);

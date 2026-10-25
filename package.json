@@ -31,6 +31,8 @@
     "test": "react-scripts test",
     "test:v2": "node --test \"v2/test/*.test.js\"",
     "check:layout": "npm run build:v2 && node v2/tools/check-layout.mjs",
+    "snapshot:save": "npm run build:v2 && node v2/tools/snapshot.mjs save",
+    "snapshot:compare": "npm run build:v2 && node v2/tools/snapshot.mjs compare",
     "eject": "react-scripts eject",
     "init": "tsc --init"
   },

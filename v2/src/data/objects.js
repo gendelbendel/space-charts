@@ -1,24 +1,30 @@
-// [name, type, effective temperature (K), note]
+// Objects with a temperature, shown as cards and used by the readout and star pages.
+//   slug      stable id for URLs (/stars/<slug>/ later); never rename one
+//   category  "star" | "brown-dwarf" | "everyday"
+//   type      shown under the name
+//   T         effective temperature in kelvin
+//   note      shown on the card ("" for none)
+// Optional: aliases (other names the readout accepts), source (citation for T).
 export const OBJECTS = [
-  ["You", "Human body", 310, "Peak near 9.3 µm. Thermal cameras see you; eyes can't."],
-  ["WISE 0855−0714", "Y4 brown dwarf", 285, "Coldest known brown dwarf. Estimates run 250–285 K."],
-  ["WISE 0350−5658", "Y1 brown dwarf", 325, "Estimates run 310–390 K. v1 listed 1,600 K, which was wrong."],
-  ["Draper point", "Reference", 798, "Where hot objects first visibly glow, as a faint grey."],
-  ["Candle flame", "Reference", 1850, "Candlelight's color temperature (glowing soot)."],
-  ["Incandescent bulb", "Reference", 2700, "Tungsten filament."],
-  ["Proxima Centauri", "M5.5 V red dwarf", 3042, "Nearest star to the Sun."],
-  ["Betelgeuse", "M1–2 Ia supergiant", 3600, "Varies between about 3,500 and 3,650 K."],
-  ["Pollux", "K0 III giant", 4586, "Sources vary from 4,586 to 4,865 K."],
-  ["Capella Aa", "G8 III giant", 4970, ""],
-  ["The Sun", "G2 V", 5772, "IAU nominal value."],
-  ["Alpha Centauri A", "G2 V", 5790, ""],
-  ["Procyon A", "F5 IV–V", 6530, ""],
-  ["Altair", "A7 V", 7600, "Spins so fast its poles are ~8,500 K and its equator ~6,900 K."],
-  ["Deneb", "A2 Ia supergiant", 8525, ""],
-  ["Vega", "A0 V", 9600, "Historically the zero point of stellar brightness scales."],
-  ["Sirius A", "A1 V", 9940, "Brightest star in the night sky."],
-  ["Rigel", "B8 Ia supergiant", 12100, ""],
-  ["Zeta Puppis", "O4 I supergiant", 40000, "One of the hottest stars visible to the naked eye."],
+  { slug: "you", name: "You", category: "everyday", type: "Human body", T: 310, note: "Peak near 9.3 µm. Thermal cameras see you; eyes can't." },
+  { slug: "wise-0855-0714", name: "WISE 0855−0714", category: "brown-dwarf", type: "Y4 brown dwarf", T: 285, note: "Coldest known brown dwarf. Estimates run 250–285 K." },
+  { slug: "wise-0350-5658", name: "WISE 0350−5658", category: "brown-dwarf", type: "Y1 brown dwarf", T: 325, note: "Estimates run 310–390 K. v1 listed 1,600 K, which was wrong." },
+  { slug: "draper-point", name: "Draper point", category: "everyday", type: "Reference", T: 798, note: "Where hot objects first visibly glow, as a faint grey." },
+  { slug: "candle-flame", name: "Candle flame", category: "everyday", type: "Reference", T: 1850, note: "Candlelight's color temperature (glowing soot)." },
+  { slug: "incandescent-bulb", name: "Incandescent bulb", category: "everyday", type: "Reference", T: 2700, note: "Tungsten filament." },
+  { slug: "proxima-centauri", name: "Proxima Centauri", category: "star", type: "M5.5 V red dwarf", T: 3042, note: "Nearest star to the Sun." },
+  { slug: "betelgeuse", name: "Betelgeuse", category: "star", type: "M1–2 Ia supergiant", T: 3600, note: "Varies between about 3,500 and 3,650 K." },
+  { slug: "pollux", name: "Pollux", category: "star", type: "K0 III giant", T: 4586, note: "Sources vary from 4,586 to 4,865 K." },
+  { slug: "capella-aa", name: "Capella Aa", category: "star", type: "G8 III giant", T: 4970, note: "" },
+  { slug: "sun", name: "The Sun", category: "star", type: "G2 V", T: 5772, note: "IAU nominal value." },
+  { slug: "alpha-centauri-a", name: "Alpha Centauri A", category: "star", type: "G2 V", T: 5790, note: "" },
+  { slug: "procyon-a", name: "Procyon A", category: "star", type: "F5 IV–V", T: 6530, note: "" },
+  { slug: "altair", name: "Altair", category: "star", type: "A7 V", T: 7600, note: "Spins so fast its poles are ~8,500 K and its equator ~6,900 K." },
+  { slug: "deneb", name: "Deneb", category: "star", type: "A2 Ia supergiant", T: 8525, note: "" },
+  { slug: "vega", name: "Vega", category: "star", type: "A0 V", T: 9600, note: "Historically the zero point of stellar brightness scales." },
+  { slug: "sirius-a", name: "Sirius A", category: "star", type: "A1 V", T: 9940, note: "Brightest star in the night sky." },
+  { slug: "rigel", name: "Rigel", category: "star", type: "B8 Ia supergiant", T: 12100, note: "" },
+  { slug: "zeta-puppis", name: "Zeta Puppis", category: "star", type: "O4 I supergiant", T: 40000, note: "One of the hottest stars visible to the naked eye." },
 ];
 
 export const SPECTRAL_CLASSES = [

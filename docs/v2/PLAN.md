@@ -25,9 +25,9 @@ Layout tiers (all in `v2/pages/index.html`), each checked for overflow and first
 | Short landscape | 667×375, 844×390, 932×430 | Readout and controls left, tabbed visuals right |
 | Desktop | 1024×768, 1280×720, 1440×900, 1920×1080 | Controls left (column grows with the screen); chart and color map side by side at a shared, height-scaled size; stats under the chart; pipelines span the full width below |
 
-- Source: `v2/src` (physics, UI, slider scale and marks, CSS), `v2/src/data` (CIE table, star table, objects and classes), `v2/partials` (shared HTML), `v2/pages/index.html` (the page and its layout tiers).
+- Source: `v2/src` (physics, state, one module per UI part wired by `app.js`, slider scale and marks, CSS), `v2/src/data` (CIE table, star table, objects and classes), `v2/partials` (shared HTML), `v2/pages/index.html` (the page and its layout tiers).
 - Build: `npm run build` builds v1 into `build/v1` (CRA with `PUBLIC_URL=/v1`), then v2 into `build/`. `npm run build:v2` rebuilds only v2 (about 0.1 s).
-- Tests: `npm run test:v2`: 20 tests (15 physics, 5 slider scale), Node's built-in runner. UI: `npm run check:layout` runs `v2/tools/layout-stability.js` in Playwright at 12 sizes, checking for movement, overlaps and spills across every mode and temperature, plus first-screen fit and desktop column balance.
+- Tests: `npm run test:v2`: 22 tests (15 physics, 5 slider scale, 2 object data), Node's built-in runner. UI: `npm run check:layout` runs `v2/tools/layout-stability.js` in Playwright at 12 sizes, checking for movement, overlaps and spills across every mode and temperature, plus first-screen fit and desktop column balance.
 - The page is a single self-contained HTML file of about 25 KB gzipped. The build fails over 40 KB (owner's decision D1 in `ROADMAP.md`).
 
 ---
@@ -182,7 +182,11 @@ At the hot end: chromaticity converges on about (0.240, 0.235), a pale sky blue.
 src/, public/          v1, unchanged (CRA). Built to build/v1 and served at /v1/.
 v2/
   src/physics.js       Planck, CIE pipeline, real-star lookup, brightness, parsing
-  src/app.js           the page's UI controller
+  src/app.js           wires the UI modules and calls render()
+  src/state.js         page state, URL read/write, update()
+  src/format.js        pure formatters and the verdict text (Node-importable)
+  src/*.js             one module per UI part: controls, readout, stage, chart,
+                       cie-diagram, pipelines, objects-list, faq
   src/slider-scale.js  temperature <-> slider position (weighted piecewise log)
   src/slider-marks.js  class letters and reference marks under the slider
   src/base.css         shared styles (layout tiers live in pages/index.html)
@@ -191,7 +195,8 @@ v2/
   pages/index.html     the page  -> /
   build.mjs            expands partials, inlines CSS, bundles JS with esbuild
   test/                golden tests: physics, slider scale (node --test)
-  tools/               layout-stability.js (browser check), check-layout.mjs (runs it with Playwright)
+  tools/               layout-stability.js (browser check), check-layout.mjs (runs it with Playwright),
+                       snapshot.mjs (before/after comparison), harness.mjs (shared browser setup)
 ```
 
 I chose plain JavaScript with esbuild over Vite + TypeScript. The code is small, the only build step is bundling and inlining, and esbuild is the only new dependency. Adding TypeScript later (with JSDoc or `.ts` plus esbuild) is easy if you want it.

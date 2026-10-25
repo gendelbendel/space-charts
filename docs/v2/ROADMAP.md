@@ -9,7 +9,7 @@ Written 2026-10-25. The owner asked for all 25 ideas from the brainstorm, built 
 | Package | Features | Depends on | Status | Gzip cost |
 |---|---|---|---|---|
 | P0.1 Automated checks | #23, #24 | — | done 2026-10-25 | 0 |
-| P0.2 Split `app.js`, object records | (enabler) | P0.1 | not started | ~0 |
+| P0.2 Split `app.js`, object records | (enabler) | P0.1 | done 2026-10-25 | +0.3 |
 | P0.3 CIE table vs. official CSV | #25 | — | not started | 0 |
 | P0.4 Prerender the first screen | #22 | P0.2 | not started | est. +1.5 |
 | P1.A Readout takes names and units | #4, #5 | P0.2 | not started | est. +0.5 |
@@ -97,6 +97,7 @@ No behavior change. Suggested modules: `state.js` (state, URL read/write), `form
 - `OBJECTS` changes from tuples to records: `{ slug, name, aliases, category, type, T, note, source }`. Optional later fields (`luminosity`, `radius`) are added by the packages that need them.
 - `ui.md` says `app.js` is the only controller. Update it to "`app.js` wires the modules; state lives in `state.js`".
 - **Done when:** `check:layout` passes, the built page looks identical at every tier (compare P0.1's screenshots before and after), the URL round-trips, and the gzip size hasn't grown by more than 0.2 KB.
+- **Done (2026-10-25).** Modules as suggested, plus `dom.js` (the `$` helper) and stats and view tabs kept in `app.js`. State changes go through `update()` / `setTemperature()` in `state.js`, and `readState(search)` parses a query string without touching `location` (for P0.4). Objects are records with `slug` and `category` (`star`, `brown-dwarf`, `everyday`); a test keeps slugs unique and URL-safe. Verified against a baseline of 108 states (6 sizes × 18 states: URL variants, tabs, log axis, class chip, FAQ search, slider, typed input, card click, chart hover): every full-page screenshot, canvas, URL and DOM (minus the script) is identical. That comparison is now a reusable check: `npm run snapshot:save` / `snapshot:compare` (`v2/tools/snapshot.mjs`), with the browser setup shared with `check:layout` in `v2/tools/harness.mjs`. Size: the split costs ~0.07 KB; the new slug and category data ~0.2 KB, so 24.7 → 25.1 KB, slightly over the 0.2 KB target because of data later packages need.
 
 ### P0.3 CIE table vs. CIE's official CSV (#25)
 
@@ -107,6 +108,7 @@ No behavior change. Suggested modules: `state.js` (state, URL read/write), `form
 
 - `build.mjs` imports `physics.js` and the string-returning helpers from P0.2, then bakes the Sun's state into the HTML: readout, verdict, class chip, disc color, stats, objects list and pipeline panel. The canvas chart and the CIE dot draw when JS runs; reserve their space so nothing moves.
 - `app.js` hydrates: on load it renders the URL's state over the baked one. A `?t=` link briefly shows the Sun first; accept that, or hide the changing parts until the first render when `?t=` is present. Decide while building and record it in `docs/WHY.md`.
+- Use `npm run snapshot:save` before and `snapshot:compare` after: with JS on, every state should still match (the baked markup is replaced by the same render).
 - **Done when:** with JS disabled, the page shows the Sun's full readout; with JS, `check:layout` passes and the first render causes no shift.
 
 ## Phase 1: quick wins
