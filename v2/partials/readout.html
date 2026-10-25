@@ -3,8 +3,14 @@
     <label class="temp-big" id="tempBig" title="Type a temperature">
       <input class="temp-input" id="num" type="text" inputmode="text" autocomplete="off" spellcheck="false" enterkeyhint="done" aria-label="Temperature in kelvin. Type a value in K, °C or °F, or a name such as Vega" value="{{readout}}"><span class="unit">K</span>
     </label>
+    <div class="readout-actions">
+      <button type="button" class="icon-btn" id="copyColor" aria-label="Copy color" aria-haspopup="true" aria-expanded="false" title="Copy hex (hold for more)"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a1 1 0 0 1 1-1h9"/></svg></button>
+      <button type="button" class="icon-btn" id="shareLink" aria-label="Share" title="Share"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12M8 7l4-4 4 4M8 10H6a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-8a1 1 0 0 0-1-1h-2"/></svg></button>
+      <div class="copy-menu" id="copyMenu" hidden><button type="button"><b>Hex</b><code></code></button><button type="button"><b>RGB</b><code></code></button><button type="button"><b>XYZ</b><code></code></button></div>
+    </div>
   </div>
   <p class="verdict"><button type="button" class="class-chip" id="classChip" aria-expanded="false" aria-controls="classInfo">{{classChip}}</button> <span id="verdict">{{verdict}}</span></p>
   <p class="{{stageNoteClass}}" id="stageNote">{{stageNote}}</p>
 </div>
 <div class="class-info" id="classInfo" role="dialog" aria-label="Spectral class" hidden></div>
+<p class="toast" id="toast" role="status"></p>

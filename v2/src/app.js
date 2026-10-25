@@ -12,6 +12,7 @@ import { drawChart, initChart } from "./chart.js";
 import { drawCie } from "./cie-diagram.js";
 import { renderObjects, initObjectsList } from "./objects-list.js";
 import { initFaq } from "./faq.js";
+import { initShare } from "./share.js";
 
 // ---------- visualization tabs (used by the compact layout) ----------
 
@@ -60,4 +61,6 @@ onUpdate(render);
 initChart();
 initObjectsList();
 initFaq();
+initShare();
+matchMedia("(color-gamut: p3)").addEventListener("change", e => update({ wide: e.matches }));
 render();

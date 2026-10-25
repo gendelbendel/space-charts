@@ -24,7 +24,7 @@ v2/
   src/physics.js         Planck, CIE 1931 pipeline, real-star lookup, brightness model, input parsing
   src/prerender.js       bakes the first screen into the HTML at build time, from the same builders
   src/app.js             wires the UI modules: state.js (state, URL) -> render() -> controls, readout,
-                         stage, chart, cie-diagram, pipelines, objects-list, faq; format.js is pure
+                         stage, chart, cie-diagram, pipelines, objects-list, faq, share (copy, share, toast); format.js is pure
   src/slider-scale.js    temperature <-> slider position (piecewise log, weighted toward 2,400–12,000 K)
   src/slider-marks.js    class letters and reference marks under a slider, collision-aware
   src/data/              cie1931.js, cie1951-scotopic.js, harre-heller-2021.js (generated), objects.js (stars, classes, marks)
