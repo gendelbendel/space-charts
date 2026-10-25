@@ -27,7 +27,7 @@ v2/
   src/base.css           shared tokens and components; layout tiers live in pages/index.html
   build.mjs              builds each page into one self-contained HTML file in build/
   test/                  node --test golden tests (physics, slider scales)
-  tools/layout-stability.js  paste-in browser check that nothing moves when modes change
+  tools/layout-stability.js  browser check: nothing moves, overlaps or spills when modes change
 vercel.json              redirects /v1 -> /v1/ and /b -> /
 ```
 
@@ -44,7 +44,8 @@ v2: plain JavaScript (ES modules), no framework, no runtime dependencies, no web
 5. **Switching modes or dragging the slider must not move the layout.** Anything whose text changes gets a fixed or reserved height, and type never changes size with content length. Run `v2/tools/layout-stability.js` after UI changes. (Why: `docs/WHY.md#nothing-moves-when-modes-change`)
 6. **The star, readout, chart, color map and controls share the first screen** at every size, so the effect of the slider is visible without scrolling. (Why: `docs/WHY.md#everything-the-slider-changes-stays-on-one-screen`)
 7. **Never hand-edit generated files**: `v2/src/data/harre-heller-2021.js` (from the paper's text) and anything in `build/`.
-8. **Root-level markdown stays minimal**: only `README.md` and `CLAUDE.md` live at repo root — every other doc (`docs/WHY.md`, `docs/PARITY.md`, `docs/v2/PLAN.md`, anything else) lives under `docs/`. New docs follow the same rule.
+8. **Commit and push only when the owner asks.** In this project the owner asks for commits straight on `main` and for pushes. Pushing `main` deploys to production, so never push unasked.
+9. **Root-level markdown stays minimal**: only `README.md` and `CLAUDE.md` live at repo root — every other doc (`docs/WHY.md`, `docs/PARITY.md`, `docs/v2/PLAN.md`, anything else) lives under `docs/`. New docs follow the same rule.
 
 ## Running locally
 
@@ -54,7 +55,7 @@ npm run build:v2                              # v2 only, ~0.1 s -> build/
 npm run build                                 # v1 (CRA, ~30 s) into build/v1, then v2
 python3 -m http.server 4173 --directory build # or the "site" config in .claude/launch.json
 ```
-`npm start` runs v1's CRA dev server (at `/`, not `/v1/`). v2 has no dev server: rebuild and reload.
+`npm start` runs v1's CRA dev server (at `/`, not `/v1/`). v2 has no dev server: rebuild and reload. `build:v2` wipes `build/` except `build/v1`, so run the full `npm run build` once per clone, or `/v1/` 404s locally.
 
 ## Verifying changes
 
@@ -63,13 +64,12 @@ npm run test:v2    # physics + slider-scale golden tests
 npm run build:v2   # must build; note the gzip sizes it prints
 npm run build      # before touching deploy config or v1
 ```
-For UI changes, check the page in the browser at 375px, a tall phone (430×932), tablet (768×1024), a landscape phone (667×375) and desktop (1440×900). There is no light theme. Run `v2/tools/layout-stability.js` at a few of those sizes (see `.claude/rules/ui.md` for the one-liner) and confirm it reports no shifts and no overlaps.
+For UI changes, check the page in the browser at 375px, a tall phone (430×932), tablet (768×1024), a landscape phone (667×375) and desktop (1440×900). There is no light theme. Run `v2/tools/layout-stability.js` at a few of those sizes (see `.claude/rules/ui.md` for the one-liner) and confirm it reports no shifts and no overlaps. Judge layout from measurements (`getBoundingClientRect`, that check), not screenshots alone: browser-pane screenshots can come back scaled or stale, especially while the pane is hidden. Only Chrome has been tested; Safari renders form controls differently, so be conservative with input sizing.
 
 ## Known benign noise (don't chase these)
 
 - Locally, `/_vercel/insights/script.js` 404s. It only exists on Vercel.
 - `npm install` warns that esbuild's install script wasn't approved. esbuild still works (it ships platform binaries as optional dependencies).
-- `?t=abc` stays in the address bar until the first slider move. The page already fell back to 5,772 K.
 
 ## Sensitive / never commit
 
@@ -77,4 +77,4 @@ For UI changes, check the page in the browser at 375px, a tall phone (430×932),
 
 ## Current status
 
-Live on Vercel from `main`: v2 at `/`, v1 at `/v1/`. Not yet verified on the deployed site: the `vercel.json` redirects and whether they keep `?temp=`. The slider uses the "Balanced" weighted scale the owner chose on 2026-10-25. Open items are listed in `docs/v2/PLAN.md`.
+Live on Vercel from `main`: v2 at `/`, v1 at `/v1/`. Not yet verified on the deployed site: the `vercel.json` redirects and whether they keep `?temp=`. The slider uses the "Balanced" weighted scale the owner chose on 2026-10-25. Open items are listed in `docs/v2/PLAN.md` under "Open questions".

@@ -33,6 +33,7 @@ Matches the shared baseline. Stack is closest to `rage-against-the-retreat`'s (s
 - **Dark only, no light theme.** A black background is the only honest way to show an object that emits no visible light, so the page sets `color-scheme: dark` deliberately. Siblings with a UI support light and dark.
 - **Node is pinned to 24.x in `package.json` `engines`** (pre-existing, for Vercel builds of v1's CRA toolchain), rather than left to Vercel's default.
 - **No `.env.example`.** There are no env vars.
+- **Commits go straight to `main`, at the owner's request.** The baseline is a local branch per piece of work, merged only when the owner says. Here the owner has asked for each change to be committed to `main` and pushed. It's still only when asked, and pushing `main` still deploys.
 
 ## Shared baseline (converged on by all three source projects)
 

@@ -1,6 +1,8 @@
 # Blackbody v2 plan
 
-## Status (2026-10-23)
+## Status (2026-10-25)
+
+This section is current. Sections 1–8 below are the original plan from 2026-10-23, updated where the build changed it. Section 9 lists what's still open.
 
 v2 is built and is the default page. v1 is served at `/v1/`. Its only change is a banner link back to v2 that keeps the current `?temp=`.
 
@@ -21,12 +23,12 @@ Layout tiers (all in `v2/pages/index.html`), each checked for overflow and first
 | Phone | 320×568, 375×667, 390×844, 430×932 | Controls docked at the bottom. One visual per tab; tall phones show the chart and color map together (container query) |
 | Tablet portrait | 768×1024 | Chart and color map side by side, controls docked |
 | Short landscape | 667×375, 844×390, 932×430 | Readout and controls left, tabbed visuals right |
-| Desktop | 1024×768, 1280×720, 1440×900, 1920×1080 | Controls left; chart and color map side by side at a shared, height-scaled size; stats and pipelines below |
+| Desktop | 1024×768, 1280×720, 1440×900, 1920×1080 | Controls left (column grows with the screen); chart and color map side by side at a shared, height-scaled size; stats under the chart; pipelines span the full width below |
 
-- Source: `v2/src` (physics, UI, CSS), `v2/src/data` (CIE table, star table, objects), `v2/partials` (shared HTML), `v2/pages` (the two layouts).
+- Source: `v2/src` (physics, UI, slider scale and marks, CSS), `v2/src/data` (CIE table, star table, objects and classes), `v2/partials` (shared HTML), `v2/pages/index.html` (the page and its layout tiers).
 - Build: `npm run build` builds v1 into `build/v1` (CRA with `PUBLIC_URL=/v1`), then v2 into `build/`. `npm run build:v2` rebuilds only v2 (about 0.1 s).
-- Tests: `npm run test:v2` (15 physics tests, Node's built-in runner).
-- Each v2 page is a single self-contained HTML file of about 21 KB gzipped.
+- Tests: `npm run test:v2`: 20 tests (15 physics, 5 slider scale), Node's built-in runner. UI: `v2/tools/layout-stability.js` checks for movement, overlaps and spills across every mode and temperature.
+- The page is a single self-contained HTML file of about 25 KB gzipped.
 
 ---
 
@@ -75,26 +77,28 @@ As far as I could find, NASA doesn't publish its own star-color algorithm. The a
 
 There's a third tier worth knowing about: real stars aren't perfect blackbodies, and Harre & Heller (2021), "Digital color codes of stars" (*Astronomische Nachrichten*), computed colors from model stellar atmospheres. That could be an optional third model later (see §2.4).
 
-### 2.1 What it looks like
+### 2.1 What it looks like (as built)
 
-Under the slider (in the bottom dock on phones, in layout B):
+Three segmented controls and a checkbox, in the bottom dock on phones and in the left column on desktop:
 
 ```
-Color model   [ Simple (v1) | CIE 1931 (accurate) ]
-Brightness    [ Hue only | Your eye | Next to the Sun ]
-Compare       [x] Split the star: Simple on the left, CIE on the right
+Color model   [ Simple | CIE 1931 | Real stars ]
+Brightness    [ Hue only | Your eye | vs. Sun ]
+Compare       [x] Show all three
 ```
 
-I used a segmented control rather than a single checkbox because it names both options, it has room for a third model later, and it tells first-time visitors that there's a choice at all. A checkbox labeled "Use accurate color (CIE 1931)" would also work if you'd rather keep it minimal.
+The first plan was a single checkbox (simple vs. accurate). A segmented control names every option and had room for the third model when it arrived.
 
-Switching the model changes four things together:
+Switching the model changes:
 
 1. **The star**, and the color gradient painted along the slider track.
-2. **The chart overlay.** Simple shades its three R/G/B bands, so you can see the gaps it skips. CIE draws the x̄, ȳ, z̄ curves over the spectrum, so you can see what's being weighted.
-3. **The "How this color was computed" panel**, which shows each step of the active pipeline with live numbers: band integrals → normalize → bytes for Simple; X, Y, Z → luminance → (x, y) → linear sRGB → gamut map → gamma → hex for CIE.
-4. **Compare mode**, which splits the disc in half so the difference is obvious. At 1,200 K, Simple gives `#ff0801` (pure red) and CIE gives `#ff4f00` (red-orange).
+2. **The chart overlay.** Simple shades its three R/G/B bands, so you can see the gaps it skips. CIE draws the x̄, ȳ, z̄ curves. Real stars draws nothing, because its colors come from model spectra, not this curve.
+3. **The "How the color was computed" panel**, which shows each step with live numbers.
+4. **The color map.** Real stars adds a dashed ring for the model star next to the blackbody point.
 
-The CIE chromaticity diagram, with the spectral locus, sRGB triangle, Planckian locus and current point, is always visible, because it's the clearest answer to "why no green stars?"
+**Compare** shows three stars side by side (Simple, CIE 1931, Real stars), all three pipelines, and both overlays. Outside 2,300–55,000 K the Real stars disc shows "no data".
+
+The CIE chromaticity diagram is always visible, because it's the clearest answer to "why no green stars?"
 
 ### 2.2 How each model works
 
@@ -178,13 +182,16 @@ At the hot end: chromaticity converges on about (0.240, 0.235), a pale sky blue.
 src/, public/          v1, unchanged (CRA). Built to build/v1 and served at /v1/.
 v2/
   src/physics.js       Planck, CIE pipeline, real-star lookup, brightness, parsing
-  src/app.js           UI controller shared by both layouts
-  src/base.css         shared styles
-  src/data/            cie1931.js, harre-heller-2021.js, objects.js
-  partials/            shared HTML: controls, stage, chart, FAQ, …
+  src/app.js           the page's UI controller
+  src/slider-scale.js  temperature <-> slider position (weighted piecewise log)
+  src/slider-marks.js  class letters and reference marks under the slider
+  src/base.css         shared styles (layout tiers live in pages/index.html)
+  src/data/            cie1931.js, harre-heller-2021.js (generated), objects.js
+  partials/            HTML pieces: controls, stage, readout, chart, FAQ, …
   pages/index.html     the page  -> /
   build.mjs            expands partials, inlines CSS, bundles JS with esbuild
-  test/                physics golden tests (node --test)
+  test/                golden tests: physics, slider scale (node --test)
+  tools/               layout-stability.js (browser check)
 ```
 
 I chose plain JavaScript with esbuild over Vite + TypeScript. The code is small, the only build step is bundling and inlining, and esbuild is the only new dependency. Adding TypeScript later (with JSDoc or `.ts` plus esbuild) is easy if you want it.
@@ -212,29 +219,30 @@ The interactive part is one slider driving about 400 Planck evaluations and one 
 
 | Metric | Budget | v1 today | v2 today |
 |---|---|---|---|
-| JS (gzipped) | ≤ 15 KB | 236 KB | ~11 KB inline |
-| Total transfer, first load | ≤ 40 KB | ~300 KB + fonts | ~21 KB |
+| JS (gzipped) | ≤ 15 KB | 236 KB | ~12 KB inline |
+| Total transfer, first load | ≤ 40 KB | ~300 KB + fonts | ~25 KB |
 | Requests | ≤ 3 | 10+ | 1 |
 | LCP (Moto G4, 4G) | < 1.0 s | — | — |
 | Lighthouse performance and accessibility | 100 / 100 | — | — |
 
-Add a `size-limit` (or plain `gzip -c | wc -c`) check plus a Lighthouse CI run on the Vercel preview.
+Not enforced yet: `build.mjs` prints the gzip size, but nothing fails the build. A size check and a Lighthouse CI run are open items (section 9).
 
 ---
 
-## 5. New design
+## 5. Design (as built)
 
-Both layouts are built. Layout A is described below. Layout B arranges the same pieces so the star, chart and controls share one screen: on phones there are tabs for Spectrum, Color map and Numbers and a dock pinned to the bottom; on desktop it uses three columns. In summary:
+Two layouts were built for comparison, and the owner chose the compact one (2026-10-24). It's the only layout now. The layout tiers are in the Status table above.
 
-- **Dark, observatory-style UI.** This is functional, not just aesthetic: a black background is the only honest way to show a star that is black.
-- **Hero:** the star on the left, with glow and size that follow luminance. A large temperature readout, spectral-class chip and plain-language verdict on the right.
-- **Weighted log slider (100–100,000 K)** that favors 2,400–12,000 K. The track is painted in the actual computed colors, with spectral class letters (Y T L M K G F A B O, tap to jump) and reference marks (Sun, You, Draper, Rigel, Betelgeuse, Zeta Puppis). The big temperature readout is editable, for exact values up to 1,000,000 K.
-- **Stats row:** peak wavelength (Wien), share of output that's visible light, surface luminance and power per m² (Stefan–Boltzmann).
-- **Spectrum chart:** log wavelength axis with an adaptive range, so the peak and the visible band are always on screen. A rainbow fill under the visible part, a peak marker, a linear/log toggle for the y-axis, a hover readout, and the model-specific overlay.
-- **"How this color was computed"** pipeline card next to the **CIE chromaticity diagram**.
-- **Stars and other hot things:** a list of tappable cards that sets the temperature (v1 todo #1) and stacks cleanly on phones, with familiar reference points (you, a candle, a light bulb, the Draper point) as well as stars.
+- **Dark, observatory-style UI.** This is functional, not just aesthetic: a black background is the only honest way to show an object that emits no visible light. There's no light theme.
+- **Top block:** the star (glow follows luminance), then the temperature. The temperature is also the text box: click it and type. Below it, the verdict line, which leads with the spectral-class badge (tap it for a short explainer), and a one-line mode note.
+- **Weighted log slider (100–100,000 K)** that favors 2,400–12,000 K, on its own full-width row. The track is painted in the actual computed colors, with class letters (tap to jump) and reference marks (Sun, You, Draper, Rigel, Betelgeuse, Zeta Puppis). Overlapping labels hide by priority.
+- **Stats:** peak wavelength (Wien), share of output that's visible light, surface luminance and power per m² (Stefan–Boltzmann).
+- **Spectrum chart:** log wavelength axis with an adaptive range, so the peak and the visible band are always on screen. A rainbow fill under the visible part, a peak marker, a linear/log y-axis toggle, a hover readout, and the model overlay.
+- **CIE chromaticity diagram** and the **"How the color was computed"** pipelines.
+- **Stars and other hot things:** tappable cards that set the temperature, with familiar reference points (you, a candle, a light bulb, the Draper point) as well as stars.
 - **Shareable URLs:** `?t=5772&model=simple&light=sun&compare=1`. v1's `?temp=` still works.
-- Accessible: native controls, `aria-valuetext="5,772 kelvin"`, visible focus, `prefers-reduced-motion`, works at 375 px with no horizontal scroll.
+- **Stable layout:** nothing moves, overlaps or changes type size when modes or temperatures change (`docs/WHY.md`).
+- Accessible: native controls, `aria-valuetext="5,772 kelvin"`, visible focus, `prefers-reduced-motion`, no horizontal scroll at 320 px.
 
 ---
 
@@ -242,11 +250,13 @@ Both layouts are built. Layout A is described below. Layout B arranges the same 
 
 The full copy is in `v2/partials/faq.html`. Answers stay collapsed until tapped, including after a search. It has a search box and five groups:
 
-- **The basics:** What am I looking at? · What is a blackbody, and are stars really one? · Why kelvin, not "degrees Kelvin"? · How do I use it?
-- **The color:** Simple vs. CIE · Why do cold objects go black instead of deep red? · Why no green stars? · Why no purple stars? · Why does the color stop changing above ~20,000 K? · Isn't the Sun yellow? · Why do most stars look white at night? · Is the color on my screen exactly right?
-- **The chart:** What do the units mean? · Why does the peak move (Wien's law)? · Why a log axis?
-- **The math:** Planck's law with exact constants · How the CIE color is calculated · How hot is too hot or too cold? · Where to report a bug
+- **The basics:** What am I looking at? · What is a blackbody, and are stars really one? · What do the letters O, B, A, F, G, K, M, L, T and Y mean? · Why kelvin, not "degrees Kelvin"? · How do I use it?
+- **The color models:** Simple vs. CIE 1931 vs. Real stars · Where the Real stars data comes from · Do real stars really look different from blackbodies? · Why cold objects go black instead of deep red · No green stars · No purple stars · Why the color stops changing above ~20,000 K · Isn't the Sun yellow? · Why most stars look white at night · Is the color on my screen exactly right?
+- **The chart:** What the units mean · Why the peak moves (Wien's law) · Why a log axis?
+- **The math:** Planck's law with exact constants · How the CIE 1931 color is calculated · How do I know the math is right? · How hot is too hot, or too cold? · Where to report a bug
 - **About:** Who made this · Why it's so fast
+
+The class list in the "letters" answer is generated from `CLASS_INFO` in `v2/src/data/objects.js`, so edit it there.
 
 Compared with v1, it drops the "Libraries" and "Todos" entries, fixes "it's" → "its", corrects the claims about cool stars, and answers the questions people actually ask.
 
@@ -254,34 +264,42 @@ Compared with v1, it drops the "Libraries" and "Todos" entries, fixes "it's" →
 
 ## 7. Testing
 
-`v2/test/physics.test.ts` with golden values:
+`npm run test:v2` runs `v2/test/*.test.js` with Node's built-in runner:
 
-- Planckian locus (x, y) at 1,000 K, 2,856 K, 5,000 K and 10,000 K within ±0.0005 (the table above).
-- Equal-energy spectrum → (1/3, 1/3).
-- Wien peak: 5,772 K → 502.0 nm.
-- Stefan–Boltzmann: π ∫ B_λ dλ = σT⁴ within 0.1% (catches unit mistakes).
-- Brightness modes: 310 K → `#000000` in "Your eye", 798 K → achromatic (R = G = B).
-- Input robustness: `?t=abc`, `?t=0`, `?t=-5` and `?t=1e9` all give a valid, clamped state with no NaN anywhere.
-- Simple model: output matches v1's function byte for byte (it's preserved, so it should).
+- **`physics.test.js`:**
+  - Planckian locus (x, y) at 1,000 K, 2,856 K, 5,000 K and 10,000 K within ±0.0005.
+  - Equal-energy spectrum → (1/3, 1/3), and Wien peak at 5,772 K → 502.0 nm.
+  - Stefan–Boltzmann: π∫B dλ = σT⁴, and `planck()` never returns NaN.
+  - Cold objects: 310 K → `#000000` and 798 K achromatic in "Your eye".
+  - The hot limit is ≈ (0.240, 0.235).
+  - The Simple model matches v1's output byte for byte.
+  - Real-star table: every row's hex matches its linear values; interpolation; gamma; fallback outside 2,300–55,000 K.
+  - `parseTemperature` rejects junk, and every display color is valid hex across 1 K–1,000,000 K.
+- **`slider-scale.test.js`:** the mapping spans the bar, never runs backwards, and round-trips. ≤1,000 K gets at most 10% of the bar, O stars at most 6%, and M–A stars at least 45%.
+- **UI:** `v2/tools/layout-stability.js`, run in the browser at several sizes. It checks for movement, overlap and containment across every model, brightness mode and slider position, plus a typed 1,000,000 K.
 
-Plus a Playwright smoke test: load `/v2/?t=3600`, move the slider, toggle the model, and check there are no console errors.
+Not done: an automated browser test (Playwright or similar) in CI.
 
 ---
 
 ## 8. Milestones
 
-1. **Freeze v1.** Tag `v1.0.0`. Optionally commit the built output.
-2. **Physics core and tests.** Done (`v2/src/physics.js`, 15 tests). Still to do: download the official CIE CSV and diff it against the embedded table, and add the scotopic V′(λ) table.
-3. **Static shell.** Done: two layouts, FAQ with MathML, v2 at `/` and v1 at `/v1/`. Still to do: a size budget check in CI.
-4. **Interactive layer.** Done, including the three-model Compare view and the real-star model.
-5. **Prerender the default state.** Lighthouse CI.
-6. **Content pass.** Cite every star temperature, proofread the FAQ, and add a per-temperature OG image (optional).
-7. **Launch.** Link v1 → v2 with a small banner. Later, swap so v2 is at `/`.
+1. **Freeze v1.** Done in practice: only the link back to v2 changed. Not yet tagged (`v1.0.0`).
+2. **Physics core and tests.** Done.
+3. **Static shell.** Done: one page, FAQ with MathML, v2 at `/` and v1 at `/v1/`.
+4. **Interactive layer.** Done: three color models, Compare, weighted slider, editable readout, class info.
+5. **Prerender the default state, and Lighthouse CI.** Not started.
+6. **Content pass.** Partly done: star temperatures corrected and cited in notes; FAQ rewritten. Per-temperature OG image not started.
+7. **Launch.** Done (2026-10-24): v2 at `/`, v1 at `/v1/` with a banner back.
 
 ## 9. Open questions
 
-0. **Vercel routing:** the redirects in `vercel.json` and directory-index serving were tested locally with a static server, not yet on Vercel. Check `/`, `/b`, `/v1`, `/v1/?temp=3600` and `/?temp=3600` on a preview deploy, including that the redirects keep the query string.
-1. **"NASA's version":** did you mean a specific page? If not, CIE 1931 plus the real-star model covers it.
-2. **White point:** the default is D65, so 6,500 K is white and the Sun looks faintly peach. Some astronomy sites adapt to the Sun so it shows as pure white. That could be a small setting, or just an FAQ entry (v2 has the FAQ entry).
-3. **Pollux and Altair temperatures:** sources disagree. Altair isn't even one temperature, because its poles and equator differ by ~1,600 K. Pick a source per star and cite it.
-4. **Eventually move v2 to `/`?** The plan assumes yes, with v1 kept at `/v1/`.
+1. **Vercel routing:** check on the live site that `/v1` and `/b` redirect correctly and keep the query string (`/v1?temp=3600` → `/v1/?temp=3600`). Tested only against a local static server.
+2. **Real devices and Safari:** everything was checked in Chrome at emulated sizes. Safari sizes form controls differently. The readout's text box overlap (fixed 2026-10-25) is the kind of bug that shows up there first.
+3. **CIE table:** diff `v2/src/data/cie1931.js` against CIE's official CSV (doi:10.25039/CIE.DS.xvudnb9b). It matches the published Planckian locus to four decimals but was typed in, not downloaded.
+4. **Scotopic vision:** use the CIE 1951 V′(λ) curve for the rod-only "grey glow" range instead of photopic luminance.
+5. **Star temperatures:** Pollux and Altair sources disagree (Altair's poles and equator differ by ~1,600 K). Pick and cite a source per star.
+6. **White point:** D65, so 6,500 K is white and the Sun is faintly peach. A Sun-adapted option could be a setting; for now it's an FAQ entry.
+7. **Performance guardrails:** a size check that fails the build, and Lighthouse CI on Vercel previews.
+8. **Tag v1:** `git tag v1.0.0` on the last commit before v2, if the owner wants it.
+9. **"NASA's version":** the owner mentioned it on 2026-10-22. No NASA-specific method was found; CIE 1931 plus the Real stars model covers it unless the owner had a specific page in mind.
