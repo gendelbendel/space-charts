@@ -12,6 +12,8 @@ v2 is built and is the default page. v1 is served at `/v1/`. Its only change is 
 
 Old links keep working: `/?temp=5000` opens v2 at 5,000 K, and `/v1?temp=5000` opens v1.
 
+**Slider scale (decided, 2026-10-25):** the plain log slider spent a third of the bar below 1,000 K and about a sixth on O stars. Three weighted alternatives were compared on a temporary page, and the owner chose "Balanced": ≤1,000 K gets 8% of the bar, M–A stars 51% and O stars 5%. The knots are in `v2/src/slider-scale.js`, and the reasoning is in `docs/WHY.md`. You type temperatures into the big readout now; there's no separate number box.
+
 Layout tiers (all in `v2/pages/index.html`), each checked for overflow and first-screen fit:
 
 | Tier | Sizes checked | Arrangement |
@@ -226,7 +228,7 @@ Both layouts are built. Layout A is described below. Layout B arranges the same 
 
 - **Dark, observatory-style UI.** This is functional, not just aesthetic: a black background is the only honest way to show a star that is black.
 - **Hero:** the star on the left, with glow and size that follow luminance. A large temperature readout, spectral-class chip and plain-language verdict on the right.
-- **Logarithmic slider (100–100,000 K)**, with the track painted in the actual computed colors, spectral class labels (Y T L M K G F B A O), and clickable reference marks (You, Draper point, Sun, Rigel). There's also a number box for exact values, including ones beyond the slider's range.
+- **Weighted log slider (100–100,000 K)** that favors 2,400–12,000 K. The track is painted in the actual computed colors, with spectral class letters (Y T L M K G F A B O, tap to jump) and reference marks (Sun, You, Draper, Rigel, Betelgeuse, Zeta Puppis). The big temperature readout is editable, for exact values up to 1,000,000 K.
 - **Stats row:** peak wavelength (Wien), share of output that's visible light, surface luminance and power per m² (Stefan–Boltzmann).
 - **Spectrum chart:** log wavelength axis with an adaptive range, so the peak and the visible band are always on screen. A rainbow fill under the visible part, a peak marker, a linear/log toggle for the y-axis, a hover readout, and the model-specific overlay.
 - **"How this color was computed"** pipeline card next to the **CIE chromaticity diagram**.

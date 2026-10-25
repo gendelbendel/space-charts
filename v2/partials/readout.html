@@ -1,9 +1,10 @@
 <div class="readout-block">
   <div class="readout">
-    <div class="temp-big" id="tempBig" aria-live="polite">5,772<span>K</span></div>
-    <button type="button" class="class-chip" id="classChip" aria-expanded="false" aria-controls="classInfo">Class G</button>
+    <label class="temp-big" id="tempBig" title="Type a temperature">
+      <input class="temp-input" id="num" type="text" inputmode="numeric" autocomplete="off" spellcheck="false" enterkeyhint="done" aria-label="Temperature in kelvin, type to change" value="5,772"><span class="unit">K</span>
+    </label>
   </div>
-  <p class="verdict" id="verdict"></p>
+  <p class="verdict"><button type="button" class="class-chip" id="classChip" aria-expanded="false" aria-controls="classInfo">Class G</button> <span id="verdict"></span></p>
   <p class="stage-note" id="stageNote"></p>
 </div>
 <div class="class-info" id="classInfo" role="dialog" aria-label="Spectral class" hidden></div>

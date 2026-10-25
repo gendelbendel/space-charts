@@ -46,13 +46,9 @@
   .b-top .stage.comparing .disc { width: auto; height: 100%; }
   .b-top .stage.comparing figcaption { font-size: 10px; }
   .b-top:has(.stage.comparing) .readout-block { grid-column: 1 / -1; }
-  /* Fixed row height, with smaller type for long numbers, so the row never changes size while sliding. */
+  /* Fixed row height and one type size (sized for 1,000,000 K), so the row never changes while sliding. */
   .readout { height: 40px; }
   .temp-big { font-size: 38px; }
-  .temp-big[data-len="6"] { font-size: 35px; }
-  .temp-big[data-len="7"] { font-size: 32px; }
-  .temp-big[data-len="9"] { font-size: 26px; }
-  .class-chip { font-size: 11px; padding: 5px 8px; }
   .verdict { font-size: 13.5px; margin-top: 6px; min-height: calc(3 * 1.45em); }
   .stage-note { font-size: 12px; }
   .card { padding: 12px; }
@@ -76,10 +72,7 @@
 /* the narrowest phones: smaller star and type so the temperature row fits */
 @media (max-width: 359px) {
   .b-top { grid-template-columns: 76px minmax(0, 1fr); }
-  .temp-big { font-size: 30px; }
-  .temp-big[data-len="6"] { font-size: 28px; }
-  .temp-big[data-len="7"] { font-size: 25px; }
-  .temp-big[data-len="9"] { font-size: 20px; }
+  .temp-big { font-size: 32px; }
 }
 
 /* phone: one visual at a time */
@@ -151,9 +144,6 @@
   .b-top:has(.stage.comparing) .readout-block { grid-column: 1 / -1; }
   .readout { height: 32px; }
   .temp-big { font-size: 28px; }
-  .temp-big[data-len="6"] { font-size: 26px; }
-  .temp-big[data-len="7"] { font-size: 24px; }
-  .temp-big[data-len="9"] { font-size: 20px; }
   .verdict { font-size: 13px; margin-top: 4px; min-height: calc(3 * 1.45em); }
   .stage-note { font-size: 12px; }
   .b-dock .controls { margin-top: 4px; gap: 3px 10px; grid-template-columns: 1fr auto; align-items: center; }
@@ -186,14 +176,13 @@
      fixed-height content around them, so the left column and the chart column end together. */
   :root { --stage-h: clamp(150px, 20vh, 240px); --viz-h: clamp(190px, calc(var(--stage-h) + 165px), 400px); }
   .wrap { max-width: 1440px; }
-  .core { grid-template-columns: 300px minmax(0, 1.25fr) minmax(250px, 1fr); grid-template-rows: auto auto 1fr auto; grid-template-areas: "head head head" "left spectrum map" "left stats stats" "how how how"; gap: 14px 18px; align-items: start; padding-bottom: 4px; }
+  .core { grid-template-columns: 320px minmax(0, 1.25fr) minmax(250px, 1fr); grid-template-rows: auto auto 1fr auto; grid-template-areas: "head head head" "left spectrum map" "left stats stats" "how how how"; gap: 14px 18px; align-items: start; padding-bottom: 4px; }
   .core > header.top { grid-area: head; }
   .b-left { grid-area: left; }
   .b-top { grid-template-columns: minmax(0, 1fr); }
   .b-top .stage { height: var(--stage-h); }
   .readout { height: clamp(44px, 5.5vh, 60px); }
   .temp-big { font-size: clamp(44px, 5.5vh, 60px); }
-  .temp-big[data-len="9"] { font-size: clamp(34px, 4.2vh, 46px); }
   .verdict { min-height: calc(3 * 1.45em); }
   .viz, .panel[data-view-panel=numbers] { display: contents; }
   .viz .stats { grid-area: stats; grid-template-columns: repeat(4, minmax(0, 1fr)); }
@@ -206,7 +195,8 @@
   :root { --viz-h: clamp(170px, calc(var(--stage-h) + 95px), 400px); }
 }
 @media (min-width: 1200px) and (min-height: 521px) {
-  .core { grid-template-columns: 330px minmax(0, 1.25fr) minmax(250px, 1fr); grid-template-areas: "head head head" "left spectrum map" "left stats map" "how how how"; }
+  /* The left column (and with it the slider) grows with the screen. */
+  .core { grid-template-columns: clamp(340px, 28vw, 440px) minmax(0, 1.25fr) minmax(250px, 1fr); grid-template-areas: "head head head" "left spectrum map" "left stats map" "how how how"; }
   .colormap svg.cie { height: calc(var(--viz-h) + 80px); }
 }
 </style>

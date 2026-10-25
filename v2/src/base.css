@@ -40,11 +40,19 @@ header.top { display: flex; align-items: center; justify-content: space-between;
 
 /* readout */
 .readout { display: flex; align-items: baseline; gap: 10px; flex-wrap: nowrap; min-width: 0; }
-.readout .class-chip { flex: none; }
 .temp-big { font: 600 clamp(40px, 7vw, 72px)/1 var(--sans); letter-spacing: -0.03em; font-variant-numeric: tabular-nums; white-space: nowrap; }
-.temp-big span { font-size: .45em; color: var(--muted); font-weight: 500; margin-left: 4px; }
+.temp-big { display: inline-flex; align-items: baseline; cursor: text; }
+.temp-big .unit { font-size: .45em; color: var(--muted); font-weight: 500; margin-left: 4px; }
+/* The readout is the text box: no box chrome, just a dashed underline on hover and focus. */
+.temp-input { font: inherit; letter-spacing: inherit; color: inherit; background: none; border: 0; padding: 0; margin: 0; min-width: 1ch; border-bottom: 2px dashed transparent; border-radius: 0; outline: none; }
+.temp-big:hover .temp-input { border-bottom-color: var(--line-strong); }
+.temp-input:focus { border-bottom-color: var(--accent); }
+.temp-big { position: relative; }
+.temp-measure { position: absolute; visibility: hidden; white-space: pre; left: 0; top: 0; font: inherit; letter-spacing: inherit; }
 .class-chip { font: 600 12px/1 var(--mono); padding: 6px 9px; border-radius: 999px; border: 1px solid var(--line-strong); color: var(--muted); background: none; cursor: pointer; }
 .class-chip::after { content: " ⓘ"; font-weight: 400; }
+/* The badge leads the verdict line. Kept shorter than the line so the paragraph's height never depends on it. */
+.verdict .class-chip { font-size: 11px; line-height: 1.1; padding: 2px 7px; margin-right: 4px; vertical-align: 1px; }
 .class-chip:hover, .class-chip[aria-expanded=true] { border-color: var(--accent); color: var(--text); }
 .class-info { position: absolute; z-index: 5; left: 0; right: 0; top: calc(100% + 6px); max-width: 420px; background: var(--surface-2); border: 1px solid var(--line-strong); border-radius: 12px; padding: 12px 14px; box-shadow: 0 12px 32px rgba(0, 0, 0, .55); font-size: 14px; line-height: 1.45; color: #c9cddb; }
 .class-info p { margin: 4px 0 0; }
@@ -58,12 +66,11 @@ header.top { display: flex; align-items: center; justify-content: space-between;
 .stage-note.warn { color: var(--accent); }
 
 /* controls */
-.slider-grid { display: grid; grid-template-columns: minmax(0, 1fr) auto; column-gap: 12px; align-items: center; }
+.slider-block { min-width: 0; }
 input[type=range] { -webkit-appearance: none; appearance: none; width: 100%; min-width: 0; height: 14px; border-radius: 999px; background: var(--track, #333); border: 1px solid var(--line-strong); margin: 6px 0; touch-action: pan-y; }
 input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 26px; height: 26px; border-radius: 50%; background: #fff; border: 3px solid #05060a; box-shadow: 0 0 0 1px rgba(255,255,255,.5); cursor: grab; }
 input[type=range]::-moz-range-thumb { box-sizing: border-box; width: 26px; height: 26px; border-radius: 50%; background: #fff; border: 3px solid #05060a; cursor: grab; }
-.num { width: 96px; background: var(--surface); color: var(--text); border: 1px solid var(--line-strong); border-radius: 10px; padding: 7px 10px; font: 16px var(--mono); }
-.ticks { grid-column: 1; margin-top: 2px; font: 11px/1 var(--mono); color: var(--muted); }
+.ticks { margin-top: 2px; font: 11px/1 var(--mono); color: var(--muted); }
 .tick-row { position: relative; height: 16px; }
 .tick-row > * { position: absolute; top: 0; white-space: nowrap; }
 .tick-row.classes i { top: 0; width: 1px; height: 5px; background: var(--line-strong); }

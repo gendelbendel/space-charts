@@ -1,10 +1,12 @@
 import {
-  PHYS, T_MIN, T_MAX, SUN_TEFF, VISION, SIMPLE_BANDS, STAR_T_RANGE, MODELS,
+  PHYS, SUN_TEFF, VISION, SIMPLE_BANDS, STAR_T_RANGE, MODELS,
   planck, luminance, wienPeakNm, radiantExitance, visibleFraction, relLuminance,
   displayColor, simpleHue, cieHue, starHue, encodeSrgb, toHex, linearSrgbToXy, parseTemperature,
 } from "./physics.js";
 import { CIE1931_2DEG, CMF_START_NM, CMF_STEP_NM, CMF_ROWS } from "./data/cie1931.js";
-import { OBJECTS, SPECTRAL_CLASSES, CLASS_INFO, SLIDER_MARKS } from "./data/objects.js";
+import { OBJECTS, SPECTRAL_CLASSES, CLASS_INFO } from "./data/objects.js";
+import { SLIDER_KNOTS, makeScale } from "./slider-scale.js";
+import { createSliderMarks, trackGradient, spectralClass, classRange } from "./slider-marks.js";
 
 const MODEL_KEYS = Object.keys(MODELS);
 const LIGHT_KEYS = ["hue", "eye", "sun"];
@@ -22,6 +24,7 @@ const state = {
   yscale: "lin",
   view: "spectrum",
 };
+const scale = makeScale(SLIDER_KNOTS);
 
 // ---------- formatting ----------
 
@@ -41,21 +44,8 @@ function formatSci(v, digits = 2) {
 }
 const formatTriple = values => values.map(v => v.toFixed(3)).join(", ");
 const swatch = hex => `<span class="swatch" style="background:${hex}"></span>${hex}`;
-const spectralClass = T => SPECTRAL_CLASSES.find(([, lo, hi]) => T >= lo && T < hi)[0];
-function classRange(letter) {
-  const [, lo, hi] = SPECTRAL_CLASSES.find(([l]) => l === letter);
-  if (lo === 0) return `below ${formatK(hi)} K`;
-  if (hi === Infinity) return `above ${formatK(lo)} K`;
-  return `${formatK(lo)}–${formatK(hi)} K`;
-}
-// A representative temperature for jumping to a class: the middle of its range on the log slider.
-function classMidpoint(letter) {
-  const [, lo, hi] = SPECTRAL_CLASSES.find(([l]) => l === letter);
-  return Math.round(Math.sqrt(Math.max(lo, T_MIN) * Math.min(hi, T_MAX)) / 10) * 10;
-}
-
-const tToSlider = T => (1000 * Math.log(Math.min(Math.max(T, T_MIN), T_MAX) / T_MIN)) / Math.log(T_MAX / T_MIN);
-const sliderToT = s => Math.round(T_MIN * (T_MAX / T_MIN) ** (s / 1000));
+const tToSlider = T => 1000 * scale.toFraction(T);
+const sliderToT = s => Math.round(scale.toT(s / 1000));
 
 function visibilityVerdict(Lv, peakNm) {
   const peak = formatWavelength(peakNm);
@@ -80,7 +70,37 @@ function setTemperature(T) {
 }
 
 slider.addEventListener("input", () => setTemperature(sliderToT(+slider.value)));
-num.addEventListener("change", () => setTemperature(parseTemperature(num.value)));
+// The big readout doubles as the text box: it shows "5,772" and edits as "5772".
+// Typing doesn't re-render (that would reformat under the cursor); Enter or
+// leaving the field applies the value, and Escape or junk reverts it.
+num.addEventListener("focus", () => {
+  num.value = state.T;
+  sizeReadout(String(state.T));
+  num.select();
+});
+num.addEventListener("input", () => sizeReadout(num.value));
+num.addEventListener("keydown", e => {
+  if (e.key === "Enter") num.blur();
+  if (e.key === "Escape") {
+    num.value = state.T;
+    num.blur();
+  }
+});
+num.addEventListener("change", () => setTemperature(parseTemperature(num.value.replace(/[\s,k]/gi, ""))));
+num.addEventListener("blur", () => render());
+
+// Sizes the text box to its contents. An invisible copy of the text inside the
+// same label measures it with exactly the same font settings (tabular digits,
+// letter spacing), which "ch" units and canvas measureText both get wrong.
+const measure = document.createElement("span");
+measure.className = "temp-measure";
+measure.setAttribute("aria-hidden", "true");
+$("tempBig").appendChild(measure);
+function sizeReadout(text) {
+  measure.textContent = text || "0";
+  num.style.width = `${Math.ceil(measure.getBoundingClientRect().width) + 2}px`;
+}
+window.addEventListener("resize", () => sizeReadout(num.value));
 $("compare").addEventListener("change", e => { state.compare = e.target.checked; render(); });
 document.querySelectorAll(".seg[data-key]").forEach(group => {
   group.addEventListener("click", e => {
@@ -91,80 +111,14 @@ document.querySelectorAll(".seg[data-key]").forEach(group => {
   });
 });
 
-// The range thumb's center travels from THUMB_INSET to width − THUMB_INSET, so
-// everything drawn along the slider uses the same mapping.
-const THUMB_INSET = 14;
-const sliderFraction = T => tToSlider(T) / 1000;
-const alongSlider = f => `calc(${THUMB_INSET}px + (100% - ${2 * THUMB_INSET}px) * ${f})`;
-
-function buildSliderMarks() {
-  const classRow = $("classTicks"), markRow = $("markTicks");
-  const boundaries = [...new Set(SPECTRAL_CLASSES.flatMap(([, lo, hi]) => [lo, hi]))].filter(T => T > T_MIN && T < T_MAX);
-  for (const T of boundaries) {
-    const line = document.createElement("i");
-    line.style.left = alongSlider(sliderFraction(T));
-    classRow.appendChild(line);
-  }
-  for (const [name, lo, hi] of SPECTRAL_CLASSES) {
-    const label = document.createElement("button");
-    label.type = "button";
-    label.textContent = name;
-    label.title = `Class ${name}: ${CLASS_INFO[name].name.toLowerCase()}, ${classRange(name)}`;
-    label.setAttribute("aria-label", `Jump to class ${name}, ${CLASS_INFO[name].name.toLowerCase()}`);
-    label.addEventListener("click", () => setTemperature(classMidpoint(name)));
-    label.dataset.cls = name;
-    label.dataset.f = sliderFraction(Math.sqrt(Math.max(lo, T_MIN) * Math.min(hi, T_MAX)));
-    label.dataset.width = sliderFraction(Math.min(hi, T_MAX)) - sliderFraction(Math.max(lo, T_MIN));
-    classRow.appendChild(label);
-  }
-  for (const [name, T] of SLIDER_MARKS) {
-    const mark = document.createElement("button");
-    mark.type = "button";
-    mark.textContent = name;
-    mark.dataset.f = sliderFraction(T);
-    mark.setAttribute("aria-label", `Set temperature to ${name}, ${formatK(T)} K`);
-    mark.addEventListener("click", () => setTemperature(T));
-    markRow.appendChild(mark);
-  }
-  new ResizeObserver(layoutSliderMarks).observe($("ticks"));
-}
-
-// Places labels in priority order and hides any that would overlap one already placed.
-function placeWithoutOverlap(row, labels) {
-  const width = row.clientWidth;
-  if (!width) return;
-  const placed = [];
-  for (const label of labels) {
-    label.hidden = false;
-    const w = label.offsetWidth;
-    const center = THUMB_INSET + (width - 2 * THUMB_INSET) * +label.dataset.f;
-    const left = Math.min(Math.max(center - w / 2, 0), width - w);
-    const fits = placed.every(([a, b]) => left + w + 6 <= a || left >= b + 6);
-    label.hidden = !fits;
-    if (fits) {
-      label.style.left = left + "px";
-      placed.push([left, left + w]);
-    }
-  }
-}
-
-function layoutSliderMarks() {
-  const current = spectralClass(state.T);
-  const classLabels = [...$("classTicks").querySelectorAll("button")];
-  for (const label of classLabels) label.classList.toggle("current", label.dataset.cls === current);
-  classLabels.sort((a, b) => (b.dataset.cls === current) - (a.dataset.cls === current) || b.dataset.width - a.dataset.width);
-  placeWithoutOverlap($("classTicks"), classLabels);
-  placeWithoutOverlap($("markTicks"), [...$("markTicks").querySelectorAll("button")]);
-}
+const layoutSliderMarks = createSliderMarks({ classRow: $("classTicks"), markRow: $("markTicks"), scale, onPick: setTemperature });
 
 let trackKey = "";
 function paintTrack() {
   const key = state.model + state.light;
   if (key === trackKey) return;
   trackKey = key;
-  const stops = [];
-  for (let s = 0; s <= 1000; s += 25) stops.push(`${displayColor(sliderToT(s), state.model, state.light).hex} ${alongSlider(s / 1000)}`);
-  slider.style.setProperty("--track", `linear-gradient(90deg, ${stops.join(",")})`);
+  slider.style.setProperty("--track", trackGradient(scale, T => displayColor(T, state.model, state.light).hex));
 }
 
 // ---------- spectral class info ----------
@@ -584,10 +538,10 @@ function render() {
 
   slider.value = tToSlider(T);
   slider.setAttribute("aria-valuetext", `${formatK(T)} kelvin`);
-  if (document.activeElement !== num) num.value = T;
-  $("tempBig").innerHTML = `${formatK(T)}<span>K</span>`;
-  // Long numbers get a smaller font (see CSS) so the row never wraps.
-  $("tempBig").dataset.len = formatK(T).length;
+  if (document.activeElement !== num) {
+    num.value = formatK(T);
+    sizeReadout(num.value);
+  }
   renderClassInfo();
   $("verdict").innerHTML = visibilityVerdict(Lv, peakNm);
 
@@ -606,7 +560,7 @@ function render() {
 
   renderStage(Lv);
   paintTrack();
-  layoutSliderMarks();
+  layoutSliderMarks(T);
   renderPipelines();
   drawChart();
   drawCie();
@@ -614,7 +568,6 @@ function render() {
   updateUrl();
 }
 
-buildSliderMarks();
 buildClassList();
 buildCieBase();
 render();
