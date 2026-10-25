@@ -46,8 +46,7 @@
   .b-top .stage.comparing .disc { width: auto; height: 100%; }
   .b-top .stage.comparing figcaption { font-size: 10px; }
   .b-top:has(.stage.comparing) .readout-block { grid-column: 1 / -1; }
-  /* Fixed row height and one type size (sized for 1,000,000 K), so the row never changes while sliding. */
-  .readout { height: 40px; }
+  /* One type size (sized for 1,000,000 K); with .temp-big's fixed height, the row never changes while sliding. */
   .temp-big { font-size: 38px; }
   .verdict { font-size: 13.5px; margin-top: 6px; min-height: calc(3 * 1.45em); }
   .stage-note { font-size: 12px; }
@@ -142,7 +141,6 @@
   .b-top .stage.comparing .disc { width: auto; height: 100%; }
   .b-top .stage.comparing figcaption { display: none; }
   .b-top:has(.stage.comparing) .readout-block { grid-column: 1 / -1; }
-  .readout { height: 32px; }
   .temp-big { font-size: 28px; }
   .verdict { font-size: 13px; margin-top: 4px; min-height: calc(3 * 1.45em); }
   .stage-note { font-size: 12px; }
@@ -181,7 +179,6 @@
   .b-left { grid-area: left; }
   .b-top { grid-template-columns: minmax(0, 1fr); }
   .b-top .stage { height: var(--stage-h); }
-  .readout { height: clamp(44px, 5.5vh, 60px); }
   .temp-big { font-size: clamp(44px, 5.5vh, 60px); }
   .verdict { min-height: calc(3 * 1.45em); }
   .viz, .panel[data-view-panel=numbers] { display: contents; }

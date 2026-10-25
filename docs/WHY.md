@@ -59,6 +59,8 @@ The data file is generated from the paper's text by a script: 105 rows, checked 
 
 A follow-up fix shrank the temperature's type for long numbers so the row couldn't wrap. That read as the text jumping between three sizes at 10,000 K and 100,000 K (owner, 2026-10-25: "There are three sizes for the text and it causes shifting"), and the class badge slid sideways each time. The measurement had only checked heights, so it missed both. Now the readout has one type size per layout tier, sized to fit 1,000,000 K. The class badge leads the verdict line instead of sitting beside the number. The check also records left edges and the readout's computed type size. **Never scale type by content length.**
 
+That fix fixed the readout row at 40 px. The text box inside it renders about 1.2× its type size, because browsers size inputs from the font's natural height and ignore line-height, so it spilled 7 px into the verdict line (owner, 2026-10-25: "Top text regressed, it overlaps"). It barely touched in Chrome, overlapped in Safari, and the movement check couldn't see it, since nothing moved. Now `.temp-big` and the input have an explicit `1.15em` height, tied to their own type size rather than a pixel row height. The check also tests that blocks don't overlap and that children stay inside their parents. Run against the old build, it flags the spill in all 198 states.
+
 `v2/tools/layout-stability.js` repeats the measurement across every model, brightness mode and slider position.
 
 ## Everything the slider changes stays on one screen

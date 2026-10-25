@@ -41,10 +41,12 @@ header.top { display: flex; align-items: center; justify-content: space-between;
 /* readout */
 .readout { display: flex; align-items: baseline; gap: 10px; flex-wrap: nowrap; min-width: 0; }
 .temp-big { font: 600 clamp(40px, 7vw, 72px)/1 var(--sans); letter-spacing: -0.03em; font-variant-numeric: tabular-nums; white-space: nowrap; }
-.temp-big { display: inline-flex; align-items: baseline; cursor: text; }
+/* Fixed height relative to its own type size: a text box sizes itself from the font's natural
+   height (about 1.2em), not from line-height, so without this it spills into the line below. */
+.temp-big { display: inline-flex; align-items: baseline; cursor: text; height: 1.15em; }
 .temp-big .unit { font-size: .45em; color: var(--muted); font-weight: 500; margin-left: 4px; }
 /* The readout is the text box: no box chrome, just a dashed underline on hover and focus. */
-.temp-input { font: inherit; letter-spacing: inherit; color: inherit; background: none; border: 0; padding: 0; margin: 0; min-width: 1ch; border-bottom: 2px dashed transparent; border-radius: 0; outline: none; }
+.temp-input { font: inherit; line-height: 1.1; height: 1.15em; letter-spacing: inherit; color: inherit; background: none; border: 0; padding: 0; margin: 0; min-width: 1ch; border-bottom: 2px dashed transparent; border-radius: 0; outline: none; }
 .temp-big:hover .temp-input { border-bottom-color: var(--line-strong); }
 .temp-input:focus { border-bottom-color: var(--accent); }
 .temp-big { position: relative; }

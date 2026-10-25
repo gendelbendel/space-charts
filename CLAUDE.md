@@ -63,7 +63,7 @@ npm run test:v2    # physics + slider-scale golden tests
 npm run build:v2   # must build; note the gzip sizes it prints
 npm run build      # before touching deploy config or v1
 ```
-For UI changes, check the page in the browser at 375px, a tall phone (430×932), tablet (768×1024), a landscape phone (667×375) and desktop (1440×900). There is no light theme. Paste `v2/tools/layout-stability.js` into the console (or the browser tool) at a few of those sizes and confirm it reports no shifts.
+For UI changes, check the page in the browser at 375px, a tall phone (430×932), tablet (768×1024), a landscape phone (667×375) and desktop (1440×900). There is no light theme. Run `v2/tools/layout-stability.js` at a few of those sizes (see `.claude/rules/ui.md` for the one-liner) and confirm it reports no shifts and no overlaps.
 
 ## Known benign noise (don't chase these)
 
