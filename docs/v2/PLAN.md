@@ -12,7 +12,7 @@ v2 is built and is the default page. v1 is served at `/v1/`. Its only change is 
 | `/b`, `/b/` | redirect to `/` (layout A was removed) |
 | `/v1/` | the original site, still driven by `?temp=` |
 
-Old links keep working: `/?temp=5000` opens v2 at 5,000 K, and `/v1?temp=5000` opens v1.
+Old links keep working: `/?temp=5000` opens v2 at 5,000 K, and `/v1?temp=5000` opens v1. Production is https://space-charts.vercel.app. Verified on the live site (2026-10-25): `/v1?temp=3600` → `/v1/?temp=3600`, and `/b?t=4000` and `/b/?t=4000` → `/?t=4000`, all as 307 (temporary) redirects that keep the query string.
 
 **Slider scale (decided, 2026-10-25):** the plain log slider spent a third of the bar below 1,000 K and about a sixth on O stars. Three weighted alternatives were compared on a temporary page, and the owner chose "Balanced": ≤1,000 K gets 8% of the bar, M–A stars 51% and O stars 5%. The knots are in `v2/src/slider-scale.js`, and the reasoning is in `docs/WHY.md`. You type temperatures into the big readout now; there's no separate number box.
 
@@ -205,7 +205,7 @@ I chose plain JavaScript with esbuild over Vite + TypeScript. The code is small,
 ### Build and deploy (Vercel)
 
 - `npm run build` = `build:v1` (`PUBLIC_URL=/v1 BUILD_PATH=build/v1 react-scripts build`) then `build:v2` (`node v2/build.mjs`, which clears `build/` except `build/v1`).
-- `vercel.json` redirects `/v1` → `/v1/` (so the directory index is served) and `/b` → `/`. Needs checking on a Vercel preview deploy before merging (see open questions).
+- `vercel.json` redirects `/v1` → `/v1/` (so the directory index is served) and `/b` → `/`, keeping the query string (verified on the live site, 2026-10-25).
 - To freeze v1 for good, tag the commit (`v1.0.0`) and optionally commit the built `build/v1` output, so it never has to compile again.
 
 ### Why no framework
@@ -300,7 +300,7 @@ Compared with v1, it drops the "Libraries" and "Todos" entries, fixes "it's" →
 
 ## 9. Open questions
 
-1. **Vercel routing:** check on the live site that `/v1` and `/b` redirect correctly and keep the query string (`/v1?temp=3600` → `/v1/?temp=3600`). Tested only against a local static server.
+1. ~~**Vercel routing**~~ Resolved 2026-10-25. Verified on the live site (2026-10-25): `/v1?temp=3600` → `/v1/?temp=3600`, and `/b?t=4000` and `/b/?t=4000` → `/?t=4000`, all as 307 (temporary) redirects that keep the query string.
 2. **Real devices and Safari:** everything was checked in Chrome at emulated sizes. Safari sizes form controls differently. The readout's text box overlap (fixed 2026-10-25) is the kind of bug that shows up there first.
 3. **CIE table:** diff `v2/src/data/cie1931.js` against CIE's official CSV (doi:10.25039/CIE.DS.xvudnb9b). It matches the published Planckian locus to four decimals but was typed in, not downloaded.
 4. **Scotopic vision:** use the CIE 1951 V′(λ) curve for the rod-only "grey glow" range instead of photopic luminance.
