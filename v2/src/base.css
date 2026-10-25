@@ -45,6 +45,7 @@ header.top { display: flex; align-items: center; justify-content: space-between;
    height (about 1.2em), not from line-height, so without this it spills into the line below. */
 .temp-big { display: inline-flex; align-items: baseline; cursor: text; height: 1.15em; }
 .temp-big .unit { font-size: .45em; color: var(--muted); font-weight: 500; margin-left: 4px; }
+.temp-big.typed-unit .unit { visibility: hidden; }
 /* The readout is the text box: no box chrome, just a dashed underline on hover and focus. */
 .temp-input { font: inherit; line-height: 1.1; height: 1.15em; letter-spacing: inherit; color: inherit; background: none; border: 0; padding: 0; margin: 0; min-width: 1ch; field-sizing: content; border-bottom: 2px dashed transparent; border-radius: 0; outline: none; }
 /* Until the script sets an exact width (text width + 2px for the caret), the browser sizes the

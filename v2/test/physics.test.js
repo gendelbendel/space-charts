@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import assert from "node:assert/strict";
 import {
   PHYS, planck, trapezoid, cieHue, simpleHue, starHue, displayColor, luminance,
-  wienPeakNm, radiantExitance, parseTemperature, encodeSrgb, toHex,
+  wienPeakNm, radiantExitance, parseTemperature, toKelvin, encodeSrgb, toHex,
   scotopicLuminance, eyeLuminance, VISION,
 } from "../src/physics.js";
 import { HARRE_HELLER_2021 } from "../src/data/harre-heller-2021.js";
@@ -189,6 +189,59 @@ test("parseTemperature rejects junk and clamps huge values", () => {
   assert.equal(parseTemperature("5772"), 5772);
   assert.equal(parseTemperature("5772.6"), 5773);
   assert.equal(parseTemperature("1e9"), 1e6);
+});
+
+// P1.A: the readout takes °C and °F. The conversions are the SI definitions
+// (T/K = t/°C + 273.15) and the Fahrenheit scale's fixed points: water freezes
+// at 0 °C = 32 °F = 273.15 K and boils at 100 °C = 212 °F = 373.15 K, and the
+// two scales cross at −40. parseTemperature then rounds to whole kelvin at
+// 100 K and above (decision D5), so it is checked separately from the exact value.
+test("Celsius and Fahrenheit convert exactly to kelvin", () => {
+  const near = (actual, expected) => assert.ok(Math.abs(actual - expected) < 1e-9, `${actual} vs ${expected}`);
+  near(toKelvin(0, "c"), 273.15);
+  near(toKelvin(32, "f"), 273.15);
+  near(toKelvin(100, "c"), 373.15);
+  near(toKelvin(212, "f"), 373.15);
+  near(toKelvin(-40, "c"), 233.15);
+  near(toKelvin(-40, "f"), 233.15);
+  near(toKelvin(-459.67, "f"), 0);
+  assert.equal(parseTemperature("0 °C"), 273);
+  assert.equal(parseTemperature("100 °C"), 373);
+  assert.equal(parseTemperature("-40 °C"), parseTemperature("-40 °F"));
+  assert.equal(parseTemperature("−40 °F"), 233);
+});
+
+test("parseTemperature reads units the way people type them", () => {
+  for (const [text, K] of [["5772", 5772], ["5,772 K", 5772], ["5772k", 5772], ["1 234k", 1234], [" 5772 kelvin ", 5772],
+    ["1200 °C", 1473], ["1200C", 1473], ["1200 celsius", 1473], ["1200 degrees C", 1473],
+    ["2000 F", 1366], ["2000°f", 1366], ["-40 °F", 233], ["−40 F", 233]]) {
+    assert.equal(parseTemperature(text), K, text);
+  }
+  for (const bad of ["1200 °", "12 00 x", "°C", "5772 KK", "1,2,3 G"]) assert.equal(parseTemperature(bad), null, bad);
+});
+
+test("parseTemperature rejects anything at or below absolute zero", () => {
+  for (const bad of ["−300 C", "-300 C", "-273.15 C", "-459.67 F", "-500 F", "0 K", "-1 K", "0.0001"]) assert.equal(parseTemperature(bad), null, bad);
+  assert.equal(parseTemperature("-273 C"), 0.15);
+});
+
+// Decision D5: up to 3 decimals below 100 K (the CMB is 2.72548 K, Fixsen 2009), whole kelvin above.
+test("parseTemperature keeps 3 decimals below 100 K and whole kelvin above", () => {
+  assert.equal(parseTemperature("2.72548"), 2.725);
+  assert.equal(parseTemperature("0.5"), 0.5);
+  assert.equal(parseTemperature("99.9994"), 99.999);
+  assert.equal(parseTemperature("100.4"), 100);
+  assert.equal(parseTemperature("273.15"), 273);
+});
+
+test("parseTemperature looks up object names and aliases", () => {
+  for (const [text, K] of [["Sun", 5772], ["sun", 5772], ["The Sun", 5772], ["VEGA", 9600], ["bulb", 2700], ["light bulb", 2700],
+    ["candle", 1850], ["Candle flame", 1850], ["wise 0855", 285], ["WISE 0855-0714", 285], ["wise 0855−0714", 285],
+    ["wise-0350-5658", 325], ["Sírius A", 9940], ["sirius", 9940], ["proxima", 3042], ["you", 310]]) {
+    assert.equal(parseTemperature(text), K, text);
+  }
+  // Too short or shared by several objects: "wise" fits two brown dwarfs.
+  for (const bad of ["wise", "al", "the", "pluto"]) assert.equal(parseTemperature(bad), null, bad);
 });
 
 test("every display color is a valid hex code across the whole range", () => {

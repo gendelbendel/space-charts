@@ -12,7 +12,7 @@ Written 2026-10-25. The owner asked for all 25 ideas from the brainstorm, built 
 | P0.2 Split `app.js`, object records | (enabler) | P0.1 | done 2026-10-25 | +0.3 |
 | P0.3 CIE table vs. official CSV | #25 | — | done 2026-10-25 | 0 |
 | P0.4 Prerender the first screen | #22 | P0.2 | done 2026-10-25 | +2.2 |
-| P1.A Readout takes names and units | #4, #5 | P0.2 | not started | est. +0.5 |
+| P1.A Readout takes names and units | #4, #5 | P0.2 | done 2026-10-25 | +0.4 |
 | P1.B Everyday and cosmic objects | #6, #7 | P0.2 | not started | est. +1 |
 | P1.C Color output: P3, copy, share | #16, #17, #19 | P0.2 | not started | est. +1 |
 | P1.D Heat it up, keyboard shortcuts | #1, #21 | P0.2 | not started | est. +1 |
@@ -129,6 +129,7 @@ No behavior change. Suggested modules: `state.js` (state, URL read/write), `form
 - Decimals below 100 K, per D5.
 - Change `inputmode="numeric"` to `"text"` so phones show letters, and update the `aria-label` and the FAQ "How do I use it?" answer.
 - **Golden tests:** 0 °C → 273.15 K, −40 °C = −40 °F → 233.15 K, 100 °C → 373.15 K, "−300 C" → rejected, "Sun" → 5,772.
+- **Done (2026-10-25).** `parseTemperature` tries a quantity (digit groups split by commas or spaces, "°", "deg"/"degrees", K/C/F or the spelled-out scale; a bare "°" is rejected), then `objectTemperature`: an exact match on any object's name, slug or `aliases`, else a unique prefix of 3+ characters. `nameKey` drops case, accents, punctuation and a leading "the", so "the sun", "Sírius" and "wise 0855" work, and records P1.B adds are matched without code changes ("wise" alone is ambiguous and rejected). Only the bulb needed aliases ("Bulb", "Light bulb"). The exact conversion is `toKelvin` (tested at 273.15, 233.15 and 373.15 K); `parseTemperature` then rounds per D5, so "0 °C" applies as 273 K. While a unit or name is typed, the "K" is hidden (it keeps its space), and the box stops growing at the width of "1,000,000" and scrolls inside. `formatWavelength` gained metres, since peaks below 1 K are now reachable. `?t=` goes through the same parser, so `?t=sun` and `?t=2.725` work and are written back in kelvin. Snapshot states `typed-celsius` and `typed-name` added; against the starting commit all 108 existing states match pixel for pixel, and the DOM differs only in the new `inputmode`, `aria-label` and FAQ text. Main page 28.3 → 28.7 KB gzipped.
 
 ### P1.B Everyday and cosmic objects (#6, #7)
 
