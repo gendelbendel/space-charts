@@ -1,6 +1,7 @@
 import { CIE1931_2DEG, CMF_START_NM, CMF_STEP_NM, CMF_ROWS } from "./data/cie1931.js";
 import { HARRE_HELLER_2021 } from "./data/harre-heller-2021.js";
 import { SCOTOPIC_V } from "./data/cie1951-scotopic.js";
+import { OBJECTS } from "./data/objects.js";
 
 // Exact SI values since 2019, plus derived constants (CODATA 2018).
 export const PHYS = {
@@ -203,10 +204,45 @@ export function displayColor(T, model, light) {
   return { hex: toHex(enc), enc, lin, hue, fallback };
 }
 
-/** Parses a user-supplied temperature. Returns null for anything unusable. */
+/**
+ * Parses a user-supplied temperature: kelvin, °C or °F ("1200 °C", "-40F"), or an
+ * object's name or alias ("Vega", "bulb"). Returns kelvin, to 3 decimals below
+ * 100 K and whole above (decision D5), or null for anything unusable.
+ */
 export function parseTemperature(value) {
-  if (value === null || value === undefined || String(value).trim() === "") return null;
-  const T = Math.round(Number(value));
-  if (!Number.isFinite(T) || T < 1) return null;
-  return Math.min(T, T_INPUT_MAX);
+  if (value === null || value === undefined) return null;
+  const text = String(value).trim();
+  if (text === "") return null;
+  const K = parseQuantity(text) ?? objectTemperature(text);
+  if (K === null || !(K > 0)) return null;
+  const T = K < 100 ? Math.round(K * 1000) / 1000 : Math.round(K);
+  return T > 0 ? Math.min(T, T_INPUT_MAX) : null;
+}
+
+export const toKelvin = (value, unit) => (unit === "c" ? value + 273.15 : unit === "f" ? ((value - 32) * 5) / 9 + 273.15 : value);
+
+// "5,772 K", "1 234k", "1200 °C", "−40 degrees F", "1e5". Digit groups may be split by commas or spaces.
+// A bare degree sign ("1200 °") names no scale, so it is rejected.
+const QUANTITY = /^([+-]?(?:\d+\.?\d*|\.\d+)(?:e[+-]?\d+)?)\s*(°|º|˚|deg(?:rees?)?)?\s*(k|kelvins?|c|celsius|centigrade|f|fahrenheit)?$/i;
+function parseQuantity(text) {
+  const match = text.replace(/[−–]/g, "-").replace(/(\d)[\s,_](?=\d)/g, "$1").match(QUANTITY);
+  if (!match || (match[2] && !match[3])) return null;
+  const value = Number(match[1]);
+  return Number.isFinite(value) ? toKelvin(value, (match[3] ?? "k")[0].toLowerCase()) : null;
+}
+
+// Names compare without case, accents, punctuation or a leading "the", so
+// "wise 0855−0714", "WISE 0855-0714" and "the sun" all match.
+export const nameKey = name => name.normalize("NFKD").replace(/\p{M}/gu, "").toLowerCase().replace(/^the\s+/, "").replace(/[^\p{L}\p{N}]/gu, "");
+
+/** An object's T by name, slug or alias; failing that, by a unique prefix of 3+ characters ("wise 0855"). */
+export function objectTemperature(text) {
+  const key = nameKey(text);
+  if (!key) return null;
+  const keysOf = o => [o.name, o.slug, ...(o.aliases ?? [])].map(nameKey);
+  const exact = OBJECTS.find(o => keysOf(o).includes(key));
+  if (exact) return exact.T;
+  if (key.length < 3) return null;
+  const prefixed = OBJECTS.filter(o => keysOf(o).some(k => k.startsWith(key)));
+  return prefixed.length === 1 ? prefixed[0].T : null;
 }

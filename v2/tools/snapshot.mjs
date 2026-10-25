@@ -48,6 +48,15 @@ const STATES = [
     await page.fill("#num", "1 234k");
     await page.press("#num", "Enter");
   }],
+  ["typed-celsius", "?t=5772", async page => {
+    await page.click("#num");
+    await page.fill("#num", "1200 °C");
+  }],
+  ["typed-name", "?t=5772", async page => {
+    await page.click("#num");
+    await page.fill("#num", "wise 0855");
+    await page.press("#num", "Enter");
+  }],
   ["card", "?t=5772", page => page.locator("#objects button").nth(7).click()],
   ["chart-hover", "?t=5772", async page => {
     const box = await page.locator("#chart").boundingBox();

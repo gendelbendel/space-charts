@@ -3,6 +3,7 @@ import { VISION, visibleFraction, radiantExitance, eyeLuminance } from "./physic
 
 export const formatK = T => T.toLocaleString("en-US");
 export function formatWavelength(nm) {
+  if (nm >= 1e9) return (nm / 1e9).toPrecision(3) + " m";
   if (nm >= 1e6) return (nm / 1e6).toPrecision(3) + " mm";
   if (nm >= 1000) return (nm / 1000).toPrecision(3) + " µm";
   return nm.toPrecision(3) + " nm";

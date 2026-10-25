@@ -11,7 +11,7 @@ export const OBJECTS = [
   { slug: "wise-0350-5658", name: "WISE 0350−5658", category: "brown-dwarf", type: "Y1 brown dwarf", T: 325, note: "Estimates run 310–390 K. v1 listed 1,600 K, which was wrong." },
   { slug: "draper-point", name: "Draper point", category: "everyday", type: "Reference", T: 798, note: "Where hot objects first visibly glow, as a faint grey." },
   { slug: "candle-flame", name: "Candle flame", category: "everyday", type: "Reference", T: 1850, note: "Candlelight's color temperature (glowing soot)." },
-  { slug: "incandescent-bulb", name: "Incandescent bulb", category: "everyday", type: "Reference", T: 2700, note: "Tungsten filament." },
+  { slug: "incandescent-bulb", name: "Incandescent bulb", category: "everyday", type: "Reference", T: 2700, note: "Tungsten filament.", aliases: ["Bulb", "Light bulb"] },
   { slug: "proxima-centauri", name: "Proxima Centauri", category: "star", type: "M5.5 V red dwarf", T: 3042, note: "Nearest star to the Sun." },
   { slug: "betelgeuse", name: "Betelgeuse", category: "star", type: "M1–2 Ia supergiant", T: 3600, note: "Varies between about 3,500 and 3,650 K." },
   { slug: "pollux", name: "Pollux", category: "star", type: "K0 III giant", T: 4586, note: "Sources vary from 4,586 to 4,865 K." },
