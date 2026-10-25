@@ -33,7 +33,7 @@ Feature numbers match the brainstorm list (reproduced at the end). The main page
 
 Phase 0 is done. P0.1, P0.2 and P0.4 are deployed; P0.3 (tests only, no page change) and P2.B (scotopic vision) are on `main`, not yet pushed.
 
-- **Ready now, can run in parallel:** wave 2: P1.A, P1.B, P1.C, P1.D, P3.D, P4.B. P1.C and P1.D need D4 answered first (where the new controls go).
+- **Ready now, can run in parallel:** wave 2: P1.A, P1.B, P1.C, P1.D, P3.D, P4.B. Their decisions (D4, D5, D8) are answered. Suggested order: P1.B and P1.A first (later packages build on their object data), up to three sessions at a time.
 - **Starting a package:** run `npm install`, then `npm run snapshot:save` on the starting commit if the package should leave existing states looking the same. Baselines are local (`v2/.snapshots/`, gitignored), so every session saves its own. Finish with `npm run test:v2`, `npm run check:layout` and, where relevant, `npm run snapshot:compare`; add a snapshot state for any new control.
 - **Known issue to fold into the next package that touches the chart (P2.A):** at 375×667 the chart legend gets only about 6 px of height and is clipped, with or without JS. It predates Phase 0.
 
@@ -41,7 +41,7 @@ Phase 0 is done. P0.1, P0.2 and P0.4 are deployed; P0.3 (tests only, no page cha
 
 Each has a recommendation; packages that need the answer say so. Record answers here.
 
-**Answered (2026-10-25):** D1 and D2, as recommended: a 40 KB gzip budget for the main page, and Playwright as a dev dependency.
+**Answered (2026-10-25):** D1 and D2, as recommended: a 40 KB gzip budget for the main page, and Playwright as a dev dependency. Later the same day, D4, D5 and D8, also as recommended: new controls go where the D4 row says, typed temperatures take up to 3 decimals below 100 K, and the game and embed are their own pages. Still open: D3, D6, D7.
 
 | # | Decision | Needed by | Recommendation |
 |---|---|---|---|
