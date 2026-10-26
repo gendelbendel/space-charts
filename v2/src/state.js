@@ -1,7 +1,7 @@
 import { MODELS, SUN_TEFF, parseTemperature } from "./physics.js";
 
 export const MODEL_KEYS = Object.keys(MODELS);
-const LIGHT_KEYS = ["hue", "eye", "sun"];
+export const LIGHT_KEYS = ["hue", "eye", "sun"];
 
 // Reads the page state from a query string. v1's `?temp=` still works.
 export function readState(search) {
@@ -15,6 +15,8 @@ export function readState(search) {
     wide: globalThis.matchMedia?.("(color-gamut: p3)").matches === true,
     yscale: "lin",
     view: "spectrum",
+    // True while Play (animate.js) moves the temperature.
+    animating: false,
   };
 }
 
@@ -29,9 +31,10 @@ export function update(patch) {
   Object.assign(state, patch);
   rerender();
 }
+// For input (slider, readout, cards, shortcuts), so it also stops any animation.
 export function setTemperature(T) {
   if (T === null) return;
-  update({ T });
+  update({ T, animating: false });
 }
 
 // The query string that reopens the page in its current state.

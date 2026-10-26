@@ -13,6 +13,8 @@ import { drawCie } from "./cie-diagram.js";
 import { renderObjects, initObjectsList } from "./objects-list.js";
 import { initFaq } from "./faq.js";
 import { initShare } from "./share.js";
+import { initPlay, renderPlay } from "./play.js";
+import { initKeys } from "./keys.js";
 
 // ---------- visualization tabs (used by the compact layout) ----------
 
@@ -42,16 +44,20 @@ function render() {
   const Lv = luminance(state.T);
 
   renderSlider();
+  renderPlay();
   renderReadout(Lv, peakNm);
   renderControls();
   renderTabs();
   renderStats(Lv, peakNm);
   renderStage(Lv);
   renderTrack();
-  renderPipelines();
   drawChart();
   drawCie();
-  renderObjects();
+  // Rebuilding these took half of each frame during Play; they render once when it ends.
+  if (!state.animating) {
+    renderPipelines();
+    renderObjects();
+  }
   updateUrl();
 }
 
@@ -62,5 +68,7 @@ initChart();
 initObjectsList();
 initFaq();
 initShare();
+initPlay();
+initKeys();
 matchMedia("(color-gamut: p3)").addEventListener("change", e => update({ wide: e.matches }));
 render();
