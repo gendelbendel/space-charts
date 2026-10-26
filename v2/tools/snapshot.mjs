@@ -78,6 +78,20 @@ const STATES = [
   ["copy-variables", "?t=5772&light=hue", page => page.click("#copyVars")],
   ["wide-gamut", "?t=1200&light=hue", asWideGamut],
   ["wide-gamut-compare", "?t=1000&compare=1", asWideGamut],
+  // Snapshots run with reduced motion, so Play steps: it holds 300 K for 1.5 s, then 1,800 K.
+  ["play", "?t=5772", page => page.click("#play")],
+  ["play-stopped", "?t=5772", async page => {
+    await page.click("#play");
+    await page.waitForTimeout(2200);
+    await page.keyboard.press("p");
+  }],
+  ["shortcut-list", "?t=5772", async page => {
+    await page.keyboard.press("?");
+    await page.waitForTimeout(1500); // Chrome flashes an overlay scrollbar on the dialog as it opens
+  }],
+  ["shortcut-keys", "?t=5772", async page => {
+    for (const key of ["ArrowRight", "Shift+M", "m", "b", "c"]) await page.keyboard.press(key);
+  }],
   ["chart-hover", "?t=5772", async page => {
     const box = await page.locator("#chart").boundingBox();
     if (box) await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);

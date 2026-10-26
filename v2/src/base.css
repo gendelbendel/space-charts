@@ -75,7 +75,7 @@ header.top { display: flex; align-items: center; justify-content: space-between;
    grows a fraction of a pixel past its reserved height and nudges everything below. */
 .verdict .class-chip { font-size: 11px; line-height: 1.1; padding: 2px 7px; margin: -2px 4px -2px 0; vertical-align: 1px; }
 .class-chip:hover, .class-chip[aria-expanded=true] { border-color: var(--accent); color: var(--text); }
-.class-info, .copy-menu, .toast { background: var(--surface-2); border: 1px solid var(--line-strong); border-radius: 12px; box-shadow: 0 12px 32px rgba(0, 0, 0, .55); }
+.class-info, .copy-menu, .toast, .keys { background: var(--surface-2); border: 1px solid var(--line-strong); border-radius: 12px; box-shadow: 0 12px 32px rgba(0, 0, 0, .55); }
 .class-info { position: absolute; z-index: 5; left: 0; right: 0; top: calc(100% + 6px); max-width: 420px; padding: 12px 14px; font-size: 14px; line-height: 1.45; color: #c9cddb; }
 .class-info p { margin: 4px 0 0; }
 .ci-head { display: flex; justify-content: space-between; align-items: start; gap: 8px; color: var(--text); }
@@ -88,7 +88,12 @@ header.top { display: flex; align-items: center; justify-content: space-between;
 .stage-note.warn { color: var(--accent); }
 
 /* controls */
-.slider-block { min-width: 0; }
+/* Play sits at the slider's left end, out of the flow, so the slider row keeps its height; its 26 px match the thumb. */
+.slider-block { position: relative; min-width: 0; padding-left: 34px; }
+.play-btn { position: absolute; left: 0; top: 0; display: grid; place-items: center; width: 26px; height: 26px; padding: 0; border-radius: 50%; border: 1px solid var(--line-strong); background: none; color: var(--text); cursor: pointer; }
+.play-btn:hover, .play-btn[aria-pressed=true] { background: var(--surface-2); border-color: var(--accent); }
+.play-btn svg { width: 10px; height: 10px; fill: currentColor; }
+.play-btn[aria-pressed=true] .i-play, .play-btn[aria-pressed=false] .i-stop { display: none; }
 input[type=range] { -webkit-appearance: none; appearance: none; width: 100%; min-width: 0; height: 14px; border-radius: 999px; background: var(--track, #333); border: 1px solid var(--line-strong); margin: 6px 0; touch-action: pan-y; }
 input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 26px; height: 26px; border-radius: 50%; background: #fff; border: 3px solid #05060a; box-shadow: 0 0 0 1px rgba(255,255,255,.5); cursor: grab; }
 input[type=range]::-moz-range-thumb { box-sizing: border-box; width: 26px; height: 26px; border-radius: 50%; background: #fff; border: 3px solid #05060a; cursor: grab; }
@@ -199,6 +204,13 @@ details > div { padding: 0 0 14px; color: #c9cddb; max-width: 76ch; }
 details p { margin: 0 0 10px; }
 math { font-size: 1.1em; }
 math[display=block] { margin: 12px 0; overflow-x: auto; }
+/* shortcut list (? key) */
+.keys { padding: 12px 16px; color: var(--text); font-size: 14px; }
+.keys::backdrop { background: #0008; }
+.keys h2 { margin: 0; font-size: 16px; }
+.keys dl { display: grid; grid-template-columns: auto 1fr; gap: 6px 14px; }
+.keys dd { margin: 0; color: var(--muted); }
+kbd { padding: 0 5px; border: 1px solid var(--line-strong); border-radius: 5px; font: 12px var(--mono); }
 footer { color: var(--muted); font-size: 13px; padding: 30px 0 50px; }
 
 @media (max-width: 480px) {

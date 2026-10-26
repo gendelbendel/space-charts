@@ -1,5 +1,6 @@
 <div class="control-panel">
   <div class="slider-block">
+    <button type="button" class="play-btn" id="play" aria-pressed="false" aria-label="Heat it up" title="Heat it up: 300 K to 40,000 K (P)"><svg viewBox="0 0 12 12" aria-hidden="true"><path class="i-play" d="M3 1v10l8-5z"/><path class="i-stop" d="M2 2h8v8H2z"/></svg></button>
     <input type="range" id="slider" min="0" max="1000" step="1" aria-label="Temperature" aria-valuetext="{{sliderValueText}}" style="--track: {{sliderTrack}};" value="{{sliderValue}}">
     <div class="ticks" id="ticks">
       <div class="tick-row classes" id="classTicks" role="group" aria-label="Spectral classes"></div>
