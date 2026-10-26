@@ -204,6 +204,44 @@ export function displayColor(T, model, light) {
   return { hex: toHex(enc), enc, lin, hue, fallback };
 }
 
+// Display P3 (CSS `display-p3`): the P3 primaries of SMPTE EG 432-1 with a D65
+// white and the sRGB transfer function. Most phones and laptops can show it.
+const XYZ_FROM_P3 = [
+  [0.4865709, 0.2656677, 0.1982173],
+  [0.2289746, 0.6917385, 0.0792869],
+  [0, 0.0451134, 1.0439444],
+];
+const P3_FROM_XYZ = [
+  [2.4934969, -0.9313836, -0.4027108],
+  [-0.829489, 1.7626641, 0.0236247],
+  [0.0358458, -0.0761724, 0.9568845],
+];
+export const linearP3ToXyz = v => mul(XYZ_FROM_P3, v);
+export const xyzToLinearP3 = xyz => mul(P3_FROM_XYZ, xyz);
+
+/**
+ * The on-screen color for a wide-gamut screen, as linear and encoded Display P3,
+ * plus its XYZ. Where the hue fits in sRGB this is displayColor's color exactly.
+ * Colder than about 1,900 K the CIE hue is outside sRGB; P3 holds more of it, so
+ * less white is mixed in and the red stays deeper. The luminance stays the sRGB
+ * color's unless a P3 channel would pass 1.
+ */
+export function displayColorP3(T, model, light) {
+  const color = displayColor(T, model, light);
+  let hue = color.hue.linear;
+  if (color.hue.outOfGamut) {
+    const [X, Y, Z] = color.hue.xyz;
+    const raw = xyzToLinearP3([X / Y, 1, Z / Y]);
+    // P3 needs less white than sRGB; mixing it in adds 1 to every channel, in either space, and 1 to the luminance.
+    const min = Math.min(0, ...raw);
+    const k = Math.min(relLuminance(hue) / (1 - min), 1 / (Math.max(...raw) - min));
+    hue = color.hue.raw.map(v => (v - min) * k);
+  }
+  const xyz = mul(XYZ_FROM_SRGB, applyBrightness(hue, brightnessFor(T, light)));
+  const lin = xyzToLinearP3(xyz);
+  return { lin, enc: lin.map(encodeSrgb), xyz };
+}
+
 /**
  * Parses a user-supplied temperature: kelvin, °C or °F ("1200 °C", "-40F"), or an
  * object's name or alias ("Vega", "bulb"). Returns kelvin, to 3 decimals below

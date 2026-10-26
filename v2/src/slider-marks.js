@@ -1,4 +1,5 @@
-import { T_MIN, T_MAX, displayColor } from "./physics.js";
+import { T_MIN, T_MAX } from "./physics.js";
+import { formatK, screenColor } from "./format.js";
 import { SLIDER_KNOTS, makeScale } from "./slider-scale.js";
 import { SPECTRAL_CLASSES, CLASS_INFO, SLIDER_MARKS } from "./data/objects.js";
 
@@ -11,9 +12,8 @@ export const alongSlider = f => `calc(${THUMB_INSET}px + (100% - ${2 * THUMB_INS
 export const sliderScale = makeScale(SLIDER_KNOTS);
 export const tToSlider = T => 1000 * sliderScale.toFraction(T);
 export const sliderToT = s => Math.round(sliderScale.toT(s / 1000));
-export const sliderTrack = (model, light) => trackGradient(sliderScale, T => displayColor(T, model, light).hex);
+export const sliderTrack = (model, light, wide) => trackGradient(sliderScale, T => screenColor(T, model, light, wide).paint());
 
-const formatK = T => T.toLocaleString("en-US");
 export const spectralClass = T => SPECTRAL_CLASSES.find(([, lo, hi]) => T >= lo && T < hi)[0];
 export function classRange(letter) {
   const [, lo, hi] = SPECTRAL_CLASSES.find(([l]) => l === letter);

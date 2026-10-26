@@ -1,5 +1,6 @@
 // The star: one disc per shown color model, its hex label and the one-line mode note.
-import { VISION, MODELS, displayColor, relLuminance, starHue, eyeLuminance } from "./physics.js";
+import { VISION, MODELS, relLuminance, starHue, eyeLuminance } from "./physics.js";
+import { screenColor } from "./format.js";
 import { MODEL_KEYS, state, shownModels } from "./state.js";
 import { $ } from "./dom.js";
 
@@ -9,13 +10,12 @@ export function discLooks(Lv) {
   const models = shownModels();
   return MODEL_KEYS.map(model => {
     if (!models.includes(model)) return null;
-    const color = displayColor(state.T, model, state.light);
+    const color = screenColor(state.T, model, state.light, state.wide);
     const noData = color.fallback && state.compare;
-    const [r, g, b] = color.enc.map(v => Math.round(255 * v));
     const glow = noData ? 0 : relLuminance(color.lin);
     return {
-      background: noData ? "none" : `radial-gradient(circle, rgb(${r},${g},${b}) 0%, rgb(${r},${g},${b}) 55%, rgba(${r},${g},${b},.82) 100%)`,
-      boxShadow: glow > 0.002 ? `0 0 ${30 + 70 * glow}px ${6 + 24 * glow}px rgba(${r},${g},${b},${Math.min(0.55, glow)})` : "none",
+      background: noData ? "none" : `radial-gradient(circle, ${color.paint()} 0%, ${color.paint()} 55%, ${color.paint(0.82)} 100%)`,
+      boxShadow: glow > 0.002 ? `0 0 ${30 + 70 * glow}px ${6 + 24 * glow}px ${color.paint(Math.min(0.55, glow))}` : "none",
       invisible: noData || (state.light !== "hue" && eyeLuminance(state.T, Lv) < VISION.absolute),
       caption: state.compare ? `${MODELS[model].label}${noData ? " · no data" : ""}` : "",
       hex: noData ? "—" : color.hex,

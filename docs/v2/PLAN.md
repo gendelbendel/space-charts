@@ -111,7 +111,7 @@ The CIE chromaticity diagram is always visible, because it's the clearest answer
 2. Luminance `L_v = 683 lm/W × Y`, in cd/m². This is what makes brightness handling possible.
 3. Chromaticity `x = X/(X+Y+Z)`, `y = Y/(X+Y+Z)`.
 4. Linear sRGB = IEC 61966-2-1 matrix × XYZ (D65 white).
-5. Gamut mapping. Below about 1,500 K the chromaticity is outside sRGB, so the matrix gives negative channels. Adding equal RGB (white) until the minimum is 0 keeps the hue and slightly desaturates. A better option for v2 is to also emit `color(xyz-d65 X Y Z)` in CSS, so wide-gamut (P3) screens show the deeper red natively. All current browsers support it.
+5. Gamut mapping. Below about 1,900 K the chromaticity is outside sRGB, so the matrix gives negative channels. Adding equal RGB (white) until the minimum is 0 keeps the hue and slightly desaturates. Wide-gamut screens get the same mapping done in Display P3 instead (`displayColorP3`, roadmap P1.C), emitted as `color(display-p3 …)`, which keeps the true hue down to about 810 K.
 6. Apply brightness (§3), then the sRGB transfer curve, then hex.
 
 **Verified against published reference values.** The 5 nm table reproduces the Planckian locus to four decimal places:

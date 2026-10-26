@@ -1,5 +1,5 @@
 // Pure text formatting, with no DOM access, so the build can use it too.
-import { VISION, visibleFraction, radiantExitance, eyeLuminance } from "./physics.js";
+import { VISION, visibleFraction, radiantExitance, eyeLuminance, displayColor, displayColorP3 } from "./physics.js";
 
 export const formatK = T => T.toLocaleString("en-US");
 export function formatWavelength(nm) {
@@ -38,4 +38,26 @@ export function statsText(T, Lv, peakNm) {
     sLum: formatSci(Lv) + " cd/m²",
     sFlux: formatSci(radiantExitance(T)) + " W",
   };
+}
+
+const byte = v => Math.round(255 * Math.min(1, Math.max(0, v)));
+const unit = v => +Math.min(1, Math.max(0, v)).toFixed(4);
+
+/**
+ * The on-screen color with a CSS painter: `paint(alpha)` gives Display P3 on a
+ * wide-gamut screen when the color is outside sRGB, and the sRGB color otherwise.
+ */
+export function screenColor(T, model, light, wide) {
+  const color = displayColor(T, model, light);
+  const p3 = wide && color.hue.outOfGamut ? displayColorP3(T, model, light).enc.map(unit).join(" ") : "";
+  const rgb = color.enc.map(byte).join(",");
+  const paint = (alpha = 1) => (p3 ? `color(display-p3 ${p3}${alpha < 1 ? ` / ${alpha}` : ""})` : alpha < 1 ? `rgba(${rgb},${alpha})` : color.hex);
+  return { ...color, paint };
+}
+
+// The formats the copy menu offers. XYZ is the deepest color the page computes (P3's), for any screen.
+export function colorFormats(T, model, light) {
+  const { hex, enc } = displayColor(T, model, light);
+  const xyz = displayColorP3(T, model, light).xyz.map(v => Math.max(0, v).toFixed(4));
+  return [["Hex", hex], ["RGB", `rgb(${enc.map(byte).join(" ")})`], ["XYZ", `color(xyz-d65 ${xyz.join(" ")})`]];
 }

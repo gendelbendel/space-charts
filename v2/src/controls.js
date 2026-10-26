@@ -20,10 +20,10 @@ const layoutSliderMarks = createSliderMarks({ classRow: $("classTicks"), markRow
 
 let trackKey = "";
 function paintTrack() {
-  const key = state.model + state.light;
+  const key = state.model + state.light + state.wide;
   if (key === trackKey) return;
   trackKey = key;
-  slider.style.setProperty("--track", sliderTrack(state.model, state.light));
+  slider.style.setProperty("--track", sliderTrack(state.model, state.light, state.wide));
 }
 
 export function renderSlider() {

@@ -4,7 +4,7 @@ import assert from "node:assert/strict";
 import {
   PHYS, planck, trapezoid, cieHue, simpleHue, starHue, displayColor, luminance,
   wienPeakNm, radiantExitance, parseTemperature, toKelvin, encodeSrgb, toHex,
-  scotopicLuminance, eyeLuminance, VISION,
+  scotopicLuminance, eyeLuminance, VISION, linearP3ToXyz, xyzToLinearP3, displayColorP3, linearSrgbToXy, relLuminance,
 } from "../src/physics.js";
 import { HARRE_HELLER_2021 } from "../src/data/harre-heller-2021.js";
 import { CIE1931_2DEG, CMF_START_NM, CMF_STEP_NM, CMF_ROWS } from "../src/data/cie1931.js";
@@ -251,4 +251,52 @@ test("every display color is a valid hex code across the whole range", () => {
     }
   }
   assert.ok(PHYS.Km === 683);
+});
+
+// Display P3 is defined by SMPTE EG 432-1's primaries with the D65 white point
+// (CSS Color 4 uses the same). If the matrices were mistyped or inverted, the
+// primaries would land somewhere else and white would come out tinted.
+const chromaticity = ([X, Y, Z]) => [X / (X + Y + Z), Y / (X + Y + Z)];
+test("the Display P3 matrices reproduce the published P3 primaries and D65 white", () => {
+  for (const [name, rgb, x, y] of [["red", [1, 0, 0], 0.68, 0.32], ["green", [0, 1, 0], 0.265, 0.69], ["blue", [0, 0, 1], 0.15, 0.06], ["white", [1, 1, 1], 0.3127, 0.329]]) {
+    const [cx, cy] = chromaticity(linearP3ToXyz(rgb));
+    close(cx, x, 1e-4, `${name} x`);
+    close(cy, y, 1e-4, `${name} y`);
+  }
+  const d65 = [0.3127 / 0.329, 1, (1 - 0.3127 - 0.329) / 0.329];
+  for (const v of xyzToLinearP3(d65)) close(v, 1, 1e-4, "D65 white in P3");
+  for (const v of xyzToLinearP3(linearP3ToXyz([0.2, 0.5, 0.9])).map((v, i) => v - [0.2, 0.5, 0.9][i])) close(v, 0, 1e-6, "round trip");
+});
+
+// At 1,500 K the blackbody lies outside sRGB, so the sRGB color needs white mixed
+// in and drifts off the locus. P3 is wide enough to show the published locus
+// chromaticity (0.5857, 0.3931) itself, at the same luminance.
+test("wide-gamut colors keep the published locus chromaticity that sRGB can't reach", () => {
+  assert.ok(cieHue(1500).outOfGamut, "1,500 K is outside sRGB");
+  const p3 = displayColorP3(1500, "cie", "hue");
+  const [x, y] = chromaticity(p3.xyz);
+  close(x, 0.5857, 5e-4, "P3 x at 1,500 K");
+  close(y, 0.3931, 5e-4, "P3 y at 1,500 K");
+  assert.ok(linearSrgbToXy(displayColor(1500, "cie", "hue").lin).x < 0.575, "sRGB is paler");
+  close(p3.xyz[1], relLuminance(displayColor(1500, "cie", "hue").lin), 1e-3, "same luminance");
+});
+
+test("inside sRGB, wide-gamut screens get exactly the sRGB color", () => {
+  for (const [T, model, light] of [[5772, "cie", "eye"], [3600, "star", "sun"], [1200, "simple", "hue"], [20000, "cie", "hue"]]) {
+    const srgb = displayColor(T, model, light).lin;
+    const p3 = displayColorP3(T, model, light);
+    const a = linearSrgbToXy(srgb), [x, y] = chromaticity(p3.xyz);
+    close(x, a.x, 1e-6, `x, ${model}/${light} at ${T} K`);
+    close(y, a.y, 1e-6, `y, ${model}/${light} at ${T} K`);
+    close(p3.xyz[1], relLuminance(srgb), 1e-4, `luminance, ${model}/${light} at ${T} K`);
+  }
+});
+
+test("wide-gamut colors stay inside P3 and cold objects stay black", () => {
+  for (let T = 100; T <= 1e6; T *= 1.37) {
+    for (const light of ["hue", "eye", "sun"]) {
+      for (const v of displayColorP3(T, "cie", light).lin) assert.ok(v > -5e-4 && v < 1 + 5e-4, `${light} at ${T}`);
+    }
+  }
+  assert.deepEqual(displayColorP3(310, "cie", "eye").enc.map(v => Math.round(255 * v)), [0, 0, 0]);
 });

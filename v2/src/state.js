@@ -11,6 +11,8 @@ export function readState(search) {
     model: MODEL_KEYS.includes(query.get("model")) ? query.get("model") : "cie",
     light: LIGHT_KEYS.includes(query.get("light")) ? query.get("light") : "eye",
     compare: query.get("compare") === "1",
+    // Wide-gamut (P3) screens get deeper reds below ~1,900 K. The build has no screen, so it's sRGB.
+    wide: globalThis.matchMedia?.("(color-gamut: p3)").matches === true,
     yscale: "lin",
     view: "spectrum",
   };
@@ -32,16 +34,21 @@ export function setTemperature(T) {
   update({ T });
 }
 
+// The query string that reopens the page in its current state.
+export function stateQuery() {
+  const p = new URLSearchParams({ t: state.T });
+  if (state.model !== "cie") p.set("model", state.model);
+  if (state.light !== "eye") p.set("light", state.light);
+  if (state.compare) p.set("compare", "1");
+  return "?" + p;
+}
+
 let urlTimer;
 export function updateUrl() {
   clearTimeout(urlTimer);
   urlTimer = setTimeout(() => {
-    const p = new URLSearchParams({ t: state.T });
-    if (state.model !== "cie") p.set("model", state.model);
-    if (state.light !== "eye") p.set("light", state.light);
-    if (state.compare) p.set("compare", "1");
     try {
-      history.replaceState(null, "", "?" + p);
+      history.replaceState(null, "", stateQuery());
     } catch {
       // Opaque origins (file:// previews) reject URL updates.
     }

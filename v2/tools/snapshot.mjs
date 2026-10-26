@@ -18,6 +18,13 @@ import { root, serveBuild, launchBrowser, openPage } from "./harness.mjs";
 const dir = join(root, "v2", ".snapshots");
 const SIZES = [[375, 667], [430, 932], [667, 375], [768, 1024], [1024, 768], [1440, 900]];
 
+// The share button's fallback (copy the link) on every machine, whether or not this browser has a share sheet.
+const withoutShareSheet = page => page.evaluate(() => delete Navigator.prototype.share);
+// Playwright can't emulate a P3 screen, but Chrome's DevTools protocol can; the page re-renders on the change.
+const asWideGamut = async page => {
+  const cdp = await page.context().newCDPSession(page);
+  await cdp.send("Emulation.setEmulatedMedia", { features: [{ name: "color-gamut", value: "p3" }] });
+};
 const clickTab = view => async page => {
   const tab = page.locator(`[data-tabs] [data-view=${view}]`);
   if (await tab.isVisible()) await tab.click();
@@ -59,6 +66,18 @@ const STATES = [
   }],
   ["card", "?t=5772", page => page.locator("#objects button", { hasText: "Betelgeuse" }).click()],
   ["cmb-card", "?t=5772", page => page.locator("#objects button", { hasText: "Cosmic microwave background" }).click()],
+  ["copy", "?t=1200", page => page.click("#copyColor")],
+  ["copy-menu", "?t=1200", async page => {
+    await page.focus("#copyColor");
+    await page.keyboard.press("ArrowDown");
+  }],
+  ["share", "?t=3600&model=star", async page => {
+    await withoutShareSheet(page);
+    await page.click("#shareLink");
+  }],
+  ["copy-variables", "?t=5772&light=hue", page => page.click("#copyVars")],
+  ["wide-gamut", "?t=1200&light=hue", asWideGamut],
+  ["wide-gamut-compare", "?t=1000&compare=1", asWideGamut],
   ["chart-hover", "?t=5772", async page => {
     const box = await page.locator("#chart").boundingBox();
     if (box) await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);

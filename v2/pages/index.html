@@ -68,6 +68,15 @@
   .after-core { margin-top: 16px; }
 }
 
+/* phone and short landscape: the copy and share buttons stack, filling the readout row's height,
+   so they fit beside "1,000,000 K" at 320px wide and at 600px landscape (31px to spare there). */
+@media (max-width: 599px), (max-height: 520px) and (min-width: 600px) {
+  .readout { gap: 3px; }
+  .readout-actions { align-self: stretch; flex-direction: column; gap: 2px; }
+  .icon-btn { flex: 1; width: 28px; height: auto; border-radius: 6px; }
+  .icon-btn svg { width: 12px; height: 12px; }
+}
+
 /* the narrowest phones: smaller star and type so the temperature row fits */
 @media (max-width: 359px) {
   .b-top { grid-template-columns: 76px minmax(0, 1fr); }
