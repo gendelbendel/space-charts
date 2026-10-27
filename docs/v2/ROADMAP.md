@@ -29,11 +29,11 @@ Written 2026-10-25. The owner asked for all 25 ideas from the brainstorm, built 
 
 Feature numbers match the brainstorm list (reproduced at the end). The main page is 27.5 KB gzipped after Phase 0 (budget 40 KB, see D1); the remaining estimates add up to about 40 KB.
 
-### Next up (updated 2026-10-26)
+### Next up (updated 2026-10-27)
 
-Phase 0 is done and deployed, with P2.B. P1.A, P1.B, P1.C and P1.D are merged on `main` (34.0 KB gzipped), not yet pushed. P3.D is done on its branch (35.5 KB with it).
+Phase 0 is done and deployed, with P2.B. Wave 2 (P1.A, P1.B, P1.C, P1.D, P3.D, P4.B) is merged on `main`, not yet pushed: the main page is 35.7 KB gzipped, `/play/` 18.1 KB (it shares `base.css` and `objects.js`, so P3.D added 0.4 KB to it too).
 
-- **Ready now, can run in parallel:** the rest of wave 2: P4.B (its own page, decision D8 answered). Up to three sessions at a time. Budget: with P3.D, 4.5 KB of the 40 KB is left, but the remaining main-page estimates (P2.A, P3.A, P3.B, P3.C, P4.A) add up to about 10 KB, so expect to trim or raise D1 before wave 3 finishes.
+- **Ready now, can run in parallel:** wave 3: P2.A, P3.B and P5.B (its own page). Budget: 4.3 KB of the 40 KB is left, but the remaining main-page estimates (P2.A, P3.A, P3.B, P3.C, P4.A) add up to about 10 KB, so expect to trim or raise D1 before wave 3 finishes.
 - **Starting a package:** run `npm install`, then `npm run snapshot:save` on the starting commit if the package should leave existing states looking the same. Baselines are local (`v2/.snapshots/`, gitignored), so every session saves its own. Finish with `npm run test:v2`, `npm run check:layout` and, where relevant, `npm run snapshot:compare`; add a snapshot state for any new control.
 - **Known issue to fold into the next package that touches the chart (P2.A):** at 375×667 the chart legend gets only about 6 px of height and is clipped, with or without JS. It predates Phase 0.
 
