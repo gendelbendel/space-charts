@@ -20,6 +20,7 @@ Path-scoped detail lives in `.claude/rules/` (`physics.md`, `ui.md`, `deployment
 src/, public/            v1 (CRA + React + MUI + Chart.js). Frozen. Built to build/v1.
 v2/
   pages/index.html       the v2 page, served at /
+  pages/play/index.html  the guess-the-temperature game, served at /play/ (src/game.js rules, src/game-page.js UI)
   partials/*.html        shared HTML pieces, expanded at build (<!-- include: name -->)
   src/physics.js         Planck, CIE 1931 pipeline, real-star lookup, brightness model, input parsing
   src/prerender.js       bakes the first screen into the HTML at build time, from the same builders
@@ -31,11 +32,11 @@ v2/
   src/data/              cie1931.js, cie1951-scotopic.js, harre-heller-2021.js (generated), objects.js (stars, classes, marks)
   src/base.css           shared tokens and components; layout tiers live in pages/index.html
   build.mjs              builds each page into one self-contained HTML file in build/
-  test/                  node --test golden tests (physics, slider scales)
+  test/                  node --test golden tests (physics, slider scales), game rules
   tools/layout-stability.js  browser check: nothing moves, overlaps or spills when modes change
   tools/check-layout.mjs     runs that check with Playwright at every tier's sizes (npm run check:layout)
   tools/snapshot.mjs         before/after comparison of 198 page states (npm run snapshot:save / snapshot:compare)
-vercel.json              redirects /v1 -> /v1/ and /b -> /
+vercel.json              redirects /v1 -> /v1/, /play -> /play/ and /b -> /
 ```
 
 ## Tech stack

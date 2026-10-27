@@ -23,5 +23,6 @@ paths:
 - The page reads `?t=` (and v1's `?temp=`), `model`, `light` and `compare`, and writes back via `history.replaceState` (wrapped in try/catch for `file://` previews). Keep old links working.
 - Dark only. Colors come from the `:root` tokens in `base.css`. No raw colors in components, except star and spectrum colors computed by the physics.
 - Partials are expanded at build time. An element ID used by a module must appear exactly once per page.
+- The game (`/play/`, `pages/play/index.html`) is its own page with its own tiers: one column, except short landscape (star left, round right). Its disc size comes from the viewport height so a whole round fits on the first screen from 320×568 up. Rules live in `game.js` (pure, tested in `test/game.test.js`); the UI in `game-page.js` reuses `stage.js`'s `discPaint`, the slider marks and `share.js`. The game's slider track stays neutral grey: a colored track would give the answer away. `check:layout` and the snapshots cover only the main page.
 - FAQ answers stay collapsed until tapped, including after a search.
 - Never play sound while testing (owner's global rule). The page has no audio today; keep it that way unless asked.

@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#05060a">
+<title>Guess the Temperature · What Color Is a Star?</title>
+<meta name="description" content="See a glowing star, lamp or lava flow and guess how hot it is from its color alone. Ten rounds, two games.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Guess the Temperature">
+<meta property="og:description" content="See a glowing star, lamp or lava flow and guess how hot it is from its color alone. Ten rounds, two games.">
+<meta property="og:image" content="/preview.webp">
+<link rel="icon" href="/favicon.ico">
+<script defer src="/_vercel/insights/script.js"></script>
+<style>
+/* inline: src/base.css */
+
+/*
+  One column, centered, except short landscape (≤ 520px tall), where the star sits left of
+  everything else. The disc size comes from the screen's height, so the whole round (star,
+  slider, result and button) fits on the first screen at every size.
+*/
+:root { --disc: clamp(84px, min(36vw, 100svh - 470px), 200px); }
+.wrap { max-width: 760px; }
+a.brand { color: var(--text); text-decoration: none; }
+.game { display: grid; gap: 12px; grid-template-areas: "head" "status" "stage" "answer" "result" "actions"; }
+.game-head { grid-area: head; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 16px; }
+.game-head h1 { margin: 0; font-size: 22px; letter-spacing: -0.01em; }
+.game-head .seg { flex-wrap: nowrap; }
+.status { grid-area: status; display: flex; gap: 16px; font: 13px/1.4 var(--mono); color: var(--muted); white-space: nowrap; }
+.status #best { margin-left: auto; }
+.game-stage { grid-area: stage; padding: 20px 8px 12px; }
+.game-stage .discs { gap: 4%; align-items: start; min-width: 0; }
+.game-stage .disc-wrap { width: min(calc(var(--disc) + 48px), 48%); min-width: 0; gap: 12px; }
+.game-stage .disc { width: var(--disc); max-width: 100%; padding: 0; border: 0; font: inherit; color: inherit; cursor: pointer; }
+.game-stage .disc:disabled { cursor: default; }
+.game-stage .disc:not(:disabled):hover { outline: 1px solid var(--line-strong); outline-offset: 6px; }
+.game-stage .disc.picked { outline: 2px solid var(--accent); outline-offset: 6px; }
+.game-stage .disc.empty { outline: 1px dashed var(--line-strong); outline-offset: -1px; }
+.game-stage figcaption { display: grid; width: 100%; font-size: 13px; line-height: 1.35; }
+.game-stage figcaption span { overflow: hidden; text-overflow: ellipsis; }
+.game-stage figcaption span:first-child { color: var(--text); }
+/* Two lines always, so a long name or an empty line never changes the stage's height. */
+.game-stage figcaption span:empty::before { content: "\a0"; }
+.answer { grid-area: answer; display: grid; }
+.answer > * { grid-area: 1 / 1; }
+.guess-ui .slider-block { padding-left: 0; }
+.guess-ui .readout-line { margin: 2px 0 0; font-size: 14px; color: var(--muted); }
+.guess-ui .readout-line b { font: 600 15px var(--mono); color: var(--text); }
+.hotter-ui { margin: 0; align-self: center; color: var(--muted); }
+[data-mode=guess] .hotter-ui, [data-mode=hotter] .guess-ui { visibility: hidden; }
+.result { grid-area: result; margin: 0; min-height: calc(2 * 1.45em); line-height: 1.45; color: var(--muted); }
+.result strong { color: var(--text); font-weight: 600; }
+.actions { grid-area: actions; display: flex; gap: 10px; }
+.btn { min-width: 150px; padding: 10px 18px; border-radius: 10px; border: 1px solid var(--line-strong); background: var(--surface-2); color: var(--text); font: 600 15px var(--sans); cursor: pointer; }
+.btn:hover { border-color: var(--accent); }
+.btn.quiet { min-width: 0; background: none; }
+.away { visibility: hidden; }
+.after-game { display: grid; gap: 16px; margin-top: 28px; }
+.recap { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; counter-reset: round; }
+.recap li { counter-increment: round; display: flex; align-items: center; gap: 10px; padding: 8px 0; border-top: 1px solid var(--line); font-size: 14px; }
+.recap li::before { content: counter(round); width: 1.4em; font: 12px var(--mono); color: var(--muted); }
+.recap .dot { width: 18px; height: 18px; margin: 0; }
+.recap .dot + .dot { margin-left: -6px; }
+.recap .r-name { font-weight: 600; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.recap .r-meta { font: 12.5px var(--mono); color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.recap b { margin-left: auto; font: 600 13px var(--mono); }
+.after-game p { margin: 0 0 10px; color: #c9cddb; }
+
+@media (max-width: 599px) {
+  .wrap { padding: 0 12px; }
+  header.top { padding: 10px 0 4px; }
+  .game { gap: 10px; }
+  .game-head h1 { font-size: 19px; }
+  .game-head .seg, .game-head .seg button { flex: 1; }
+  .game-head .seg button { padding: 7px 6px; font-size: 13px; white-space: nowrap; }
+  .card { padding: 14px; }
+  .recap .r-meta { display: none; }
+}
+@media (max-width: 359px) {
+  .top-links { display: none; }
+}
+
+/* short landscape: the star on the left, the rest beside it */
+@media (max-height: 520px) and (min-width: 600px) {
+  :root { --disc: clamp(72px, 100svh - 270px, 150px); }
+  .wrap { max-width: 980px; padding: 0 max(12px, env(safe-area-inset-left)) 0 max(12px, env(safe-area-inset-right)); }
+  header.top { padding: 8px 0 2px; }
+  .game { gap: 8px 16px; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); grid-template-areas: "head head" "stage status" "stage answer" "stage result" "stage actions"; align-items: start; }
+  .game-head h1 { font-size: 18px; }
+  .game-stage { grid-row: 2 / 6; align-self: stretch; display: grid; place-items: center; padding: 14px 6px 10px; }
+  .btn { padding: 8px 16px; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="top">
+  <a class="brand" href="/">What color is a star?</a>
+  <div class="top-links"><a href="/">Back to the explorer</a></div>
+</header>
+<main class="game" id="game" data-mode="guess">
+  <div class="game-head">
+    <h1>How hot is it?</h1>
+    <div class="seg" id="modes" role="group" aria-label="Game">
+      <button type="button" data-mode="guess" aria-pressed="true">Guess the temperature</button>
+      <button type="button" data-mode="hotter" aria-pressed="false">Which is hotter?</button>
+    </div>
+  </div>
+  <div class="status"><span id="roundNo">Round 1/10</span><span id="score">Score 0</span><span id="best"></span></div>
+  <div class="stage game-stage">
+    <div class="discs">
+      <figure class="disc-wrap"><button type="button" class="disc" id="disc0" aria-label="Pick the left one"></button><figcaption id="cap0"><span></span><span></span></figcaption></figure>
+      <figure class="disc-wrap"><button type="button" class="disc" id="disc1" aria-label="Pick the right one"></button><figcaption id="cap1"><span></span><span></span></figcaption></figure>
+    </div>
+  </div>
+  <div class="answer">
+    <div class="guess-ui">
+      <div class="slider-block">
+        <input type="range" id="guess" min="0" max="1000" step="1" aria-label="Your guess">
+        <div class="ticks">
+          <div class="tick-row classes" id="classTicks" role="group" aria-label="Spectral classes"></div>
+          <div class="tick-row marks" id="markTicks"></div>
+        </div>
+      </div>
+      <p class="readout-line">Your guess: <b id="guessValue">5,219 K</b></p>
+    </div>
+    <p class="hotter-ui">Two glows, each at its real temperature, as your eye would see them.</p>
+  </div>
+  <p class="result" id="result" aria-live="polite"></p>
+  <div class="actions">
+    <button type="button" class="btn" id="next">Lock in guess</button>
+    <button type="button" class="btn quiet" id="shareResult" hidden>Share result</button>
+  </div>
+  <noscript><p>The game needs JavaScript. <a href="/">The explorer</a> works without it.</p></noscript>
+</main>
+<div class="after-game">
+  <section class="card">
+    <h2>This game</h2>
+    <p class="sub" id="recapEmpty">Your rounds will show up here.</p>
+    <ol class="recap" id="recap"></ol>
+  </section>
+  <section class="card">
+    <h2>How it works</h2>
+    <p>Every glow is a real object at its real temperature: stars, a candle, lamps, lava, lightning. The colors are the explorer's defaults, CIE 1931 blackbody colors at the brightness a dark-adapted eye would see, so a lamp rated 2,700 K looks like a 2,700 K blackbody even though the lamp itself is cool.</p>
+    <p>Guesses are scored by how far off you are along the slider, not in kelvin. The slider gives most of its length to 2,400–12,000 K, where color changes the most, so missing a candle by 1,000 K costs more than missing Zeta Puppis by 10,000 K. Within 1% of the slider is 100 points; a quarter of the slider away is 0.</p>
+    <p>In "Which is hotter?" the two get closer together as the rounds go on. Your best score stays on this device.</p>
+    <p><a href="/">Explore any temperature</a> to see why the colors come out the way they do.</p>
+  </section>
+</div>
+<!-- include: footer -->
+</div>
+<p class="toast" id="toast" role="status"></p>
+<!-- inline-script: src/game-page.js -->
+</body>
+</html>
