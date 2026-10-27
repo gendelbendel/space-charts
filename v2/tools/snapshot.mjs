@@ -94,6 +94,18 @@ const STATES = [
   ["shortcut-keys", "?t=5772", async page => {
     for (const key of ["ArrowRight", "Shift+M", "m", "b", "c"]) await page.keyboard.press(key);
   }],
+  ["compare-no-data", "?t=1000&compare=1"],
+  // Scroll positions that must survive the slider: the Numbers tab (phones) and a row of objects (touch screens).
+  ["numbers-scrolled", "?t=5772", async page => {
+    await clickTab("numbers")(page);
+    await page.evaluate(() => {
+      document.querySelector("[data-view-panel=numbers]").scrollTop = 200;
+      document.querySelector(".objects").scrollLeft = 200;
+      const slider = document.getElementById("slider");
+      slider.value = 400;
+      slider.dispatchEvent(new Event("input"));
+    });
+  }],
   ["chart-hover", "?t=5772", async page => {
     const box = await page.locator("#chart").boundingBox();
     if (box) await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);

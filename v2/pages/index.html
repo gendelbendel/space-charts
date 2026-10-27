@@ -81,8 +81,23 @@
 @media (max-width: 359px) {
   .b-top { grid-template-columns: 76px minmax(0, 1fr); }
   .temp-big { font-size: 32px; }
-  /* Two header links don't fit beside the title; the footer still links v1. */
+  /* Only the game fits beside the title. */
+  .top-links .faq-link { display: none; }
+  .top-links .pill-link { padding: 3px 10px; font-size: 13px; }
+}
+
+/* phone: the header keeps the FAQ and the game; the footer still links v1 */
+@media (max-width: 599px) {
+  .top-links { gap: 12px; }
   .top-links .v1-link { display: none; }
+}
+
+/* Touch-sized screens: each category of objects is a row that swipes sideways (two rows for the
+   long ones), so the FAQ isn't thirty cards further down. */
+@media (max-width: 899px), (max-height: 520px) {
+  .objects { grid-auto-flow: column; grid-template-columns: none; grid-auto-columns: min(80%, 300px); overflow-x: auto; scroll-snap-type: x mandatory; overscroll-behavior-x: contain; scrollbar-width: thin; padding-bottom: 6px; }
+  .objects:has(> li:nth-child(5)) { grid-template-rows: auto auto; }
+  .objects > li { scroll-snap-align: start; }
 }
 
 /* phone: one visual at a time */
@@ -94,15 +109,22 @@
   .legend { font-size: 11px; margin-top: 4px; }
   .tabs { display: flex; }
   .panel, .panel[data-view-panel=numbers] { display: none; }
-  .panel.active { display: flex; flex: 1; min-height: 0; overflow: auto; }
-  .panel[data-view-panel=numbers].active { display: grid; gap: 10px; }
+  /* Only the Numbers tab scrolls; the chart and the color map shrink to fit. */
+  .panel.active { display: flex; flex: 1; min-height: 0; overflow: hidden; }
+  .panel[data-view-panel=numbers].active { display: grid; gap: 10px; overflow: auto; overscroll-behavior: contain; }
   .panel .spectrum h2, .panel .colormap h2, .panel .colormap .sub { display: none; }
   .panel .spectrum .card-head { flex-wrap: nowrap; align-items: center; }
   .panel .spectrum .sub { margin: 0; }
-  .chart-box { min-height: 150px; }
-  .colormap svg.cie { min-height: 150px; height: 100%; width: 100%; }
+  .chart-box { flex: 1 1 0; min-height: 0; }
+  .colormap svg.cie { flex: 1 1 0; height: 0; width: 100%; }
   .colormap .cie-readout { text-align: center; }
   .panel .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+  /* The smallest phones: the chart gets the legend's line. */
+  @container viz (max-height: 240px) {
+    .legend { display: none; }
+    .panel > .card { padding: 8px 10px; }
+  }
 
   /* Tall phones have room for the chart and the color map together. */
   @container viz (min-height: 430px) {
@@ -113,8 +135,6 @@
     .panel[data-view-panel=spectrum]:has(~ .panel[data-view-panel=map].active) { display: flex; flex: 1.1; min-height: 0; }
     .panel[data-view-panel=spectrum].active, .panel[data-view-panel=spectrum]:has(~ .panel[data-view-panel=map].active) { display: flex; flex: 1; min-height: 0; }
     .tabs:has(~ .panel[data-view-panel=map].active) [data-view=spectrum] { background: var(--surface-2); color: var(--text); box-shadow: inset 0 0 0 1px var(--line-strong); }
-    .chart-box { min-height: 110px; }
-    .colormap svg.cie { min-height: 120px; }
   }
 }
 
@@ -126,8 +146,9 @@
   .temp-big { font-size: 48px; }
   .verdict { min-height: calc(2 * 1.45em); }
   .viz { display: grid; gap: 12px; grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); grid-template-areas: "spectrum map" "numbers numbers"; align-content: start; }
-  .chart-box { min-height: 220px; }
-  .colormap svg.cie { width: 100%; max-height: 300px; }
+  /* The chart sets the row's height; the color map fills its side (it used to set the height by its own square). */
+  .chart-box { min-height: 300px; }
+  .colormap svg.cie { flex: 1 1 0; height: 0; width: 100%; }
   .b-dock .controls { grid-template-columns: 1fr 1fr auto; }
   .b-dock .control:nth-child(1) > .lbl { grid-row: 1; grid-column: 1; }
   .b-dock .control:nth-child(1) > .seg { grid-row: 2; grid-column: 1; }
@@ -168,12 +189,12 @@
   .viz { grid-area: viz; position: sticky; top: 8px; height: calc(100svh - 52px); display: flex; flex-direction: column; gap: 6px; }
   .tabs { display: flex; }
   .panel, .panel[data-view-panel=numbers] { display: none; }
-  .panel.active { display: flex; flex: 1; min-height: 0; overflow: auto; }
-  .panel[data-view-panel=numbers].active { display: grid; gap: 8px; }
+  .panel.active { display: flex; flex: 1; min-height: 0; overflow: hidden; }
+  .panel[data-view-panel=numbers].active { display: grid; gap: 8px; overflow: auto; overscroll-behavior: contain; }
   .panel > .card { padding: 10px; }
   .panel .spectrum h2, .panel .colormap h2, .panel .colormap .sub, .panel .spectrum .sub { display: none; }
-  .chart-box { min-height: 120px; }
-  .colormap svg.cie { width: 100%; height: 100%; }
+  .chart-box { flex: 1 1 0; min-height: 0; }
+  .colormap svg.cie { flex: 1 1 0; height: 0; width: 100%; }
   .colormap .cie-readout { text-align: center; margin-top: 2px; }
   .panel .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }

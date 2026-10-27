@@ -24,7 +24,8 @@ export function discLooks(Lv) {
     return {
       ...(noData ? { background: "none", boxShadow: "none" } : discPaint(color)),
       invisible: noData || (state.light !== "hue" && eyeLuminance(state.T, Lv) < VISION.absolute),
-      caption: state.compare ? `${MODELS[model].label}${noData ? " · no data" : ""}` : "",
+      noData,
+      caption: state.compare ? MODELS[model].label : "",
       hex: noData ? "—" : color.hex,
     };
   });
@@ -33,7 +34,7 @@ export function discLooks(Lv) {
 export const stageHex = looks => looks.filter(Boolean).map(look => look.hex).join(" · ");
 
 export const discsHtml = looks => looks.map(look => look
-  ? `<figure class="disc-wrap"><div class="disc${look.invisible ? " invisible" : ""}" style="background:${look.background};box-shadow:${look.boxShadow}"></div><figcaption>${look.caption}</figcaption></figure>`
+  ? `<figure class="disc-wrap"><div class="disc${look.invisible ? " invisible" : ""}${look.noData ? " no-data" : ""}" style="background:${look.background};box-shadow:${look.boxShadow}"></div><figcaption>${look.caption}</figcaption></figure>`
   : `<figure class="disc-wrap" hidden><div class="disc"></div><figcaption></figcaption></figure>`).join("");
 
 // Every mode has a one-line note, so the line is always there and switching modes never shifts the layout.
@@ -75,6 +76,7 @@ export function renderStage(Lv) {
     disc.style.background = look.background;
     disc.style.boxShadow = look.boxShadow;
     disc.classList.toggle("invisible", look.invisible);
+    disc.classList.toggle("no-data", look.noData);
     caption.textContent = look.caption;
   });
   $("labelHex").textContent = stageHex(looks);

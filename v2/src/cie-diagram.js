@@ -34,8 +34,10 @@ function buildCieBase() {
   cieBase = `${grid}
     <polygon points="${spectral.join(" ")}" fill="rgba(255,255,255,.04)" stroke="rgba(255,255,255,.35)"/>
     <polygon points="${gamut}" fill="none" stroke="rgba(156,196,255,.5)" stroke-dasharray="3 3"/>
-    <text x="${sx(0.3) + 6}" y="${sy(0.6)}" class="lbl" fill="rgba(156,196,255,.85)">sRGB screen gamut</text>
-    <text x="${sx(0.05)}" y="${sy(0.83)}" class="lbl">Visible colors (spectral locus)</text>
+    <path d="M${sx(0.47)} ${sy(0.1) - 3}h14" stroke="rgba(255,255,255,.35)"/>
+    <path d="M${sx(0.47)} ${sy(0.04) - 3}h14" stroke="rgba(156,196,255,.5)" stroke-dasharray="3 3"/>
+    <text x="${sx(0.47) + 20}" y="${sy(0.1)}" class="lbl">Visible colors</text>
+    <text x="${sx(0.47) + 20}" y="${sy(0.04)}" class="lbl" fill="rgba(156,196,255,.85)">sRGB screen gamut</text>
     <polyline points="${locus.join(" ")}" fill="none" stroke="#ffc58a" stroke-width="1.5"/>
     <circle cx="${sx(0.3127)}" cy="${sy(0.329)}" r="2.5" fill="#fff"/>
     <text x="${sx(0.3127) - 6}" y="${sy(0.329) - 6}" class="lbl" text-anchor="end">D65 white</text>
@@ -56,6 +58,18 @@ export function cieMarkup() {
     readout += `<br>Star (ring): x ${s.x.toFixed(3)}, y ${s.y.toFixed(3)}`;
   }
   return { svg: `${cieBase}${marks}`, readout };
+}
+
+// A wide box crops the top of the diagram (the greens) instead of shrinking all of it, so the
+// blackbody curve fills the space. The box's size comes from CSS alone, never from the viewBox.
+export function initCie() {
+  const svg = $("cie");
+  new ResizeObserver(() => {
+    const { width, height } = svg.getBoundingClientRect();
+    if (!width || !height) return;
+    const h = Math.round(Math.min(320, Math.max(185, 320 * height / width)));
+    svg.setAttribute("viewBox", `0 ${320 - h} 320 ${h}`);
+  }).observe(svg);
 }
 
 export function drawCie() {

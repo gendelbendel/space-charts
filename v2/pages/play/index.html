@@ -78,9 +78,6 @@ a.brand { color: var(--text); text-decoration: none; }
   .card { padding: 14px; }
   .recap .r-meta { display: none; }
 }
-@media (max-width: 359px) {
-  .top-links { display: none; }
-}
 
 /* short landscape: the star on the left, the rest beside it */
 @media (max-height: 520px) and (min-width: 600px) {
@@ -98,7 +95,7 @@ a.brand { color: var(--text); text-decoration: none; }
 <div class="wrap">
 <header class="top">
   <a class="brand" href="/">What color is a star?</a>
-  <div class="top-links"><a href="/">Back to the explorer</a></div>
+  <div class="top-links"><a class="pill-link" href="/">← The explorer</a></div>
 </header>
 <main class="game" id="game" data-mode="guess">
   <div class="game-head">

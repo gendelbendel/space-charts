@@ -18,11 +18,17 @@ const objectHtml = ({ name, type, T, note }, i) => {
 // One heading and grid per category, coldest first within each.
 export const objectsHtml = () => CATEGORIES.map(([category, heading]) => {
   const items = OBJECTS.map((o, i) => [o, i]).filter(([o]) => o.category === category).sort(([a], [b]) => a.T - b.T);
-  return `<h3 class="obj-group">${heading}</h3><ul class="objects">${items.map(([o, i]) => objectHtml(o, i)).join("")}</ul>`;
+  return `<h3 class="obj-group">${heading}<span>${items.length}</span></h3><ul class="objects">${items.map(([o, i]) => objectHtml(o, i)).join("")}</ul>`;
 }).join("");
 
+// Updates the prerendered cards in place, so a row scrolled sideways stays where it is.
 export function renderObjects() {
-  $("objects").innerHTML = objectsHtml();
+  for (const button of $("objects").querySelectorAll("button[data-i]")) {
+    const { T } = OBJECTS[button.dataset.i];
+    button.firstElementChild.style.background = screenColor(T, state.model, state.light, state.wide).paint();
+    if (T === state.T) button.setAttribute("aria-current", "true");
+    else button.removeAttribute("aria-current");
+  }
 }
 
 // Every object's sRGB color in the current model and brightness, coldest first.

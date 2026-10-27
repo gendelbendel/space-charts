@@ -26,15 +26,20 @@ header.top { display: flex; align-items: center; justify-content: space-between;
 .top-links { display: flex; align-items: center; gap: 16px; font-size: 14px; }
 .top-links a { color: var(--muted); text-decoration: none; }
 .top-links a:hover { color: var(--text); }
+.top-links .pill-link { padding: 4px 12px; border: 1px solid var(--accent); border-radius: 999px; color: var(--accent); font-weight: 600; white-space: nowrap; }
+.top-links .pill-link:hover { background: var(--surface-2); color: var(--accent); }
 
 /* star */
 .stage { position: relative; border-radius: var(--radius); background: radial-gradient(ellipse at 50% 40%, #0b0d14 0%, #000 70%); border: 1px solid var(--line); display: grid; place-items: center; overflow: hidden; }
 .discs { display: flex; justify-content: center; align-items: center; gap: 6%; width: 100%; height: 100%; }
-.disc-wrap { margin: 0; display: flex; flex-direction: column; align-items: center; gap: 8px; width: 56%; }
+.disc-wrap { margin: 0; display: flex; flex-direction: column; align-items: center; gap: 8px; width: 56%; min-width: 0; }
 .comparing .disc-wrap { width: 26%; }
 .disc { width: 100%; aspect-ratio: 1; border-radius: 50%; transition: box-shadow .15s, background .15s; }
 .disc.invisible { outline: 1px dashed rgba(255, 255, 255, .22); outline-offset: 4px; }
-.disc-wrap figcaption { font-size: 12px; color: var(--muted); text-align: center; white-space: nowrap; }
+.disc-wrap figcaption { max-width: 100%; font-size: 12px; color: var(--muted); text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+/* The empty disc says "no data" itself, so the caption under it never changes width. */
+.disc.no-data { display: grid; place-items: center; min-width: 0; }
+.disc.no-data::after { content: "no data"; font-size: 10px; color: var(--muted); white-space: nowrap; }
 .disc-wrap figcaption:empty { display: none; }
 .stage-hex { position: absolute; bottom: 10px; left: 0; right: 0; text-align: center; font: 12px var(--mono); color: var(--muted); }
 
@@ -169,6 +174,7 @@ svg.cie .grid { stroke: rgba(255, 255, 255, .05); }
 .cie-readout { font: 12px/1.45 var(--mono); color: var(--muted); margin: 6px 0 0; min-height: calc(2 * 1.45em); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
 /* objects */
+.obj-group span { margin-left: 6px; font-weight: 400; }
 .obj-group { font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin: 18px 0 8px; font-weight: 600; }
 .objects { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 8px; }
 .objects button { width: 100%; height: 100%; display: flex; gap: 12px; align-items: flex-start; text-align: left; background: var(--bg); border: 1px solid var(--line); border-radius: 12px; padding: 12px; color: var(--text); font: inherit; cursor: pointer; }

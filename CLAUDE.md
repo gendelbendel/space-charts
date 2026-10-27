@@ -35,7 +35,7 @@ v2/
   test/                  node --test golden tests (physics, slider scales), game rules
   tools/layout-stability.js  browser check: nothing moves, overlaps or spills when modes change
   tools/check-layout.mjs     runs that check with Playwright at every tier's sizes (npm run check:layout)
-  tools/snapshot.mjs         before/after comparison of 198 page states (npm run snapshot:save / snapshot:compare)
+  tools/snapshot.mjs         before/after comparison of 210 page states (npm run snapshot:save / snapshot:compare)
 vercel.json              redirects /v1 -> /v1/, /play -> /play/ and /b -> /
 ```
 

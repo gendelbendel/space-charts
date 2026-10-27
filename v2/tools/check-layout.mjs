@@ -90,7 +90,7 @@ for (const [tier, width, height] of sizes) {
   if (tier === "desktop" && COLUMN_BALANCE_SIZES.includes(size) && Math.abs(firstScreen.columnGap) > COLUMN_BALANCE_TOLERANCE_PX) {
     problems.push(["columns don't end together", `.stats ends ${firstScreen.columnGap} px below .b-left (tolerance ±${COLUMN_BALANCE_TOLERANCE_PX})`]);
   }
-  for (const key of ["shifts", "overlaps", "readoutOverflow"]) if (stability[key] !== "none") problems.push([key, stability[key]]);
+  for (const key of ["shifts", "overlaps", "readoutOverflow", "panelScroll"]) if (stability[key] !== "none") problems.push([key, stability[key]]);
   if (stability.overflowX > 0) problems.push(["horizontal scroll", `${stability.overflowX} px`]);
   if (page.errors.length) problems.push(["page errors", page.errors]);
 

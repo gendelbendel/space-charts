@@ -6,8 +6,9 @@
 // and types 1,000,000 K, reporting anything that moved or overflowed.
 // It also checks that stacked blocks never overlap (the temperature spilling into
 // the verdict line was a real bug that the movement check couldn't see).
-// A clean run returns { shifts: "none", overlaps: "none", readoutOverflow: "none", overflowX: 0 }.
-// Compare stays off: turning it on changes the layout on purpose.
+// Then it turns compare on and sweeps again against a new baseline (turning it on changes the
+// layout on purpose), and opens each visualization tab: only the Numbers tab may scroll.
+// A clean run returns { shifts: "none", overlaps: "none", readoutOverflow: "none", panelScroll: "none", overflowX: 0 }.
 (() => {
   const selectors = [".b-top", ".readout-block", ".b-dock", "#slider", "#spectrum", ".legend", ".chart-box", "#colormap", "#cie", ".stats", "#classChip", "#num"];
   const snapshot = () => ({
@@ -25,16 +26,16 @@
   // [child, parent]: the child must stay inside its parent's box. The original bug
   // (the text box 7 px taller than its row) only touched the next line in Chrome
   // but overlapped it in Safari, so containment is the check that catches it.
-  const contained = [["#num", "#tempBig"], ["#tempBig", ".readout"], [".readout-block", ".b-top"]];
+  const contained = [["#num", "#tempBig"], ["#tempBig", ".readout"], [".readout-block", ".b-top"], [".legend", "#spectrum"], ["#cieReadout", "#colormap"]];
   const overflow = [];
   const slider = document.getElementById("slider");
   const num = document.getElementById("num");
 
-  const check = label => {
-    const now = snapshot();
+  const check = (label, baseline = base, current = snapshot) => {
+    const now = current();
     const moved = Object.entries(now)
-      .filter(([s, value]) => value !== base[s])
-      .map(([s, value]) => `${s}: ${base[s]} -> ${value}`);
+      .filter(([s, value]) => value !== baseline[s])
+      .map(([s, value]) => `${s}: ${baseline[s]} -> ${value}`);
     if (moved.length) shifts[label] = moved;
     const box = s => document.querySelector(s)?.getBoundingClientRect();
     for (const [upper, lower] of stacked) {
@@ -66,11 +67,42 @@
     }
   }
 
+  // With all three shown, the discs mustn't move as the temperature takes the real-star model in and
+  // out of its data range: a wider "Real stars · no data" caption once pushed them 14 px sideways.
+  document.getElementById("compare").click();
+  const compareSnapshot = () => ({
+    ...snapshot(),
+    ...Object.fromEntries([...document.querySelectorAll("#discs .disc")].map((disc, i) => {
+      const box = disc.getBoundingClientRect();
+      return [`disc ${i + 1}`, `left ${Math.round(box.left)} w ${Math.round(box.width)} top ${Math.round(box.top)}`];
+    })),
+  });
+  const compareBase = compareSnapshot();
+  for (let position = 0; position <= 1000; position += 50) {
+    slider.value = position;
+    slider.dispatchEvent(new Event("input"));
+    check(`compare @ slider ${position}`, compareBase, compareSnapshot);
+  }
+  document.getElementById("compare").click();
+
+  // The chart and the color map shrink to fit: a panel that scrolls hides part of them, and in
+  // Safari its scroll position jumped whenever the slider moved.
+  const panelScroll = [];
+  for (const tab of document.querySelectorAll("[data-tabs] button")) {
+    if (!tab.offsetParent) continue;
+    tab.click();
+    for (const panel of document.querySelectorAll(".panel:not([data-view-panel=numbers])")) {
+      if (panel.offsetHeight && panel.scrollHeight > panel.clientHeight + 1) panelScroll.push(`${tab.dataset.view} tab: ${panel.dataset.viewPanel} scrolls ${panel.scrollHeight - panel.clientHeight} px`);
+    }
+  }
+  document.querySelector("[data-tabs] [data-view=spectrum]").click();
+
   return {
     viewport: `${innerWidth}x${innerHeight}`,
     shifts: Object.keys(shifts).length ? shifts : "none",
     overlaps: Object.keys(overlaps).length ? overlaps : "none",
     readoutOverflow: overflow.length ? overflow : "none",
+    panelScroll: panelScroll.length ? panelScroll : "none",
     overflowX: document.documentElement.scrollWidth - innerWidth,
   };
 })();

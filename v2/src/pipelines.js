@@ -54,6 +54,9 @@ function pipelineCard(title, sub, steps) {
 export const pipelinesHtml = () => shownModels().map(pipelineHtml).join("");
 
 export function renderPipelines() {
+  // On phones the Numbers tab scrolls; rebuilding its steps mustn't send it back to the top.
+  const panel = $("pipes").closest(".panel"), top = panel.scrollTop;
   $("pipes").innerHTML = pipelinesHtml();
   $("pipes").classList.toggle("multi", state.compare);
+  panel.scrollTop = top;
 }
