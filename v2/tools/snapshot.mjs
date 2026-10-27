@@ -66,6 +66,8 @@ const STATES = [
   }],
   ["card", "?t=5772", page => page.locator("#objects button", { hasText: "Betelgeuse" }).click()],
   ["cmb-card", "?t=5772", page => page.locator("#objects button", { hasText: "Cosmic microwave background" }).click()],
+  ["orion-click", "?t=5772", page => page.locator("#orion button", { hasText: "Mintaka" }).click()],
+  ["orion-focus", "?t=3600&light=sun", page => page.focus("#orion button")],
   ["copy", "?t=1200", page => page.click("#copyColor")],
   ["copy-menu", "?t=1200", async page => {
     await page.focus("#copyColor");

@@ -21,7 +21,7 @@ Written 2026-10-25. The owner asked for all 25 ideas from the brainstorm, built 
 | P3.A Compare two temperatures | #9 | P2.A | not started | est. +2 |
 | P3.B HR diagram view | #13 | P1.B | not started | est. +2 |
 | P3.C Daylight on another world | #8 | P3.B | not started | est. +2 |
-| P3.D Orion in true color | #3 | P0.2 | not started | est. +1.5 |
+| P3.D Orion in true color | #3 | P0.2 | done 2026-10-26 | +1.5 |
 | P4.A Guided tour | #14 | P1.B, P1.D | not started | est. +2 |
 | P4.B Guess-the-temperature game | #2 | P0.2 | not started | own page |
 | P5.A Per-star pages and preview images | #18 | P0.4, P1.B | not started | own pages |
@@ -29,11 +29,11 @@ Written 2026-10-25. The owner asked for all 25 ideas from the brainstorm, built 
 
 Feature numbers match the brainstorm list (reproduced at the end). The main page is 27.5 KB gzipped after Phase 0 (budget 40 KB, see D1); the remaining estimates add up to about 40 KB.
 
-### Next up (updated 2026-10-25)
+### Next up (updated 2026-10-26)
 
-Phase 0 is done and deployed, with P2.B. P1.A and P1.B are merged on `main` (31.1 KB gzipped together), not yet pushed.
+Phase 0 is done and deployed, with P2.B. P1.A, P1.B, P1.C and P1.D are merged on `main` (34.0 KB gzipped), not yet pushed. P3.D is done on its branch (35.5 KB with it).
 
-- **Ready now, can run in parallel:** the rest of wave 2: P3.D, P4.B (P1.C and P1.D are done on their branches). Their decisions (D4, D8) are answered. Up to three sessions at a time. Budget: 8.9 KB of the 40 KB is left, but the remaining main-page estimates (P1.C, P1.D, P2.A, P3.A–P3.D, P4.A) add up to about 13.5 KB, so expect to trim or raise D1 before wave 4.
+- **Ready now, can run in parallel:** the rest of wave 2: P4.B (its own page, decision D8 answered). Up to three sessions at a time. Budget: with P3.D, 4.5 KB of the 40 KB is left, but the remaining main-page estimates (P2.A, P3.A, P3.B, P3.C, P4.A) add up to about 10 KB, so expect to trim or raise D1 before wave 3 finishes.
 - **Starting a package:** run `npm install`, then `npm run snapshot:save` on the starting commit if the package should leave existing states looking the same. Baselines are local (`v2/.snapshots/`, gitignored), so every session saves its own. Finish with `npm run test:v2`, `npm run check:layout` and, where relevant, `npm run snapshot:compare`; add a snapshot state for any new control.
 - **Known issue to fold into the next package that touches the chart (P2.A):** at 375×667 the chart legend gets only about 6 px of height and is clipped, with or without JS. It predates Phase 0.
 
@@ -208,6 +208,7 @@ All three edit `chart.js` and the stats, so they're one package.
 - A below-the-fold section "Orion, in true color": Betelgeuse, Rigel, Bellatrix, Saiph and the belt (Alnitak, Alnilam, Mintaka) at their real positions, colored with the current model and brightness, sized by apparent magnitude. Tap a star to load it.
 - Add the five stars not already in `OBJECTS` as records, each cited.
 - Pure SVG, recolored by `render()`. No first-screen impact.
+- **Done (2026-10-26).** A card "Orion, in true color" after the objects list: the seven stars at their J2000 positions (SIMBAD), north up and east left, with the figure's lines, each dot's area proportional to its V-band flux, and a short paragraph on why only Betelgeuse looks orange. The five new records: Bellatrix 22,570 K (Gies & Lambert 1992), Saiph 26,700 K, Alnitak 31,000 K, Alnilam 27,100 K and Mintaka 30,300 K (all de Burgos et al. 2024, IACOB X); they also appear in the objects list and the readout takes their names. The map is baked at build time by `orionHtml()` in `v2/src/orion.js` (positions live in `ORION` in `objects.js`, which only the build reads, so esbuild drops them from the script); at runtime `renderOrion()` only recolors the dots and marks the current star, and a tap loads it and scrolls back to the first screen like a card does (`scrollToFirstScreen()` in `dom.js`, now shared). The stars are HTML buttons over an SVG of the lines, so they're focusable and keyboard-usable. Golden tests: positions and V match SIMBAD and temperatures their papers; Betelgeuse is up and left of Rigel, and every map distance is within 0.5% of the great-circle separation; dot areas follow Pogson's 5 magnitudes = 100×. Snapshot states `orion-click` and `orion-focus` added (198 states). Snapshot against `main` (a91020d): canvas, URL, focus and page errors identical in all 186 existing states; screenshots and DOM differ only from the first new star card down (the five new cards, the Orion card, and the "Copy all as CSS variables" toast now counting 34 colors). One exception: at 768×1024 `wide-gamut-compare` differs by at most 2/255 under the translucent docked controls, rendering noise from the taller page. Main page 34.0 → 35.5 KB gzipped: about 1 KB is HTML and CSS (the prerendered map, its styles and the five new cards), 0.4 KB the records and recoloring in the script.
 
 ## Phase 4: guided experiences
 

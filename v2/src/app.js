@@ -11,6 +11,7 @@ import { renderPipelines } from "./pipelines.js";
 import { drawChart, initChart } from "./chart.js";
 import { drawCie } from "./cie-diagram.js";
 import { renderObjects, initObjectsList } from "./objects-list.js";
+import { renderOrion, initOrion } from "./orion.js";
 import { initFaq } from "./faq.js";
 import { initShare } from "./share.js";
 import { initPlay, renderPlay } from "./play.js";
@@ -53,6 +54,7 @@ function render() {
   renderTrack();
   drawChart();
   drawCie();
+  renderOrion();
   // Rebuilding these took half of each frame during Play; they render once when it ends.
   if (!state.animating) {
     renderPipelines();
@@ -66,6 +68,7 @@ function render() {
 onUpdate(render);
 initChart();
 initObjectsList();
+initOrion();
 initFaq();
 initShare();
 initPlay();

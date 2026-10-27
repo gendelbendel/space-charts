@@ -1,7 +1,8 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { OBJECTS, CATEGORIES } from "../src/data/objects.js";
+import { OBJECTS, CATEGORIES, ORION } from "../src/data/objects.js";
 import { wienPeakNm } from "../src/physics.js";
+import { skyPosition, dotDiameter } from "../src/orion.js";
 
 // Slugs become URLs (/stars/<slug>/, roadmap P5.A), so they must be unique and
 // safe to use as a path segment without escaping.
@@ -41,4 +42,58 @@ test("the recombination card matches the CMB stretched by Planck 2018's redshift
   const atRecombination = bySlug("cmb").T * (1 + 1089.92);
   assert.ok(Math.abs(bySlug("recombination").T / atRecombination - 1) < 0.02);
   assert.equal(Math.round((1 + 1089.92) / 100) * 100, 1100);
+});
+
+// The Orion map (roadmap P3.D). Positions (J2000, degrees) and V magnitudes are
+// SIMBAD's, retrieved 2026-10-26 through its TAP service (basic.ra/dec, allfluxes.V).
+// Temperatures: de Burgos et al. 2024 (A&A 687, A228, IACOB X) for the hot
+// supergiants, Gies & Lambert 1992 (ApJ 387, 673) for Bellatrix; Betelgeuse and
+// Rigel keep the values the page already had. A typo in any of them fails here.
+const SIMBAD_ORION = {
+  betelgeuse: { ra: 88.79293899, dec: 7.40706400, V: 0.42, T: 3600 },
+  rigel: { ra: 78.63446707, dec: -8.20163836, V: 0.13, T: 12100 },
+  bellatrix: { ra: 81.28276356, dec: 6.34970326, V: 1.64, T: 22570 },
+  saiph: { ra: 86.93912017, dec: -9.66960492, V: 2.06, T: 26700 },
+  alnitak: { ra: 85.18969443, dec: -1.94257359, V: 1.77, T: 31000 },
+  alnilam: { ra: 84.05338894, dec: -1.20191914, V: 1.69, T: 27100 },
+  mintaka: { ra: 83.00166706, dec: -0.29909511, V: 2.41, T: 30300 },
+};
+
+test("Orion's stars match SIMBAD and their cited temperatures", () => {
+  assert.deepEqual(ORION.map(s => s.slug).sort(), Object.keys(SIMBAD_ORION).sort());
+  for (const star of ORION) {
+    const published = SIMBAD_ORION[star.slug];
+    assert.ok(Math.abs(star.ra - published.ra) < 1e-4 && Math.abs(star.dec - published.dec) < 1e-4, `${star.slug}: position`);
+    assert.equal(star.V, published.V, `${star.slug}: V magnitude`);
+    const record = bySlug(star.slug);
+    assert.equal(record?.T, published.T, `${star.slug}: temperature`);
+    assert.equal(record.category, "star");
+  }
+});
+
+// The map should look like the sky: Betelgeuse at the upper left and Rigel at the
+// lower right (north up, east left), and distances on it within 0.5% of the
+// great-circle separations computed from SIMBAD's coordinates (Betelgeuse to
+// Rigel is 18.6°). A flipped axis or a missing cos(dec) fails this.
+test("the Orion map keeps the sky's orientation and angular distances", () => {
+  const rad = Math.PI / 180;
+  const separation = (a, b) => Math.acos(Math.sin(a.dec * rad) * Math.sin(b.dec * rad) + Math.cos(a.dec * rad) * Math.cos(b.dec * rad) * Math.cos((a.ra - b.ra) * rad)) / rad;
+  const [bx, by] = skyPosition(SIMBAD_ORION.betelgeuse);
+  const [rx, ry] = skyPosition(SIMBAD_ORION.rigel);
+  assert.ok(bx < rx && by < ry, "Betelgeuse should be up and to the left of Rigel");
+  assert.ok(Math.abs(separation(SIMBAD_ORION.betelgeuse, SIMBAD_ORION.rigel) - 18.6) < 0.05);
+  const stars = Object.values(SIMBAD_ORION);
+  for (const a of stars) for (const b of stars) {
+    if (a === b) continue;
+    const [ax, ay] = skyPosition(a), [cx, cy] = skyPosition(b);
+    assert.ok(Math.abs(Math.hypot(ax - cx, ay - cy) / separation(a, b) - 1) < 0.005);
+  }
+});
+
+// Dots are sized so their area follows the light we receive. Pogson's magnitude
+// scale defines 5 magnitudes as a factor of exactly 100 in flux, so Rigel (V 0.13)
+// should get 100^(2.28 / 5) = 8.17 times Mintaka's (V 2.41) area.
+test("Orion's dot areas follow Pogson's magnitude scale", () => {
+  assert.ok(Math.abs((dotDiameter(0) / dotDiameter(5)) ** 2 - 100) < 1e-9);
+  assert.ok(Math.abs((dotDiameter(0.13) / dotDiameter(2.41)) ** 2 - 8.17) < 0.01);
 });
