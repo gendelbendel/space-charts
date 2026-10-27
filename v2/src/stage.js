@@ -4,6 +4,15 @@ import { screenColor } from "./format.js";
 import { MODEL_KEYS, state, shownModels } from "./state.js";
 import { $ } from "./dom.js";
 
+// A disc painted in a screenColor(), with a glow that grows with its luminance. The game uses it too.
+export function discPaint(color) {
+  const glow = relLuminance(color.lin);
+  return {
+    background: `radial-gradient(circle, ${color.paint()} 0%, ${color.paint()} 55%, ${color.paint(0.82)} 100%)`,
+    boxShadow: glow > 0.002 ? `0 0 ${30 + 70 * glow}px ${6 + 24 * glow}px ${color.paint(Math.min(0.55, glow))}` : "none",
+  };
+}
+
 // What each model's disc shows (null when it's hidden). The page applies these;
 // the build bakes them into the HTML.
 export function discLooks(Lv) {
@@ -12,10 +21,8 @@ export function discLooks(Lv) {
     if (!models.includes(model)) return null;
     const color = screenColor(state.T, model, state.light, state.wide);
     const noData = color.fallback && state.compare;
-    const glow = noData ? 0 : relLuminance(color.lin);
     return {
-      background: noData ? "none" : `radial-gradient(circle, ${color.paint()} 0%, ${color.paint()} 55%, ${color.paint(0.82)} 100%)`,
-      boxShadow: glow > 0.002 ? `0 0 ${30 + 70 * glow}px ${6 + 24 * glow}px ${color.paint(Math.min(0.55, glow))}` : "none",
+      ...(noData ? { background: "none", boxShadow: "none" } : discPaint(color)),
       invisible: noData || (state.light !== "hue" && eyeLuminance(state.T, Lv) < VISION.absolute),
       caption: state.compare ? `${MODELS[model].label}${noData ? " · no data" : ""}` : "",
       hex: noData ? "—" : color.hex,

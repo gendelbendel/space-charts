@@ -11,6 +11,7 @@ v2 is built and is the default page. v1 is served at `/v1/`. Its only change is 
 | `/` | v2. Layout B was chosen: everything that reacts to the slider shares the first screen |
 | `/b`, `/b/` | redirect to `/` (layout A was removed) |
 | `/v1/` | the original site, still driven by `?temp=` |
+| `/play/` | the guessing game (ROADMAP P4.B), its own page; `/play` redirects to it, and `?mode=` / `?score=` open a shared result as a challenge |
 
 Old links keep working: `/?temp=5000` opens v2 at 5,000 K, and `/v1?temp=5000` opens v1. Production is https://space-charts.vercel.app. Verified on the live site (2026-10-25): `/v1?temp=3600` → `/v1/?temp=3600`, and `/b?t=4000` and `/b/?t=4000` → `/?t=4000`, all as 307 (temporary) redirects that keep the query string.
 
@@ -194,6 +195,7 @@ v2/
   src/data/            cie1931.js, cie1951-scotopic.js, harre-heller-2021.js (generated), objects.js
   partials/            HTML pieces: controls, stage, readout, chart, FAQ, …
   pages/index.html     the page  -> /
+  pages/play/index.html  the guessing game -> /play/ (game.js: rules; game-page.js: UI)
   build.mjs            expands partials, inlines CSS, bundles JS with esbuild
   test/                golden tests: physics, slider scale (node --test)
   tools/               layout-stability.js (browser check), check-layout.mjs (runs it with Playwright),
@@ -205,7 +207,7 @@ I chose plain JavaScript with esbuild over Vite + TypeScript. The code is small,
 ### Build and deploy (Vercel)
 
 - `npm run build` = `build:v1` (`PUBLIC_URL=/v1 BUILD_PATH=build/v1 react-scripts build`) then `build:v2` (`node v2/build.mjs`, which clears `build/` except `build/v1`).
-- `vercel.json` redirects `/v1` → `/v1/` (so the directory index is served) and `/b` → `/`, keeping the query string (verified on the live site, 2026-10-25).
+- `vercel.json` redirects `/v1` → `/v1/` (so the directory index is served) and `/b` → `/`, keeping the query string (verified on the live site, 2026-10-25). `/play` → `/play/` uses the same kind of redirect (added 2026-10-26, not yet checked on the live site).
 - To freeze v1 for good, tag the commit (`v1.0.0`) and optionally commit the built `build/v1` output, so it never has to compile again.
 
 ### Why no framework

@@ -1,6 +1,7 @@
 {
   "redirects": [
     { "source": "/v1", "destination": "/v1/", "permanent": false },
+    { "source": "/play", "destination": "/play/", "permanent": false },
     { "source": "/b", "destination": "/", "permanent": false },
     { "source": "/b/", "destination": "/", "permanent": false }
   ]
