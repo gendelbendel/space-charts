@@ -51,25 +51,14 @@ export function cieMarkup() {
   const star = starHue(state.T);
   const showStar = star.available && shownModels().includes("star");
   let marks = `<circle cx="${sx(h.x)}" cy="${sy(h.y)}" r="7" fill="${displayColor(state.T, "cie", "hue").hex}" stroke="#fff" stroke-width="2"/>`;
-  let readout = `Blackbody: x ${h.x.toFixed(3)}, y ${h.y.toFixed(3)}`;
+  // The coordinates are spans so the compact tiers can put them on their own lines.
+  let readout = `Blackbody: <span>x ${h.x.toFixed(3)}, y ${h.y.toFixed(3)}</span>`;
   if (showStar) {
     const s = linearSrgbToXy(star.linear);
     marks += `<circle cx="${sx(s.x)}" cy="${sy(s.y)}" r="9" fill="none" stroke="#9cc4ff" stroke-width="2" stroke-dasharray="3 2"/>`;
-    readout += `<br>Star (ring): x ${s.x.toFixed(3)}, y ${s.y.toFixed(3)}`;
+    readout += `<br>Star (ring): <span>x ${s.x.toFixed(3)}, y ${s.y.toFixed(3)}</span>`;
   }
   return { svg: `${cieBase}${marks}`, readout };
-}
-
-// A wide box crops the top of the diagram (the greens) instead of shrinking all of it, so the
-// blackbody curve fills the space. The box's size comes from CSS alone, never from the viewBox.
-export function initCie() {
-  const svg = $("cie");
-  new ResizeObserver(() => {
-    const { width, height } = svg.getBoundingClientRect();
-    if (!width || !height) return;
-    const h = Math.round(Math.min(320, Math.max(185, 320 * height / width)));
-    svg.setAttribute("viewBox", `0 ${320 - h} 320 ${h}`);
-  }).observe(svg);
 }
 
 export function drawCie() {

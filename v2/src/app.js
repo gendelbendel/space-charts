@@ -9,7 +9,7 @@ import { renderReadout } from "./readout.js";
 import { renderStage } from "./stage.js";
 import { renderPipelines } from "./pipelines.js";
 import { drawChart, initChart } from "./chart.js";
-import { drawCie, initCie } from "./cie-diagram.js";
+import { drawCie } from "./cie-diagram.js";
 import { renderObjects, initObjectsList } from "./objects-list.js";
 import { renderOrion, initOrion } from "./orion.js";
 import { initFaq } from "./faq.js";
@@ -67,7 +67,6 @@ function render() {
 // this first render replaces it with the URL's state.
 onUpdate(render);
 initChart();
-initCie();
 initObjectsList();
 initOrion();
 initFaq();
