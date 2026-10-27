@@ -35,6 +35,11 @@ export const OBJECTS = [
   { slug: "lightning", name: "Lightning", category: "everyday", type: "Air in the channel", T: 30000, note: "For a few microseconds, five times hotter than the Sun's surface.", source: "NOAA National Weather Service: about 50,000 °F (~28,000 K), often quoted as 30,000 K" },
   { slug: "recombination", name: "When the universe turned transparent", category: "cosmic", type: "Recombination", T: 3000, aliases: ["last scattering"], note: "About 380,000 years after the Big Bang. The CMB is this light today, stretched by a factor of about 1,100.", source: "Planck 2018 results VI: last scattering at z ≈ 1,090, about 370,000–380,000 years" },
   { slug: "cmb", name: "Cosmic microwave background", category: "cosmic", type: "The Big Bang's afterglow", T: 2.72548, aliases: ["cmb"], note: "The most perfect blackbody ever measured. It peaks near 1 mm, in microwaves.", source: "Fixsen 2009, ApJ 707, 916: 2.72548 ± 0.00057 K" },
+  { slug: "bellatrix", name: "Bellatrix", category: "star", type: "B2 III giant", T: 22570, note: "Orion's left shoulder.", source: "Gies & Lambert 1992, ApJ 387, 673" },
+  { slug: "saiph", name: "Saiph", category: "star", type: "B0.5 Ia supergiant", T: 26700, note: "Orion's right knee.", source: "de Burgos et al. 2024, A&A 687, A228 (IACOB X)" },
+  { slug: "alnitak", name: "Alnitak", category: "star", type: "O9.7 Ib supergiant", T: 31000, note: "East end of Orion's Belt. A multiple star; this is its brightest member.", source: "de Burgos et al. 2024, A&A 687, A228 (IACOB X), zeta Ori A" },
+  { slug: "alnilam", name: "Alnilam", category: "star", type: "B0 Ia supergiant", T: 27100, note: "The middle of Orion's Belt.", source: "de Burgos et al. 2024, A&A 687, A228 (IACOB X)" },
+  { slug: "mintaka", name: "Mintaka", category: "star", type: "O9.5 II bright giant", T: 30300, note: "West end of Orion's Belt, almost on the celestial equator.", source: "de Burgos et al. 2024, A&A 687, A228 (IACOB X)" },
 ];
 
 export const SPECTRAL_CLASSES = [
@@ -63,3 +68,16 @@ export const SLIDER_MARKS = [["Sun", 5772], ["You", 310], ["Draper", 798], ["Rig
 
 // Headings for the objects list, in display order.
 export const CATEGORIES = [["star", "Stars"], ["brown-dwarf", "Brown dwarfs"], ["everyday", "Everyday light"], ["cosmic", "Cosmic"]];
+
+// Orion's seven brightest stars, for the "Orion, in true color" map: J2000 position
+// in degrees and V magnitude, from SIMBAD. `label` is the side the name goes on.
+// Only the build uses this (the map is prerendered), so it stays out of the script.
+export const ORION = [
+  { slug: "betelgeuse", ra: 88.7929, dec: 7.4071, V: 0.42, label: "right" },
+  { slug: "bellatrix", ra: 81.2828, dec: 6.3497, V: 1.64, label: "right" },
+  { slug: "alnitak", ra: 85.1897, dec: -1.9426, V: 1.77, label: "left" },
+  { slug: "alnilam", ra: 84.0534, dec: -1.2019, V: 1.69, label: "right" },
+  { slug: "mintaka", ra: 83.0017, dec: -0.2991, V: 2.41, label: "above" },
+  { slug: "saiph", ra: 86.9391, dec: -9.6696, V: 2.06, label: "left" },
+  { slug: "rigel", ra: 78.6345, dec: -8.2016, V: 0.13, label: "right" },
+];

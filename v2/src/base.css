@@ -182,6 +182,21 @@ svg.cie .grid { stroke: rgba(255, 255, 255, .05); }
 .obj-meta { font: 12.5px var(--mono); color: var(--muted); }
 .obj-note { font-size: 13px; color: var(--muted); margin-top: 4px; }
 
+/* Orion: the sky is a 16° x 20° box; each star is a button placed in % of it, its name beside it */
+.orion { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 28px; }
+.orion > p { flex: 1 1 240px; margin: 0; color: var(--muted); font-size: 14px; }
+.sky { position: relative; flex: 1 1 260px; max-width: 400px; aspect-ratio: 4 / 5; border-radius: 12px; border: 1px solid var(--line); background: radial-gradient(ellipse at 50% 45%, #0b0d14 0%, #000 75%); overflow: hidden; }
+.sky svg { position: absolute; inset: 0; width: 100%; height: 100%; stroke: var(--line-strong); }
+.sky line { vector-effect: non-scaling-stroke; }
+.sky button { position: absolute; display: grid; place-items: center; width: 24px; height: 24px; margin: -12px 0 0 -12px; padding: 0; border: 0; border-radius: 50%; background: none; cursor: pointer; }
+.sky i { border-radius: 50%; background: currentColor; box-shadow: 0 0 8px currentColor; }
+.sky button[aria-current] i { outline: 1px solid var(--accent); outline-offset: 4px; }
+.sky span { position: absolute; font-size: 12px; color: var(--muted); white-space: nowrap; }
+.sky button:hover span { color: var(--text); }
+.sky .right span { left: 22px; }
+.sky .left span { right: 22px; }
+.sky .above span { bottom: 20px; }
+
 /* spectral class list (FAQ) */
 .class-list { margin: 12px 0; display: grid; gap: 10px; }
 .class-list > div { border-left: 2px solid var(--line-strong); padding-left: 10px; }

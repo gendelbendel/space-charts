@@ -4,7 +4,7 @@ import { OBJECTS, CATEGORIES } from "./data/objects.js";
 import { formatK, screenColor } from "./format.js";
 import { state, setTemperature } from "./state.js";
 import { copyText } from "./share.js";
-import { $ } from "./dom.js";
+import { $, scrollToFirstScreen } from "./dom.js";
 
 const objectHtml = ({ name, type, T, note }, i) => {
   const color = screenColor(T, state.model, state.light, state.wide).paint();
@@ -37,8 +37,7 @@ export function initObjectsList() {
     const button = e.target.closest("button[data-i]");
     if (!button) return;
     setTemperature(OBJECTS[+button.dataset.i].T);
-    const anchor = document.querySelector("[data-scroll-anchor]") ?? document.body;
-    anchor.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+    scrollToFirstScreen();
   });
   $("copyVars").addEventListener("click", () => copyText(cssVariables(state.model, state.light), `Copied ${OBJECTS.length} colors`));
 }

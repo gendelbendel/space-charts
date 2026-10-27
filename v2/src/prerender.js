@@ -16,6 +16,7 @@ import { discLooks, discsHtml, stageHex, stageNote } from "./stage.js";
 import { pipelinesHtml } from "./pipelines.js";
 import { legendHtml } from "./chart.js";
 import { objectsHtml } from "./objects-list.js";
+import { orionHtml } from "./orion.js";
 import { classListHtml } from "./faq.js";
 
 export function prerender(T) {
@@ -39,6 +40,7 @@ export function prerender(T) {
     legend: legendHtml(),
     pipes: pipelinesHtml(),
     objects: objectsHtml(),
+    orion: orionHtml(),
     classList: classListHtml(),
   };
 }
