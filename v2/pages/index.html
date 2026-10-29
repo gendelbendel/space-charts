@@ -105,16 +105,13 @@
   /* Sized by the space left over, not by its content, so the container query below can ask how much room there is. */
   .viz { container: viz / size; display: flex; flex-direction: column; gap: 8px; }
   .tabs .both { display: none; }
-  .panel .spectrum .sub .long { display: none; }
-  .legend { font-size: 11px; margin-top: 4px; }
+  .legend { font-size: 11px; margin-top: 4px; gap: 10px; }
   .tabs { display: flex; }
   .panel, .panel[data-view-panel=numbers] { display: none; }
   /* Only the Numbers tab scrolls; the chart and the color map shrink to fit. */
   .panel.active { display: flex; flex: 1; min-height: 0; overflow: hidden; }
   .panel[data-view-panel=numbers].active { display: grid; gap: 10px; overflow: auto; overscroll-behavior: contain; }
-  .panel .spectrum h2, .panel .colormap h2, .panel .colormap .sub { display: none; }
-  .panel .spectrum .card-head { flex-wrap: nowrap; align-items: center; }
-  .panel .spectrum .sub { margin: 0; }
+  .panel .spectrum h2, .panel .colormap h2, .panel .colormap .sub, .panel .spectrum .sub { display: none; }
   .chart-box { flex: 1 1 0; min-height: 0; }
   .colormap svg.cie { flex: 1 1 0; height: 0; width: 100%; }
   .panel .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -146,7 +143,8 @@
   .verdict { min-height: calc(2 * 1.45em); }
   .viz { display: grid; gap: 12px; grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); grid-template-areas: "spectrum map" "numbers numbers"; align-content: start; }
   /* The chart sets the row's height; the color map fills its side (it used to set the height by its own square). */
-  .chart-box { min-height: 300px; }
+  /* Was 300px: the chart's two switches made its header 7.75px taller, so the row keeps its height. */
+  .chart-box { min-height: 292.25px; }
   .colormap svg.cie { flex: 1 1 0; height: 0; width: 100%; }
   .b-dock .controls { grid-template-columns: 1fr 1fr auto; }
   .b-dock .control:nth-child(1) > .lbl { grid-row: 1; grid-column: 1; }
@@ -200,6 +198,8 @@
 /* phone and short landscape: the whole color map at the panel's full height, with its readout in the
    top corner, which the diagram leaves empty */
 @media (max-width: 599px), (max-height: 520px) and (min-width: 600px) {
+  /* With the title and subtitle hidden, the chart's two switches take the header's ends. */
+  .panel .chart-modes { grid-column: 1 / -1; justify-content: space-between; }
   .panel > .colormap { position: relative; }
   .colormap .cie-readout { position: absolute; top: 8px; right: 10px; margin: 0; min-height: 0; font-size: 10.5px; line-height: 1.35; text-align: right; }
   .cie-readout span { display: block; }

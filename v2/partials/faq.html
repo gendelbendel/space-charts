@@ -86,12 +86,18 @@
 
   <div class="faq-group"><h3>The chart</h3>
     <details><summary>What do the chart's units mean?</summary><div>
-      <p>Spectral radiance is how much power leaves the surface, per square meter, per steradian (a unit of viewing direction), per nanometer of wavelength: W·m⁻²·sr⁻¹·nm⁻¹. v1 used "per meter of wavelength", which gives the same curve but numbers a billion times larger.</p>
+      <p>Spectral radiance is how much power leaves the surface, per square meter, per steradian (a unit of viewing direction), per nanometer of wavelength: W·m⁻²·sr⁻¹·nm⁻¹. v1 used "per meter of wavelength", which gives the same curve but numbers a billion times larger. Per Hz divides by hertz of frequency instead: W·m⁻²·sr⁻¹·Hz⁻¹. The UV · visible · IR bar splits the total power at 380 and 780 nm.</p>
     </div></details>
     <details><summary>Why does the peak move when I change the temperature?</summary><div>
       <p>That's <a href="https://en.wikipedia.org/wiki/Wien%27s_displacement_law">Wien's displacement law</a>: the peak wavelength is inversely proportional to temperature.</p>
       <math display="block"><msub><mi>λ</mi><mi>max</mi></msub><mo>=</mo><mfrac><mi>b</mi><mi>T</mi></mfrac><mo>,</mo><mspace width="1em"/><mi>b</mi><mo>≈</mo><mn>2.898</mn><mo>×</mo><msup><mn>10</mn><mn>−3</mn></msup><mtext> m·K</mtext></math>
       <p>The Sun peaks near 502 nm. A 3,000 K red dwarf peaks near 966 nm, in the infrared, which is why it puts out so little visible light.</p>
+    </div></details>
+    <details><summary>Why does the peak move when I switch to Per Hz?</summary><div>
+      <p>Per nm counts the power in each nanometer of wavelength, Per Hz in each hertz of frequency. A nanometer of red light spans fewer hertz than a nanometer of blue, so the same light, sliced differently, peaks somewhere else. Per Hz follows Wien's frequency law, ν<sub>max</sub> ≈ 5.879 × 10¹⁰ Hz/K × T: the Sun peaks near 502 nm per nm but near 880 nm per Hz. Neither peak sets the color, which comes from the whole visible band.</p>
+    </div></details>
+    <details><summary>What are the lines on the chart?</summary><div>
+      <p>The atoms and molecules in a star's atmosphere absorb light at their own wavelengths. Lines marks the strongest for the current class: hydrogen (Hα, Hβ, Hγ) in B, A and F stars, calcium (Ca II H and K) in F, G and K, sodium (Na D) in G, K and M, and titanium oxide in M. The positions are real (from the <a href="https://physics.nist.gov/asd">NIST Atomic Spectra Database</a>), but the drawing is illustrative: the curve is still a pure blackbody.</p>
     </div></details>
     <details><summary>Why is the horizontal axis logarithmic?</summary><div>
       <p>Across the temperatures on this page the peak moves from about 30 nm to 30 µm, a factor of a thousand. A log axis keeps both the peak and the visible band on screen at every temperature. Switch the vertical axis to Log to see how faint the visible part is for cool objects.</p>
@@ -111,7 +117,7 @@
       <p>The color matching functions and the rod (scotopic) curve V′(λ) are official data from the International Commission on Illumination (CIE): <a href="https://doi.org/10.25039/CIE.DS.xvudnb9b">CIE 1931 colour-matching functions</a> and <a href="https://doi.org/10.25039/CIE.DS.gr6w4b5g">CIE spectral luminous efficiency for scotopic vision</a>, both from CIE 018:2019 and used under <a href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>. This page uses every fifth row (5 nm steps), with the 1931 values rounded to six decimals.</p>
     </div></details>
     <details><summary>How do I know the math is right?</summary><div>
-      <p>The code is checked by automated tests against published reference values. The blackbody colors match the published Planckian locus to four decimal places at 1,000 K, 2,856 K (CIE Illuminant A), 5,000 K and 10,000 K. Integrating Planck's law over every wavelength reproduces the Stefan–Boltzmann law. Both CIE tables are checked against CIE's official data files, and rod (scotopic) luminance reproduces published scotopic-to-photopic ratios, such as 1.41 for an incandescent lamp. The Real stars table is checked row by row against the paper's own hex codes.</p>
+      <p>The code is checked by automated tests against published reference values. The blackbody colors match the published Planckian locus to four decimal places at 1,000 K, 2,856 K (CIE Illuminant A), 5,000 K and 10,000 K. Integrating Planck's law over every wavelength, or every frequency, reproduces the Stefan–Boltzmann law, the Per Hz peak matches Wien's frequency law, and the UV · visible · IR split matches published blackbody radiation tables. Both CIE tables are checked against CIE's official data files, and rod (scotopic) luminance reproduces published scotopic-to-photopic ratios, such as 1.41 for an incandescent lamp. The Real stars table is checked row by row against the paper's own hex codes.</p>
     </div></details>
     <details><summary>How hot is too hot, or too cold, for this to work?</summary><div>
       <p>Planck's law holds at any temperature. The limits are practical: below about 600 K there's no visible light to speak of, and above about 50,000 K the color stops changing. The slider covers 100 K to 100,000 K, and you can type anything up to 1,000,000 K. The cosmic microwave background, at 2.7 K, is in the list of objects.</p>

@@ -8,6 +8,8 @@
   --muted: #8b91a5;
   --accent: #ffc58a;
   --focus: #9cc4ff;
+  --uv: #8f6bff;
+  --ir: #b3402f;
   --radius: 14px;
   --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
   --sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
@@ -132,6 +134,13 @@ input[type=range]::-moz-range-thumb { box-sizing: border-box; width: 26px; heigh
 .stat dt { font-size: 12px; color: var(--muted); }
 /* Two lines reserved: some values wrap at some temperatures, and the row shouldn't grow mid-slide. */
 .stat dd { margin: 2px 0 0; font: 15px/1.35 var(--mono); overflow-wrap: anywhere; min-height: calc(2 * 1.35em); }
+/* UV / visible / IR: a bar and three percentages, inside the same two reserved lines. */
+.split { display: grid; gap: 5px; align-content: start; padding-top: 5px; }
+.split-bar { display: flex; height: 6px; border-radius: 3px; overflow: hidden; background: var(--line); }
+.split-bar i:nth-child(1) { background: var(--uv); }
+.split-bar i:nth-child(2) { background: linear-gradient(90deg, #8040ff, #00f, #0ff, #0f0, #ff0, #f00); }
+.split-bar i:nth-child(3) { background: var(--ir); }
+.split-pct { display: flex; justify-content: space-between; gap: 4px; font-size: 12px; line-height: 1.35; white-space: nowrap; }
 
 /* cards */
 .card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 18px; }
@@ -140,6 +149,13 @@ input[type=range]::-moz-range-thumb { box-sizing: border-box; width: 26px; heigh
 .card-head { display: flex; justify-content: space-between; align-items: start; gap: 12px; }
 .card-head > div { min-width: 0; }
 .card-head .seg { flex: none; flex-wrap: nowrap; }
+/* The chart's title and its two switches share a row; the subtitle runs full width below them. */
+.spectrum .card-head { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; row-gap: 0; }
+.spectrum .card-head > div:first-child { display: contents; }
+.spectrum .sub { grid-column: 1 / -1; margin-top: 4px; min-height: calc(2 * 1.55em); }
+.spectrum h2 { margin: 0; }
+.chart-modes { grid-row: 1; grid-column: 2; display: flex; gap: 6px; }
+.chart-modes .seg button { padding: 5px 10px; font-size: 13px; }
 
 /* chart */
 .chart-box { position: relative; height: 340px; }
@@ -149,10 +165,13 @@ input[type=range]::-moz-range-thumb { box-sizing: border-box; width: 26px; heigh
 .chart-box canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; touch-action: pan-y; }
 .tip { position: absolute; pointer-events: none; background: #000c; border: 1px solid var(--line-strong); border-radius: 8px; padding: 6px 8px; font: 12px var(--mono); white-space: nowrap; }
 /* Always one line, so changing models never changes the card's height. */
-.legend { display: flex; gap: 14px; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; font-size: 12px; line-height: 1.5; color: var(--muted); margin-top: 8px; }
+.legend { flex: none; display: flex; gap: 14px; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; font-size: 12px; line-height: 1.5; color: var(--muted); margin-top: 8px; }
 .legend::-webkit-scrollbar { display: none; }
 .legend span { white-space: nowrap; }
 .legend i { display: inline-block; width: 14px; height: 3px; vertical-align: middle; margin-right: 6px; border-radius: 2px; }
+/* The absorption-lines switch: a legend entry you can press, no taller than the others. */
+.legend button { flex: none; font: inherit; line-height: calc(1.5em - 2px); color: inherit; background: none; border: 1px solid var(--line-strong); border-radius: 999px; padding: 0 8px; cursor: pointer; white-space: nowrap; }
+.legend button[aria-pressed=true] { color: var(--text); border-color: var(--accent); }
 
 /* how the color was computed */
 .pipes { display: grid; gap: 14px; }

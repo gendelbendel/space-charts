@@ -10,6 +10,7 @@ export const PHYS = {
   k: 1.380649e-23,
   sigma: 5.670374419e-8,
   wien: 2.897771955e-3,
+  wienHz: 5.878925757e10,
   Km: 683,
   KmScotopic: 1700,
 };
@@ -87,11 +88,33 @@ export function scotopicLuminance(T) {
   return PHYS.KmScotopic * sum * CMF_STEP_NM * 1e-9;
 }
 
+/** Planck's law per unit frequency (B_ν = B_λ λ²/c) at a wavelength in nm, in W·m⁻²·sr⁻¹·Hz⁻¹. */
+export const planckPerHz = (nm, T) => (planck(nm, T) * (nm * 1e-9) ** 2) / PHYS.c;
+
 export const wienPeakNm = T => (PHYS.wien / T) * 1e9;
+/** Wien's frequency law: where B_ν peaks, in Hz. */
+export const wienPeakHz = T => PHYS.wienHz * T;
 export const radiantExitance = T => PHYS.sigma * T ** 4;
 export function visibleFraction(T) {
   const visible = trapezoid(nm => planck(nm, T) * 1e-9, 380, 780, 80);
   return visible / (radiantExitance(T) / Math.PI);
+}
+
+/**
+ * The share of a blackbody's power at wavelengths below λ, as a function of λT in µm·K:
+ * F = (15/π⁴) Σ e^(−nx)/n · (x³ + 3x²/n + 6x/n² + 6/n³), with x = hc/(λkT).
+ */
+export function blackbodyFraction(umK) {
+  if (!(umK > 0)) return 0;
+  const x = (PHYS.h * PHYS.c) / (PHYS.k * umK * 1e-6);
+  let sum = 0;
+  for (let n = 1; n <= 1 + 40 / x; n++) sum += (Math.exp(-n * x) / n) * (x ** 3 + (3 * x * x) / n + (6 * x) / n ** 2 + 6 / n ** 3);
+  return Math.min(1, (15 / Math.PI ** 4) * sum);
+}
+/** Shares of the power emitted as ultraviolet (< 380 nm), visible light and infrared (> 780 nm). */
+export function energySplit(T) {
+  const uv = blackbodyFraction(0.38 * T), belowIr = blackbodyFraction(0.78 * T);
+  return [uv, belowIr - uv, 1 - belowIr];
 }
 
 const mul = (m, v) => m.map(r => r[0] * v[0] + r[1] * v[1] + r[2] * v[2]);
