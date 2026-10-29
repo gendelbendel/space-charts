@@ -127,8 +127,8 @@
   // The chart and the color map shrink to fit: a panel that scrolls hides part of them, and in
   // Safari its scroll position jumped whenever the slider moved.
   const panelScroll = [];
-  for (const view of [hrView, cieView]) {
-    view.click();
+  for (const view of hrView ? [hrView, cieView] : [null]) {
+    view?.click();
     for (const tab of document.querySelectorAll("[data-tabs] button")) {
       if (!tab.offsetParent) continue;
       tab.click();

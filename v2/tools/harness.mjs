@@ -41,7 +41,9 @@ export async function launchBrowser(name = "chromium") {
 // Opens `url` at the given viewport size. Page errors are collected in `page.errors`.
 export async function openPage(browser, url, width, height, { javaScript = true, reducedMotion = "no-preference" } = {}) {
   // Clipboard access lets the copy and share buttons succeed, as they do for a person clicking them.
-  const page = await browser.newPage({ viewport: { width, height }, javaScriptEnabled: javaScript, reducedMotion, permissions: ["clipboard-read", "clipboard-write"] });
+  // WebKit rejects these permission names, so it runs without them.
+  const permissions = browser.browserType().name() === "chromium" ? ["clipboard-read", "clipboard-write"] : [];
+  const page = await browser.newPage({ viewport: { width, height }, javaScriptEnabled: javaScript, reducedMotion, permissions });
   page.errors = [];
   page.on("pageerror", error => page.errors.push(error.message));
   // The Vercel analytics script only exists on Vercel.
