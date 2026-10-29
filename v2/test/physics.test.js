@@ -5,6 +5,7 @@ import {
   PHYS, planck, trapezoid, cieHue, simpleHue, starHue, displayColor, luminance,
   wienPeakNm, wienPeakHz, planckPerHz, blackbodyFraction, energySplit, radiantExitance, parseTemperature, toKelvin, encodeSrgb, toHex,
   scotopicLuminance, eyeLuminance, VISION, linearP3ToXyz, xyzToLinearP3, displayColorP3, linearSrgbToXy, relLuminance,
+  IAU_SUN, sphereLuminosity,
 } from "../src/physics.js";
 import { HARRE_HELLER_2021 } from "../src/data/harre-heller-2021.js";
 import { CIE1931_2DEG, CMF_START_NM, CMF_STEP_NM, CMF_ROWS } from "../src/data/cie1931.js";
@@ -157,6 +158,15 @@ test("energySplit's shares add up and match a direct integration of the visible 
     const direct = trapezoid(nm => planck(nm, T) * 1e-9, 380, 780, 4000) / (radiantExitance(T) / Math.PI);
     close(vis / direct, 1, 1e-5, `visible share at ${T} K`);
   }
+});
+
+// IAU 2015 Resolution B3 defines nominal solar values: R☉ = 6.957 × 10⁸ m,
+// T☉ = 5,772 K and L☉ = 3.828 × 10²⁶ W, chosen to be consistent through
+// L = 4πR²σT⁴. A slip in the formula (R instead of R², a missing 4π) or in σ fails here.
+test("a sphere of the IAU nominal solar radius at 5,772 K radiates the IAU nominal solar luminosity", () => {
+  assert.equal(IAU_SUN.R, 6.957e8);
+  assert.equal(IAU_SUN.L, 3.828e26);
+  close(sphereLuminosity(6.957e8, 5772) / 3.828e26, 1, 1e-3, "L / L☉");
 });
 
 // v1 evaluated planck(0) as ∞/∞ = NaN on every chart.

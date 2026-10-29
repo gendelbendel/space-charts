@@ -10,6 +10,7 @@ import { renderStage } from "./stage.js";
 import { renderPipelines } from "./pipelines.js";
 import { drawChart, initChart } from "./chart.js";
 import { drawCie } from "./cie-diagram.js";
+import { renderHr, initHr } from "./hr-diagram.js";
 import { renderObjects, initObjectsList } from "./objects-list.js";
 import { renderOrion, initOrion } from "./orion.js";
 import { initFaq } from "./faq.js";
@@ -53,7 +54,9 @@ function render() {
   renderStage(Lv);
   renderTrack();
   drawChart();
-  drawCie();
+  $("colormap").dataset.map = state.map;
+  if (state.map === "hr") renderHr();
+  else drawCie();
   renderOrion();
   // Rebuilding these took half of each frame during Play; they render once when it ends.
   if (!state.animating) {
@@ -69,6 +72,7 @@ onUpdate(render);
 initChart();
 initObjectsList();
 initOrion();
+initHr();
 initFaq();
 initShare();
 initPlay();

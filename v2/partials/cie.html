@@ -1,6 +1,15 @@
-<section class="card colormap" id="colormap">
-  <h2>Where it sits on the color map</h2>
-  <p class="sub">Every blackbody sits on the orange curve, which never reaches green or purple.</p>
+<section class="card colormap" id="colormap" data-map="cie">
+  <div class="map-head">
+    <div><h2>Where it sits on the color map</h2>
+    <p class="sub">Every blackbody sits on the orange curve, which never reaches green or purple.</p></div>
+    <div><h2>Where it sits among the stars</h2>
+    <p class="sub">Stars by temperature and power. Tap one to load it.</p></div>
+  </div>
+  <div class="seg" role="group" aria-label="Diagram" data-key="map">
+    <button type="button" data-v="cie" aria-pressed="true">Color map</button>
+    <button type="button" data-v="hr" aria-pressed="false">HR diagram</button>
+  </div>
   <svg class="cie" id="cie" viewBox="0 0 320 320" role="img" aria-label="CIE 1931 chromaticity diagram with the Planckian locus"></svg>
+  <svg class="cie" id="hr" viewBox="0 0 320 320" role="group" aria-label="Hertzsprung–Russell diagram: luminosity against temperature"></svg>
   <p class="cie-readout" id="cieReadout"></p>
 </section>

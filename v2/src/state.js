@@ -19,6 +19,8 @@ export function readState(search) {
     // The chart's absorption lines: null follows the model (on for Real stars), true or false once switched.
     lines: null,
     view: "spectrum",
+    // The color-map card's view: "cie" (the color map) or "hr" (the HR diagram).
+    map: "cie",
     // True while Play (animate.js) moves the temperature.
     animating: false,
   };

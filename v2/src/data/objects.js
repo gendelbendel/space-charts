@@ -5,6 +5,28 @@
 //   T         effective temperature in kelvin
 //   note      shown on the card ("" for none)
 // Optional: aliases (other names the readout accepts), source (citation for T).
+// Stars also have L (luminosity) and R (radius) in solar units (IAU 2015 nominal L☉ and R☉), for
+// the HR diagram. Values as published, so L isn't exactly R²(T/T☉)⁴ with the T above. Sources:
+//   Sun: 1 and 1 by definition (IAU 2015 Resolution B3)
+//   Proxima Centauri: Ribas et al. 2017, A&A 603, A58
+//   Betelgeuse: Joyce et al. 2020, ApJ 902, 63
+//   Pollux: L Soubiran et al. 2024, A&A 682, A145; R Baines et al. 2025, AJ 169, 293
+//   Capella Aa: Torres et al. 2015, ApJ 807, 26
+//   Alpha Centauri A: L Akeson et al. 2021, AJ 162, 14; R Kervella et al. 2017, A&A 597, A137
+//   Procyon A: Soubiran et al. 2024, A&A 682, A145
+//   Altair: L Peterson et al. 2006, ApJ 636, 1087; R Bouchaud et al. 2020, A&A 633, A78
+//   Deneb: Schiller & Przybilla 2008, A&A 479, 849
+//   Vega: Monnier et al. 2012, ApJ 761, L3
+//   Sirius A: L Liebert et al. 2005, ApJ 630, L69; R Davis et al. 2011, PASA 28, 58
+//   Rigel: L Moravveji et al. 2012, ApJ 747, 108; R Baines et al. 2018, AJ 155, 30 (doi:10.3847/1538-3881/aa9d8b)
+//   Zeta Puppis: Howarth & van Leeuwen 2019, MNRAS 484, 5350
+//   Bellatrix: L Cazorla & Nazé 2017, A&A 608, A54; R from that L and its T (no measured radius found)
+//   Saiph: Haucke et al. 2018, A&A 614, A91 (R given as 13–14)
+//   Alnitak: L Hummel et al. 2013, A&A 554, A52; R Gordon et al. 2018, ApJ 869, 37
+//   Alnilam: Oplištilová et al. 2025, A&A 704, A204 (arXiv:2507.02276)
+//   Mintaka: L Shenar et al. 2015, ApJ 809, 135; R Oplištilová et al. 2023, A&A 672, A31
+// Altair, Vega, Zeta Puppis and Alnilam spin fast and are flattened: R is the mean of the polar
+// and equatorial radii (Alnilam's paper gives that "equivalent" radius itself).
 export const OBJECTS = [
   { slug: "you", name: "You", category: "everyday", type: "Human body", T: 310, note: "Peak near 9.3 µm. Thermal cameras see you; eyes can't." },
   { slug: "wise-0855-0714", name: "WISE 0855−0714", category: "brown-dwarf", type: "Y4 brown dwarf", T: 285, note: "Coldest known brown dwarf. Estimates run 250–285 K." },
@@ -12,19 +34,19 @@ export const OBJECTS = [
   { slug: "draper-point", name: "Draper point", category: "everyday", type: "Reference", T: 798, note: "Where hot objects first visibly glow, as a faint grey." },
   { slug: "candle-flame", name: "Candle flame", category: "everyday", type: "Reference", T: 1850, note: "Candlelight's color temperature (glowing soot)." },
   { slug: "incandescent-bulb", name: "Incandescent bulb", category: "everyday", type: "Reference", T: 2700, note: "Tungsten filament.", aliases: ["Bulb", "Light bulb"] },
-  { slug: "proxima-centauri", name: "Proxima Centauri", category: "star", type: "M5.5 V red dwarf", T: 3042, note: "Nearest star to the Sun." },
-  { slug: "betelgeuse", name: "Betelgeuse", category: "star", type: "M1–2 Ia supergiant", T: 3600, note: "Varies between about 3,500 and 3,650 K." },
-  { slug: "pollux", name: "Pollux", category: "star", type: "K0 III giant", T: 4586, note: "Sources vary from 4,586 to 4,865 K." },
-  { slug: "capella-aa", name: "Capella Aa", category: "star", type: "G8 III giant", T: 4970, note: "" },
-  { slug: "sun", name: "The Sun", category: "star", type: "G2 V", T: 5772, note: "IAU nominal value." },
-  { slug: "alpha-centauri-a", name: "Alpha Centauri A", category: "star", type: "G2 V", T: 5790, note: "" },
-  { slug: "procyon-a", name: "Procyon A", category: "star", type: "F5 IV–V", T: 6530, note: "" },
-  { slug: "altair", name: "Altair", category: "star", type: "A7 V", T: 7600, note: "Spins so fast its poles are ~8,500 K and its equator ~6,900 K." },
-  { slug: "deneb", name: "Deneb", category: "star", type: "A2 Ia supergiant", T: 8525, note: "" },
-  { slug: "vega", name: "Vega", category: "star", type: "A0 V", T: 9600, note: "Historically the zero point of stellar brightness scales." },
-  { slug: "sirius-a", name: "Sirius A", category: "star", type: "A1 V", T: 9940, note: "Brightest star in the night sky." },
-  { slug: "rigel", name: "Rigel", category: "star", type: "B8 Ia supergiant", T: 12100, note: "" },
-  { slug: "zeta-puppis", name: "Zeta Puppis", category: "star", type: "O4 I supergiant", T: 40000, note: "One of the hottest stars visible to the naked eye." },
+  { slug: "proxima-centauri", name: "Proxima Centauri", category: "star", type: "M5.5 V red dwarf", T: 3042, L: 0.00151, R: 0.146, note: "Nearest star to the Sun." },
+  { slug: "betelgeuse", name: "Betelgeuse", category: "star", type: "M1–2 Ia supergiant", T: 3600, L: 87100, R: 764, note: "Varies between about 3,500 and 3,650 K." },
+  { slug: "pollux", name: "Pollux", category: "star", type: "K0 III giant", T: 4586, L: 38.4, R: 8.97, note: "Sources vary from 4,586 to 4,865 K." },
+  { slug: "capella-aa", name: "Capella Aa", category: "star", type: "G8 III giant", T: 4970, L: 78.7, R: 11.98, note: "" },
+  { slug: "sun", name: "The Sun", category: "star", type: "G2 V", T: 5772, L: 1, R: 1, note: "IAU nominal value." },
+  { slug: "alpha-centauri-a", name: "Alpha Centauri A", category: "star", type: "G2 V", T: 5790, L: 1.5059, R: 1.2234, note: "" },
+  { slug: "procyon-a", name: "Procyon A", category: "star", type: "F5 IV–V", T: 6530, L: 7.049, R: 2.043, note: "" },
+  { slug: "altair", name: "Altair", category: "star", type: "A7 V", T: 7600, L: 10.6, R: 1.79, note: "Spins so fast its poles are ~8,500 K and its equator ~6,900 K." },
+  { slug: "deneb", name: "Deneb", category: "star", type: "A2 Ia supergiant", T: 8525, L: 196000, R: 203, note: "" },
+  { slug: "vega", name: "Vega", category: "star", type: "A0 V", T: 9600, L: 47.2, R: 2.57, note: "Historically the zero point of stellar brightness scales." },
+  { slug: "sirius-a", name: "Sirius A", category: "star", type: "A1 V", T: 9940, L: 25.4, R: 1.711, note: "Brightest star in the night sky." },
+  { slug: "rigel", name: "Rigel", category: "star", type: "B8 Ia supergiant", T: 12100, L: 120000, R: 74.1, note: "" },
+  { slug: "zeta-puppis", name: "Zeta Puppis", category: "star", type: "O4 I supergiant", T: 40000, L: 376000, R: 12.5, note: "One of the hottest stars visible to the naked eye." },
   { slug: "warm-white-led", name: "Warm-white LED", category: "everyday", type: "Lamp rating", T: 2700, aliases: ["warm white", "led"], note: "A correlated color temperature: the LED matches a 2,700 K blackbody's color without being hot.", source: "ANSI C78.377-2017, nominal CCT 2,700 K" },
   { slug: "neutral-white-led", name: "Neutral-white LED", category: "everyday", type: "Lamp rating", T: 4000, aliases: ["neutral white", "cool white"], note: "Common in offices and kitchens.", source: "ANSI C78.377-2017, nominal CCT 4,000 K" },
   { slug: "daylight", name: "Daylight (D65)", category: "everyday", type: "Lamp rating, screen white", T: 6500, aliases: ["d65", "daylight led"], note: "D65 is the white point of sRGB screens. It's measured daylight, not a blackbody: its correlated temperature is about 6,504 K.", source: "CIE standard illuminant D65 (ISO 11664-2), CCT ≈ 6,504 K" },
@@ -35,11 +57,11 @@ export const OBJECTS = [
   { slug: "lightning", name: "Lightning", category: "everyday", type: "Air in the channel", T: 30000, note: "For a few microseconds, five times hotter than the Sun's surface.", source: "NOAA National Weather Service: about 50,000 °F (~28,000 K), often quoted as 30,000 K" },
   { slug: "recombination", name: "When the universe turned transparent", category: "cosmic", type: "Recombination", T: 3000, aliases: ["last scattering"], note: "About 380,000 years after the Big Bang. The CMB is this light today, stretched by a factor of about 1,100.", source: "Planck 2018 results VI: last scattering at z ≈ 1,090, about 370,000–380,000 years" },
   { slug: "cmb", name: "Cosmic microwave background", category: "cosmic", type: "The Big Bang's afterglow", T: 2.72548, aliases: ["cmb"], note: "The most perfect blackbody ever measured. It peaks near 1 mm, in microwaves.", source: "Fixsen 2009, ApJ 707, 916: 2.72548 ± 0.00057 K" },
-  { slug: "bellatrix", name: "Bellatrix", category: "star", type: "B2 III giant", T: 22570, note: "Orion's left shoulder.", source: "Gies & Lambert 1992, ApJ 387, 673" },
-  { slug: "saiph", name: "Saiph", category: "star", type: "B0.5 Ia supergiant", T: 26700, note: "Orion's right knee.", source: "de Burgos et al. 2024, A&A 687, A228 (IACOB X)" },
-  { slug: "alnitak", name: "Alnitak", category: "star", type: "O9.7 Ib supergiant", T: 31000, note: "East end of Orion's Belt. A multiple star; this is its brightest member.", source: "de Burgos et al. 2024, A&A 687, A228 (IACOB X), zeta Ori A" },
-  { slug: "alnilam", name: "Alnilam", category: "star", type: "B0 Ia supergiant", T: 27100, note: "The middle of Orion's Belt.", source: "de Burgos et al. 2024, A&A 687, A228 (IACOB X)" },
-  { slug: "mintaka", name: "Mintaka", category: "star", type: "O9.5 II bright giant", T: 30300, note: "West end of Orion's Belt, almost on the celestial equator.", source: "de Burgos et al. 2024, A&A 687, A228 (IACOB X)" },
+  { slug: "bellatrix", name: "Bellatrix", category: "star", type: "B2 III giant", T: 22570, L: 7410, R: 5.6, note: "Orion's left shoulder.", source: "Gies & Lambert 1992, ApJ 387, 673" },
+  { slug: "saiph", name: "Saiph", category: "star", type: "B0.5 Ia supergiant", T: 26700, L: 60300, R: 13.5, note: "Orion's right knee.", source: "de Burgos et al. 2024, A&A 687, A228 (IACOB X)" },
+  { slug: "alnitak", name: "Alnitak", category: "star", type: "O9.7 Ib supergiant", T: 31000, L: 250000, R: 22.8, note: "East end of Orion's Belt. A multiple star; this is its brightest member.", source: "de Burgos et al. 2024, A&A 687, A228 (IACOB X), zeta Ori A" },
+  { slug: "alnilam", name: "Alnilam", category: "star", type: "B0 Ia supergiant", T: 27100, L: 271000, R: 27.6, note: "The middle of Orion's Belt.", source: "de Burgos et al. 2024, A&A 687, A228 (IACOB X)" },
+  { slug: "mintaka", name: "Mintaka", category: "star", type: "O9.5 II bright giant", T: 30300, L: 190000, R: 13.1, note: "West end of Orion's Belt, almost on the celestial equator.", source: "de Burgos et al. 2024, A&A 687, A228 (IACOB X)" },
 ];
 
 export const SPECTRAL_CLASSES = [

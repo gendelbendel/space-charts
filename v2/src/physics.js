@@ -95,6 +95,10 @@ export const wienPeakNm = T => (PHYS.wien / T) * 1e9;
 /** Wien's frequency law: where B_ν peaks, in Hz. */
 export const wienPeakHz = T => PHYS.wienHz * T;
 export const radiantExitance = T => PHYS.sigma * T ** 4;
+// IAU 2015 Resolution B3 nominal solar radius (m) and luminosity (W).
+export const IAU_SUN = { R: 6.957e8, L: 3.828e26 };
+// A sphere's total power (W): L = 4πR²σT⁴.
+export const sphereLuminosity = (radiusM, T) => 4 * Math.PI * radiusM ** 2 * radiantExitance(T);
 export function visibleFraction(T) {
   const visible = trapezoid(nm => planck(nm, T) * 1e-9, 380, 780, 80);
   return visible / (radiantExitance(T) / Math.PI);
