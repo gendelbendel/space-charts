@@ -7,13 +7,15 @@
 // It also checks that stacked blocks never overlap (the temperature spilling into
 // the verdict line was a real bug that the movement check couldn't see).
 // Then it turns compare on and sweeps again against a new baseline (turning it on changes the
-// layout on purpose), and opens each visualization tab: only the Numbers tab may scroll.
+// layout on purpose), switches the color-map card to the HR diagram and taps every star (nothing
+// may move), and opens each visualization tab in both views: only the Numbers tab may scroll.
 // A clean run returns { shifts: "none", overlaps: "none", readoutOverflow: "none", panelScroll: "none", overflowX: 0 }.
 (() => {
-  const selectors = [".b-top", ".readout-block", ".b-dock", "#slider", "#spectrum", ".legend", ".chart-box", "#colormap", "#cie", ".stats", "#classChip", "#num"];
+  const selectors = [".b-top", ".readout-block", ".b-dock", "#slider", "#spectrum", ".legend", ".chart-box", "#colormap", "#colormap > svg", ".stats", "#classChip", "#num"];
   const snapshot = () => ({
     ...Object.fromEntries(selectors.map(s => {
-      const box = document.querySelector(s).getBoundingClientRect();
+      // The first match with a box: the color map's two diagrams take turns.
+      const box = ([...document.querySelectorAll(s)].find(e => e.getClientRects().length) ?? document.querySelector(s)).getBoundingClientRect();
       return [s, `top ${Math.round(box.top)} h ${Math.round(box.height)} left ${Math.round(box.left)}`];
     })),
     "readout type size": getComputedStyle(document.getElementById("num")).fontSize,
@@ -22,7 +24,7 @@
   const shifts = {};
   const overlaps = {};
   // [upper, lower]: the upper block must end at or above where the lower one starts.
-  const stacked = [["#tempBig", ".verdict"], [".verdict", "#stageNote"], [".b-top", ".viz"], [".tabs", ".panel.active"]];
+  const stacked = [["#tempBig", ".verdict"], [".verdict", "#stageNote"], [".b-top", ".viz"], [".tabs", ".panel.active"], ["#colormap > .seg", "#cieReadout"]];
   // [child, parent]: the child must stay inside its parent's box. The original bug
   // (the text box 7 px taller than its row) only touched the next line in Chrome
   // but overlapped it in Safari, so containment is the check that catches it.
@@ -85,14 +87,37 @@
   }
   document.getElementById("compare").click();
 
+  // The color-map card's switcher: the HR diagram takes the color map's place exactly, at every
+  // temperature (its readout changes with the star), and switching back restores everything.
+  const [cieView, hrView] = document.querySelectorAll(".seg[data-key=map] button");
+  const mapTab = document.querySelector("[data-tabs] [data-view=map]");
+  if (mapTab.offsetParent) mapTab.click();
+  const mapBase = snapshot();
+  hrView.click();
+  for (let position = 0; position <= 1000; position += 50) {
+    slider.value = position;
+    slider.dispatchEvent(new Event("input"));
+    check(`HR diagram @ slider ${position}`, mapBase);
+  }
+  for (const star of document.querySelectorAll("#hr .star")) {
+    star.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    check(`HR diagram @ ${star.ariaLabel}`, mapBase);
+  }
+  cieView.click();
+  check("color map again", mapBase);
+  document.querySelector("[data-tabs] [data-view=spectrum]").click();
+
   // The chart and the color map shrink to fit: a panel that scrolls hides part of them, and in
   // Safari its scroll position jumped whenever the slider moved.
   const panelScroll = [];
-  for (const tab of document.querySelectorAll("[data-tabs] button")) {
-    if (!tab.offsetParent) continue;
-    tab.click();
-    for (const panel of document.querySelectorAll(".panel:not([data-view-panel=numbers])")) {
-      if (panel.offsetHeight && panel.scrollHeight > panel.clientHeight + 1) panelScroll.push(`${tab.dataset.view} tab: ${panel.dataset.viewPanel} scrolls ${panel.scrollHeight - panel.clientHeight} px`);
+  for (const view of [hrView, cieView]) {
+    view.click();
+    for (const tab of document.querySelectorAll("[data-tabs] button")) {
+      if (!tab.offsetParent) continue;
+      tab.click();
+      for (const panel of document.querySelectorAll(".panel:not([data-view-panel=numbers])")) {
+        if (panel.offsetHeight && panel.scrollHeight > panel.clientHeight + 1) panelScroll.push(`${tab.dataset.view} tab, ${view.dataset.v} view: ${panel.dataset.viewPanel} scrolls ${panel.scrollHeight - panel.clientHeight} px`);
+      }
     }
   }
   document.querySelector("[data-tabs] [data-view=spectrum]").click();

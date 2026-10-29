@@ -15,6 +15,8 @@ export function readState(search) {
     wide: globalThis.matchMedia?.("(color-gamut: p3)").matches === true,
     yscale: "lin",
     view: "spectrum",
+    // The color-map card's view: "cie" (the color map) or "hr" (the HR diagram).
+    map: "cie",
     // True while Play (animate.js) moves the temperature.
     animating: false,
   };

@@ -24,6 +24,20 @@
 .panel[data-view-panel=numbers] { grid-area: numbers; display: grid; gap: 12px; align-content: start; }
 .chart-box { flex: 1; height: auto; min-height: 160px; }
 .colormap svg.cie { flex: 1 1 auto; min-height: 0; margin: 0 auto; }
+/* The color-map card's two views share every box: both headings take the taller one's height,
+   and the diagrams the same square, so switching moves nothing. */
+.map-head { display: grid; }
+.map-head > * { grid-area: 1 / 1; }
+[data-map=hr] .map-head > :first-child, [data-map=cie] .map-head > :last-child { visibility: hidden; }
+[data-map=hr] #cie, [data-map=cie] #hr { display: none; }
+.colormap > .seg { align-self: flex-start; margin-bottom: 6px; }
+.colormap > .seg button { padding: 3px 9px; font-size: 12px; line-height: 16px; }
+#hr .band { fill: var(--line); stroke: var(--line-strong); }
+#hr .cursor { stroke: var(--muted); stroke-dasharray: 3 3; }
+#hr .star { cursor: pointer; outline: 0; }
+#hr .dot { stroke: var(--bg); }
+#hr [aria-current] .dot { stroke: var(--text); stroke-width: 2; }
+#hr .star:focus-visible .dot { stroke: var(--focus); stroke-width: 3; }
 .control { grid-template-columns: 1fr; gap: 4px; }
 .control > .lbl { font-size: 12px; }
 .after-core > .card { margin: 0 0 16px; }
@@ -84,6 +98,8 @@
   /* Only the game fits beside the title. */
   .top-links .faq-link { display: none; }
   .top-links .pill-link { padding: 3px 10px; font-size: 13px; }
+  /* The color map's switcher shares its row with the readout. */
+  .colormap > .seg button { padding: 3px 6px; }
 }
 
 /* phone: the header keeps the FAQ and the game; the footer still links v1 */
@@ -123,6 +139,9 @@
   @container viz (max-height: 240px) {
     .legend { display: none; }
     .panel > .card { padding: 8px 10px; }
+    /* The diagram gets the whole height; the switcher stacks in the empty space at its left. */
+    .colormap > .seg { position: absolute; top: 8px; left: 8px; flex-direction: column; }
+    .colormap > .seg button { padding: 3px 5px; }
   }
 
   /* Tall phones have room for the chart and the color map together. */
@@ -224,7 +243,7 @@
   .viz .stats { grid-area: stats; grid-template-columns: repeat(4, minmax(0, 1fr)); }
   .viz .how { grid-area: how; }
   .chart-box { flex: none; height: var(--viz-h); }
-  .colormap svg.cie { flex: none; width: 100%; height: calc(var(--viz-h) + 64px); }
+  .colormap svg.cie { flex: none; width: 100%; height: calc(var(--viz-h) + 28px); }
 }
 /* 900–1199px puts the stats in a full-width row, so the chart gets less of the height budget. */
 @media (min-width: 900px) and (max-width: 1199px) and (min-height: 521px) {
@@ -233,7 +252,7 @@
 @media (min-width: 1200px) and (min-height: 521px) {
   /* The left column (and with it the slider) grows with the screen. */
   .core { grid-template-columns: clamp(340px, 28vw, 440px) minmax(0, 1.25fr) minmax(250px, 1fr); grid-template-areas: "head head head" "left spectrum map" "left stats map" "how how how"; }
-  .colormap svg.cie { height: calc(var(--viz-h) + 80px); }
+  .colormap svg.cie { height: calc(var(--viz-h) + 44px); }
 }
 </style>
 </head>

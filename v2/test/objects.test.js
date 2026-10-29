@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { OBJECTS, CATEGORIES, ORION } from "../src/data/objects.js";
 import { wienPeakNm } from "../src/physics.js";
 import { skyPosition, dotDiameter } from "../src/orion.js";
+import { HR_STARS, BAND_DEX, mainSequenceLogL } from "../src/hr-diagram.js";
 
 // Slugs become URLs (/stars/<slug>/, roadmap P5.A), so they must be unique and
 // safe to use as a path segment without escaping.
@@ -96,4 +97,52 @@ test("the Orion map keeps the sky's orientation and angular distances", () => {
 test("Orion's dot areas follow Pogson's magnitude scale", () => {
   assert.ok(Math.abs((dotDiameter(0) / dotDiameter(5)) ** 2 - 100) < 1e-9);
   assert.ok(Math.abs((dotDiameter(0.13) / dotDiameter(2.41)) ** 2 - 8.17) < 0.01);
+});
+
+// The HR diagram (roadmap P3.B). Luminosity and radius in solar units, as published
+// (the sources are listed above OBJECTS in objects.js). A typo in any of them fails here.
+const PUBLISHED_L_R = {
+  "proxima-centauri": [0.00151, 0.146], betelgeuse: [87100, 764], pollux: [38.4, 8.97], "capella-aa": [78.7, 11.98],
+  sun: [1, 1], "alpha-centauri-a": [1.5059, 1.2234], "procyon-a": [7.049, 2.043], altair: [10.6, 1.79],
+  deneb: [196000, 203], vega: [47.2, 2.57], "sirius-a": [25.4, 1.711], rigel: [120000, 74.1],
+  "zeta-puppis": [376000, 12.5], bellatrix: [7410, 5.6], saiph: [60300, 13.5], alnitak: [250000, 22.8],
+  alnilam: [271000, 27.6], mintaka: [190000, 13.1],
+};
+
+test("every star, and nothing else, has its published luminosity and radius", () => {
+  for (const o of OBJECTS) {
+    if (o.category !== "star") {
+      assert.equal(o.L ?? o.R, undefined, `${o.name}: only stars are on the HR diagram`);
+      continue;
+    }
+    assert.deepEqual([o.L, o.R], PUBLISHED_L_R[o.slug], `${o.name}: L and R`);
+  }
+  assert.equal(HR_STARS.length, Object.keys(PUBLISHED_L_R).length);
+});
+
+// Each star's L, R and T come from different measurements, so L = R²(T/T☉)⁴ holds only
+// roughly (Alnitak is the furthest off, at 0.58). A factor-of-ten slip in any one value
+// breaks it by far more than a factor of two.
+test("each star's luminosity roughly matches its radius and temperature by Stefan–Boltzmann", () => {
+  for (const { name, T, L, R } of HR_STARS) {
+    const ratio = L / (R ** 2 * (T / 5772) ** 4);
+    assert.ok(ratio > 0.5 && ratio < 2, `${name}: L / R²(T/T☉)⁴ = ${ratio.toFixed(2)}`);
+  }
+});
+
+// The band is drawn around Pecaut & Mamajek's mean dwarf sequence. Its G2 V row (5,770 K)
+// should be the Sun (log L = 0), and the stars should fall where their published luminosity
+// classes put them: dwarfs (class V) in the band, giants (III) and supergiants (I) above it.
+test("the main-sequence band holds the dwarfs and lies below the giants and supergiants", () => {
+  assert.ok(Math.abs(mainSequenceLogL(5772)) < 0.02);
+  const offBand = slug => {
+    const { T, L } = bySlug(slug);
+    return Math.log10(L) - mainSequenceLogL(T);
+  };
+  for (const slug of ["sun", "proxima-centauri", "alpha-centauri-a", "sirius-a", "vega", "altair"]) {
+    assert.ok(Math.abs(offBand(slug)) <= BAND_DEX, `${slug} should be in the band (${offBand(slug).toFixed(2)} dex)`);
+  }
+  for (const slug of ["pollux", "capella-aa", "betelgeuse", "deneb", "rigel", "saiph", "alnilam"]) {
+    assert.ok(offBand(slug) > BAND_DEX, `${slug} should be above the band (${offBand(slug).toFixed(2)} dex)`);
+  }
 });
