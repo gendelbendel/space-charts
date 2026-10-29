@@ -12,6 +12,7 @@ v2 is built and is the default page. v1 is served at `/v1/`. Its only change is 
 | `/b`, `/b/` | redirect to `/` (layout A was removed) |
 | `/v1/` | the original site, still driven by `?temp=` |
 | `/play/` | the guessing game (ROADMAP P4.B), its own page; `/play` redirects to it, and `?mode=` / `?score=` open a shared result as a challenge |
+| `/embed/` | the embed (ROADMAP P5.B), its own page for iframes: star, readout, slider and chart, plus an "Open full page" link that carries the state to `/`. It reads the same URL parameters as `/`; `/embed` redirects to it. Checked at 300×300, 400×400 and 800×600 by `npm run check:embed` |
 
 Old links keep working: `/?temp=5000` opens v2 at 5,000 K, and `/v1?temp=5000` opens v1. Production is https://space-charts.vercel.app. Verified on the live site (2026-10-25): `/v1?temp=3600` → `/v1/?temp=3600`, and `/b?t=4000` and `/b/?t=4000` → `/?t=4000`, all as 307 (temporary) redirects that keep the query string.
 
@@ -28,6 +29,7 @@ Layout tiers (all in `v2/pages/index.html`), each checked for overflow and first
 
 - Source: `v2/src` (physics, state, one module per UI part wired by `app.js`, slider scale and marks, CSS), `v2/src/data` (CIE table, star table, objects and classes), `v2/partials` (shared HTML), `v2/pages/index.html` (the page and its layout tiers).
 - Build: `npm run build` builds v1 into `build/v1` (CRA with `PUBLIC_URL=/v1`), then v2 into `build/`. `npm run build:v2` rebuilds only v2 (about 0.1 s).
+- The embed page has its own two tiers in `v2/pages/embed/index.html`: compact (one column; under 380 px tall or 340 px wide the mode buttons and reference marks hide, and the URL still sets the modes) and wide (≥ 640×500: star, readout and controls left, chart right). Its budget is 22 KB gzipped (20.6 KB at launch).
 - Tests: `npm run test:v2`: 22 tests (15 physics, 5 slider scale, 2 object data), Node's built-in runner. UI: `npm run check:layout` runs `v2/tools/layout-stability.js` in Playwright at 12 sizes, checking for movement, overlaps and spills across every mode and temperature, plus first-screen fit and desktop column balance.
 - The page is a single self-contained HTML file of about 27.5 KB gzipped, with the first screen prerendered for the Sun (`v2/src/prerender.js`). The build fails over 40 KB (owner's decision D1 in `ROADMAP.md`).
 

@@ -29,7 +29,8 @@ const clickTab = view => async page => {
   const tab = page.locator(`[data-tabs] [data-view=${view}]`);
   if (await tab.isVisible()) await tab.click();
 };
-// [name, query, optional action]. Covers URL parsing, every control and the main interactions.
+// [name, query, optional action]. Covers URL parsing, every control and the main interactions. A query
+// that starts with a path instead of "?" opens another page (the embed).
 const STATES = [
   ["sun", "?t=5772"],
   ["cold", "?t=100"],
@@ -110,6 +111,11 @@ const STATES = [
     const box = await page.locator("#chart").boundingBox();
     if (box) await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
   }],
+  // The embed page (/embed/); `npm run check:embed` covers its own iframe sizes.
+  ["embed", "embed/?t=5772"],
+  ["embed-modes", "embed/?t=3600&model=star&light=sun"],
+  ["embed-compare", "embed/?t=1000&compare=1&light=hue"],
+  ["embed-class-chip", "embed/?t=12100", page => page.locator("#classChip").click()],
 ];
 
 const { positionals: [mode], values: args } = parseArgs({ allowPositionals: true, options: { sizes: { type: "string" } } });

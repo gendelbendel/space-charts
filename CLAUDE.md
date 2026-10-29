@@ -21,6 +21,7 @@ src/, public/            v1 (CRA + React + MUI + Chart.js). Frozen. Built to bui
 v2/
   pages/index.html       the v2 page, served at /
   pages/play/index.html  the guess-the-temperature game, served at /play/ (src/game.js rules, src/game-page.js UI)
+  pages/embed/index.html the iframe embed, served at /embed/: star, readout, slider and chart (src/embed-page.js)
   partials/*.html        shared HTML pieces, expanded at build (<!-- include: name -->)
   src/physics.js         Planck, CIE 1931 pipeline, real-star lookup, brightness model, input parsing
   src/prerender.js       bakes the first screen into the HTML at build time, from the same builders
@@ -35,8 +36,9 @@ v2/
   test/                  node --test golden tests (physics, slider scales), game rules
   tools/layout-stability.js  browser check: nothing moves, overlaps or spills when modes change
   tools/check-layout.mjs     runs that check with Playwright at every tier's sizes (npm run check:layout)
+  tools/check-embed.mjs      the same for /embed/ at 300×300, 400×400 and 800×600 (npm run check:embed)
   tools/snapshot.mjs         before/after comparison of 210 page states (npm run snapshot:save / snapshot:compare)
-vercel.json              redirects /v1 -> /v1/, /play -> /play/ and /b -> /
+vercel.json              redirects /v1 -> /v1/, /play -> /play/, /embed -> /embed/ and /b -> /
 ```
 
 ## Tech stack
@@ -71,6 +73,7 @@ python3 -m http.server 4173 --directory build # or the "site" config in .claude/
 npm run test:v2    # physics + slider-scale golden tests, object data checks
 npm run build:v2   # must build; fails if a page is over its gzip budget
 npm run check:layout  # UI changes: Playwright runs the layout check at 12 sizes (~10 s)
+npm run check:embed   # changes to /embed/ or anything it shares (partials, base.css, chart, readout)
 npm run snapshot:compare  # refactors: must match a baseline saved before the change (~1 min)
 npm run build      # before touching deploy config or v1
 ```

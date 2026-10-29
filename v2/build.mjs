@@ -15,8 +15,9 @@ const publicDir = join(root, "..", "public");
 const PUBLIC_ASSETS = ["favicon.ico", "preview.webp", "robots.txt"];
 // Gzipped size limit per page, in KB. Every page needs an entry; the build
 // fails when one is missing or over. Raise a budget only on the owner's say-so.
-// The game reuses base.css and the physics and object modules (~15 KB of its ~18); 20 leaves room to grow.
-const BUDGETS_KB = { "index.html": 40, "play/index.html": 20 };
+// The game and the embed reuse base.css (4.9 KB) and the physics and object modules (~10 KB). The embed
+// also carries the chart (1.5 KB), so it gets 22.
+const BUDGETS_KB = { "index.html": 40, "play/index.html": 20, "embed/index.html": 22 };
 
 async function listPages(dir) {
   const entries = await readdir(dir, { withFileTypes: true });
