@@ -1,5 +1,5 @@
 // Pure text formatting, with no DOM access, so the build can use it too.
-import { VISION, visibleFraction, radiantExitance, eyeLuminance, displayColor, displayColorP3 } from "./physics.js";
+import { VISION, energySplit, radiantExitance, eyeLuminance, displayColor, displayColorP3 } from "./physics.js";
 
 export const formatK = T => T.toLocaleString("en-US");
 export function formatWavelength(nm) {
@@ -29,12 +29,22 @@ export function visibilityVerdict(T, Lv, peakNm) {
   return `<strong>Clearly visible.</strong> Its peak (${peak}) is visible light.`;
 }
 
-// The four stats under the chart, keyed by element id.
+const percent = share => {
+  const p = share * 100;
+  return (p >= 9.95 ? p.toFixed(0) : p >= 0.05 ? p.toFixed(1) : "0") + "%";
+};
+// The UV / visible / IR bar: three segments and their percentages, the same width at any temperature.
+export function splitHtml(T) {
+  const shares = energySplit(T);
+  const bar = shares.map(s => `<i style="width:${(s * 100).toFixed(2)}%"></i>`).join("");
+  return `<span class="split-bar">${bar}</span><span class="split-pct">${shares.map(s => `<span>${percent(s)}</span>`).join("")}</span>`;
+}
+
+// The four stats under the chart, keyed by element id, as HTML.
 export function statsText(T, Lv, peakNm) {
-  const vf = visibleFraction(T);
   return {
     sPeak: formatWavelength(peakNm),
-    sVis: vf < 1e-4 ? formatSci(vf * 100) + " %" : (vf * 100).toFixed(vf < 0.1 ? 2 : 1) + " %",
+    sVis: splitHtml(T),
     sLum: formatSci(Lv) + " cd/m²",
     sFlux: formatSci(radiantExitance(T)) + " W",
   };

@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import assert from "node:assert/strict";
 import {
   PHYS, planck, trapezoid, cieHue, simpleHue, starHue, displayColor, luminance,
-  wienPeakNm, radiantExitance, parseTemperature, toKelvin, encodeSrgb, toHex,
+  wienPeakNm, wienPeakHz, planckPerHz, blackbodyFraction, energySplit, radiantExitance, parseTemperature, toKelvin, encodeSrgb, toHex,
   scotopicLuminance, eyeLuminance, VISION, linearP3ToXyz, xyzToLinearP3, displayColorP3, linearSrgbToXy, relLuminance,
 } from "../src/physics.js";
 import { HARRE_HELLER_2021 } from "../src/data/harre-heller-2021.js";
@@ -109,6 +109,54 @@ test("Planck's law integrates to the Stefan–Boltzmann law", () => {
   const T = 5772;
   const integral = Math.PI * trapezoid(nm => planck(nm, T) * 1e-9, 10, 1e6, 200000);
   close(integral / radiantExitance(T), 1, 1e-4, "ratio");
+});
+
+// Wien's frequency displacement law: B_ν peaks at ν = b′T, with b′ = 5.878 925 757 × 10¹⁰ Hz/K
+// (CODATA 2018, https://physics.nist.gov/cgi-bin/cuu/Value?bpwien). The chart's per-Hz view puts its
+// peak marker there, so check both the constant and that planckPerHz really is highest at that frequency.
+test("the per-Hz spectrum peaks at Wien's frequency, 5.879 × 10¹⁰ Hz/K × T", () => {
+  for (const T of [300, 5772, 30000]) {
+    close(wienPeakHz(T) / T / 1e10, 5.879, 5e-4, `ν_peak / T at ${T} K`);
+    const nmAt = hz => (PHYS.c / hz) * 1e9;
+    const peak = planckPerHz(nmAt(wienPeakHz(T)), T);
+    for (const f of [0.995, 1.005]) assert.ok(planckPerHz(nmAt(wienPeakHz(T) * f), T) < peak, `B_ν lower at ${f} × ν_peak, ${T} K`);
+  }
+  // The Sun: per nm it peaks near 502 nm, per Hz near 883 nm (c / 339 THz).
+  close((PHYS.c / wienPeakHz(5772)) * 1e9, 883.5, 0.1, "Sun's per-Hz peak in nm");
+});
+
+// The per-frequency radiance integrates to the same total as the per-wavelength one: ∫B_ν dν = σT⁴/π
+// (Stefan–Boltzmann; σ from CODATA 2018). Integrated over frequency, not wavelength, so a wrong λ²/c
+// factor in planckPerHz can't cancel out.
+test("Planck's law per Hz integrates to σT⁴/π", () => {
+  for (const T of [1000, 5772]) {
+    const hzMax = (40 * PHYS.k * T) / PHYS.h;
+    const integral = trapezoid(hz => planckPerHz((PHYS.c / hz) * 1e9, T), 1e-6 * hzMax, hzMax, 200000);
+    close(integral / (radiantExitance(T) / Math.PI), 1, 1e-4, `ratio at ${T} K`);
+  }
+});
+
+// The fraction of blackbody power below λT, from the standard blackbody radiation function tables
+// (Incropera, DeWitt, Bergman & Lavine, Fundamentals of Heat and Mass Transfer, the "Blackbody
+// radiation functions" table: F(0→λT) = 0.250108 at 2,898 µm·K and 0.633747 at 5,000 µm·K; the same
+// values appear in Siegel & Howell's Thermal Radiation Heat Transfer). λT = 2,897.77 µm·K is Wien's
+// peak, where a quarter of the power lies at shorter wavelengths. Checked to the tables' 4 decimals.
+test("blackbodyFraction matches the published radiation tables", () => {
+  close(blackbodyFraction(2897.77), 0.2501, 1e-4, "F at 2,897.77 µm·K");
+  close(blackbodyFraction(5000), 0.6337, 1e-4, "F at 5,000 µm·K");
+  assert.equal(blackbodyFraction(0), 0);
+  close(blackbodyFraction(1e7), 1, 1e-9, "F at very large λT");
+});
+
+// The UV / visible / IR bar: the three shares add to 1, and the visible share agrees with a direct
+// integration of Planck's law over 380–780 nm divided by σT⁴/π (the Stefan–Boltzmann total).
+test("energySplit's shares add up and match a direct integration of the visible band", () => {
+  for (const T of [800, 3000, 5772, 20000, 1e6]) {
+    const [uv, vis, ir] = energySplit(T);
+    close(uv + vis + ir, 1, 1e-12, `sum at ${T} K`);
+    const direct = trapezoid(nm => planck(nm, T) * 1e-9, 380, 780, 4000) / (radiantExitance(T) / Math.PI);
+    close(vis / direct, 1, 1e-5, `visible share at ${T} K`);
+  }
 });
 
 // v1 evaluated planck(0) as ∞/∞ = NaN on every chart.

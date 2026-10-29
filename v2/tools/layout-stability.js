@@ -2,7 +2,7 @@
 // browser tool's JS runner) on a built page at the viewport size under test.
 // It records every major block's top, height and left edge, plus the readout's
 // type size (a size change reads as a jump even at a fixed height), then switches through every
-// color model and brightness mode, sweeps the slider from 100 K to 100,000 K,
+// color model and brightness mode (and the chart's Per Hz view and lines), sweeps the slider from 100 K to 100,000 K,
 // and types 1,000,000 K, reporting anything that moved or overflowed.
 // It also checks that stacked blocks never overlap (the temperature spilling into
 // the verdict line was a real bug that the movement check couldn't see).
@@ -66,6 +66,19 @@
       check(`${light}/${model} @ 1,000,000 K`);
     }
   }
+
+  // The chart's Per Hz view and its absorption lines change only what the canvas draws and the
+  // legend's switch text, so they're checked against the same baseline.
+  document.querySelector(".seg[data-key=axis] [data-v=hz]").click();
+  for (const lines of [true, false]) {
+    if (document.getElementById("linesToggle").getAttribute("aria-pressed") !== String(lines)) document.getElementById("linesToggle").click();
+    for (let position = 0; position <= 1000; position += 100) {
+      slider.value = position;
+      slider.dispatchEvent(new Event("input"));
+      check(`per Hz, lines ${lines ? "on" : "off"} @ slider ${position}`);
+    }
+  }
+  document.querySelector(".seg[data-key=axis] [data-v=nm]").click();
 
   // With all three shown, the discs mustn't move as the temperature takes the real-star model in and
   // out of its data range: a wider "Real stars · no data" caption once pushed them 14 px sideways.

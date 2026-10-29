@@ -2,11 +2,17 @@
   <div class="card-head">
     <div>
       <h2>Spectrum</h2>
-      <p class="sub">Spectral radiance, W·m⁻²·sr⁻¹·nm⁻¹<span class="long">. The rainbow band is the light you can see.</span></p>
+      <p class="sub">Spectral radiance, W·m⁻²·sr⁻¹·<span id="chartUnit">nm</span>⁻¹<span class="long">. The rainbow band is the light you can see.</span></p>
     </div>
-    <div class="seg" role="group" aria-label="Vertical scale" data-key="yscale">
-      <button type="button" data-v="lin" aria-pressed="true">Linear</button>
-      <button type="button" data-v="log" aria-pressed="false">Log</button>
+    <div class="chart-modes">
+      <div class="seg" role="group" aria-label="Spectral density" data-key="axis">
+        <button type="button" data-v="nm" aria-pressed="true">Per nm</button>
+        <button type="button" data-v="hz" aria-pressed="false">Per Hz</button>
+      </div>
+      <div class="seg" role="group" aria-label="Vertical scale" data-key="yscale">
+        <button type="button" data-v="lin" aria-pressed="true">Linear</button>
+        <button type="button" data-v="log" aria-pressed="false">Log</button>
+      </div>
     </div>
   </div>
   <div class="chart-box"><canvas id="chart" role="img" aria-label="Blackbody spectrum chart"></canvas><div class="tip" id="tip" hidden></div></div>

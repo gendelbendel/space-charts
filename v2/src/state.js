@@ -14,6 +14,10 @@ export function readState(search) {
     // Wide-gamut (P3) screens get deeper reds below ~1,900 K. The build has no screen, so it's sRGB.
     wide: globalThis.matchMedia?.("(color-gamut: p3)").matches === true,
     yscale: "lin",
+    // Spectral radiance per nm of wavelength, or per Hz of frequency.
+    axis: "nm",
+    // The chart's absorption lines: null follows the model (on for Real stars), true or false once switched.
+    lines: null,
     view: "spectrum",
     // True while Play (animate.js) moves the temperature.
     animating: false,

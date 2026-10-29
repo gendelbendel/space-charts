@@ -43,6 +43,15 @@ const STATES = [
   ["map-tab", "?t=6500", clickTab("map")],
   ["numbers-tab", "?t=2000", clickTab("numbers")],
   ["log-axis", "?t=3000", page => page.locator(".seg[data-key=yscale] [data-v=log]").first().click()],
+  ["per-hz", "?t=5772", page => page.locator(".seg[data-key=axis] [data-v=hz]").first().click()],
+  ["per-hz-log", "?t=3000", async page => {
+    await page.locator(".seg[data-key=axis] [data-v=hz]").first().click();
+    await page.locator(".seg[data-key=yscale] [data-v=log]").first().click();
+  }],
+  // Absorption lines: on by default with Real stars (A: Balmer), switched on from the legend (G), switched off.
+  ["lines-star", "?t=9600&model=star"],
+  ["lines-toggle", "?t=5772", page => page.click("#linesToggle")],
+  ["lines-off", "?t=3300&model=star", page => page.click("#linesToggle")],
   ["class-chip", "?t=12100", page => page.locator("#classChip").click()],
   ["faq-search", "?t=5772", page => page.fill("#faqSearch", "green")],
   ["slider", "?t=5772", page => page.evaluate(() => {
