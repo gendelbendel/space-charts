@@ -1,4 +1,4 @@
-// Layout stability check for the v2 page. Paste into the browser console (or a
+// Layout stability check for the v2 pages (the main page and /embed/). Paste into the browser console (or a
 // browser tool's JS runner) on a built page at the viewport size under test.
 // It records every major block's top, height and left edge, plus the readout's
 // type size (a size change reads as a jump even at a fixed height), then switches through every
@@ -13,8 +13,9 @@
   const selectors = [".b-top", ".readout-block", ".b-dock", "#slider", "#spectrum", ".legend", ".chart-box", "#colormap", "#cie", ".stats", "#classChip", "#num"];
   const snapshot = () => ({
     ...Object.fromEntries(selectors.map(s => {
-      const box = document.querySelector(s).getBoundingClientRect();
-      return [s, `top ${Math.round(box.top)} h ${Math.round(box.height)} left ${Math.round(box.left)}`];
+      // The embed page (check-embed.mjs) has no color map or stats.
+      const box = document.querySelector(s)?.getBoundingClientRect();
+      return [s, box ? `top ${Math.round(box.top)} h ${Math.round(box.height)} left ${Math.round(box.left)}` : "missing"];
     })),
     "readout type size": getComputedStyle(document.getElementById("num")).fontSize,
   });
@@ -95,7 +96,7 @@
       if (panel.offsetHeight && panel.scrollHeight > panel.clientHeight + 1) panelScroll.push(`${tab.dataset.view} tab: ${panel.dataset.viewPanel} scrolls ${panel.scrollHeight - panel.clientHeight} px`);
     }
   }
-  document.querySelector("[data-tabs] [data-view=spectrum]").click();
+  document.querySelector("[data-tabs] [data-view=spectrum]")?.click();
 
   return {
     viewport: `${innerWidth}x${innerHeight}`,

@@ -223,6 +223,8 @@ summary::after { content: "+"; color: var(--muted); font-weight: 400; }
 details[open] summary::after { content: "–"; }
 details > div { padding: 0 0 14px; color: #c9cddb; max-width: 76ch; }
 details p { margin: 0 0 10px; }
+/* A snippet to copy: wraps anywhere, so a long URL never widens the page; one click selects it all. */
+.snippet { display: block; margin: 0 0 10px; padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); font: 12.5px/1.5 var(--mono); color: var(--text); overflow-wrap: anywhere; user-select: all; -webkit-user-select: all; }
 math { font-size: 1.1em; }
 math[display=block] { margin: 12px 0; overflow-x: auto; }
 /* shortcut list (? key) */

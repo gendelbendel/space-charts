@@ -125,6 +125,11 @@
     <details><summary>Who made this?</summary><div>
       <p>David, a software engineer who dabbles in astronomy. The source is on <a href="https://github.com/gendelbendel/space-charts">GitHub</a>, and <a href="/v1/">the original version</a> is still up.</p>
     </div></details>
+    <details id="faq-embed"><summary>Can I embed this in my own page?</summary><div>
+      <p>Yes. Paste this where you want it; it fits frames from 300 by 300 pixels up:</p>
+      <code class="snippet">&lt;iframe src="https://space-charts.vercel.app/embed/?t=5772" width="400" height="400" style="border:0" title="What color is a star?" loading="lazy"&gt;&lt;/iframe&gt;</code>
+      <p>It shows the star, the slider and the spectrum, with a link back here. It takes the same settings as this page's address (<code>t</code>, <code>model</code>, <code>light</code>, <code>compare</code>), so set it up here and copy them from the address bar.</p>
+    </div></details>
     <details><summary>Why is it so fast?</summary><div>
       <p>The page has no framework, no web fonts and no chart library. Everything ships in a single file, the chart is drawn directly, the equations are native browser math, and the numbers are computed on your device in well under a millisecond.</p>
     </div></details>

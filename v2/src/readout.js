@@ -79,7 +79,9 @@ classInfo.addEventListener("click", e => {
   const link = e.target.closest("[data-open-faq]");
   if (link) {
     setClassInfoOpen(false);
-    $("faq-classes").open = true;
+    // The embed page has no FAQ; its link opens the main page's instead.
+    const faq = $("faq-classes");
+    if (faq) faq.open = true;
   }
 });
 document.addEventListener("click", e => {

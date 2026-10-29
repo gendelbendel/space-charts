@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#05060a">
+<meta name="robots" content="noindex">
+<title>What Color Is a Star?</title>
+<meta name="description" content="Pick a temperature and see the light a blackbody gives off and the color your eye would actually see.">
+<link rel="icon" href="/favicon.ico">
+<script defer src="/_vercel/insights/script.js"></script>
+<style>
+/* inline: src/base.css */
+
+/*
+  Made for an iframe: the whole page is one screen, and the chart takes whatever height is left.
+    compact   one column: the star beside the readout, then the slider, the mode buttons and the chart.
+              Under 380px tall or 340px wide the mode buttons hide (the URL still sets the modes), and
+              so do the slider's reference marks. The Linear/Log toggle and the legend need the wide tier.
+    wide      ≥ 640px wide and ≥ 500px tall: star, readout and controls left, chart right.
+*/
+:root { --star: 92px; }
+body { overflow-x: hidden; }
+.embed { height: 100svh; display: grid; grid-template-rows: auto auto minmax(0, 1fr); gap: 8px; padding: 8px; }
+.b-top { position: relative; display: grid; grid-template-columns: var(--star) minmax(0, 1fr); gap: 10px; align-items: start; min-width: 0; }
+.b-top .stage { aspect-ratio: 1; border-radius: 10px; }
+.b-top .stage .disc-wrap { width: 70%; }
+.b-top .stage-hex { display: none; }
+.readout-block { min-width: 0; }
+.readout-actions { display: none; }
+/* In the readout row's empty right end, which "1,000,000 K" still leaves free. */
+.full-link { position: absolute; top: 2px; right: 0; max-width: 56px; font-size: 11px; line-height: 1.3; text-align: right; color: var(--focus); }
+.temp-big { font-size: 30px; }
+.verdict { font-size: 11.5px; line-height: 1.4; margin-top: 3px; min-height: calc(3 * 1.4em); }
+.verdict .class-chip { font-size: 10px; }
+.stage-note { font-size: 11.5px; margin-top: 2px; }
+/* All three models: the discs stack down the star's column, which takes the readout's height. */
+.b-top .stage.comparing { align-self: stretch; aspect-ratio: auto; }
+.b-top .stage.comparing .discs { flex-direction: column; gap: 5%; }
+.b-top .stage.comparing .disc-wrap { width: auto; height: 27%; }
+.b-top .stage.comparing .disc { width: auto; height: 100%; }
+.b-top .stage.comparing figcaption { display: none; }
+
+.b-dock { min-width: 0; }
+.controls { margin-top: 6px; grid-template-columns: auto auto; justify-content: space-between; align-items: center; gap: 4px 8px; }
+.control { display: contents; }
+.control > .lbl { display: none; }
+.control:nth-child(1) > .seg { grid-area: 1 / 1; }
+.control:nth-child(2) > .seg { grid-area: 2 / 1; }
+.control:nth-child(3) > .check { grid-area: 1 / 2; font-size: 12px; }
+.controls .seg button { padding: 3px 7px; font-size: 12px; line-height: 1.3; }
+.check input { width: 15px; height: 15px; }
+.ticks { margin-top: 0; }
+
+.viz { display: flex; min-height: 0; min-width: 0; }
+.viz > .card { flex: 1; display: flex; flex-direction: column; min-height: 0; min-width: 0; padding: 6px 8px; border-radius: 10px; }
+.spectrum .card-head, .legend { display: none; }
+.chart-box { flex: 1 1 0; height: auto; min-height: 0; }
+
+@media (max-height: 379px), (max-width: 339px) {
+  :root { --star: 64px; }
+  .controls, .tick-row.marks { display: none; }
+  .temp-big { font-size: 28px; }
+}
+
+@media (min-width: 440px) {
+  .full-link { max-width: none; }
+}
+
+@media (min-width: 640px) and (min-height: 500px) {
+  .embed { grid-template-columns: minmax(260px, 300px) minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr); grid-template-areas: "top viz" "dock viz"; gap: 12px 16px; padding: 12px; }
+  .b-top { grid-area: top; grid-template-columns: minmax(0, 1fr); }
+  .b-top .stage, .b-top .stage.comparing { align-self: auto; aspect-ratio: auto; height: clamp(90px, 100svh - 390px, 240px); border-radius: var(--radius); }
+  .b-top .stage .disc-wrap { width: auto; height: 72%; }
+  .b-top .stage .disc { width: auto; height: 100%; }
+  .b-top .stage.comparing .discs { flex-direction: row; gap: 6%; }
+  .b-top .stage.comparing .disc-wrap { width: 26%; height: auto; }
+  .b-top .stage.comparing .disc { width: 100%; height: auto; }
+  .b-top .stage.comparing figcaption { display: block; }
+  .b-top .stage-hex { display: block; bottom: 6px; }
+  .full-link { position: static; font-size: 13px; text-align: left; }
+  .temp-big { font-size: 44px; }
+  .verdict { font-size: 13px; margin-top: 6px; }
+  .verdict .class-chip { font-size: 11px; }
+  .stage-note { font-size: 12.5px; }
+  .b-dock { grid-area: dock; }
+  .controls { grid-template-columns: auto; justify-content: start; gap: 6px; margin-top: 10px; }
+  .control:nth-child(3) > .check { grid-area: 3 / 1; font-size: 13px; }
+  .controls .seg button { padding: 5px 10px; font-size: 13px; }
+  .viz { grid-area: viz; }
+  .viz > .card { padding: 12px 14px; border-radius: var(--radius); }
+  .spectrum .card-head { display: flex; margin-bottom: 6px; }
+  .spectrum .sub { margin: 0; font-size: 12.5px; }
+  .spectrum .sub .long { display: none; }
+  .legend { display: flex; margin-top: 6px; }
+}
+</style>
+</head>
+<body>
+<main class="embed core">
+  <div class="b-top">
+<!-- include: stage -->
+<!-- include: readout -->
+    <a class="full-link" id="fullPage" href="/" target="_blank" rel="noopener">Open full page ↗</a>
+  </div>
+  <div class="b-dock">
+<!-- include: controls -->
+  </div>
+  <div class="viz" id="viz">
+<!-- include: spectrum -->
+  </div>
+</main>
+<!-- inline-script: src/embed-page.js -->
+</body>
+</html>
