@@ -37,7 +37,7 @@ v2/
   tools/layout-stability.js  browser check: nothing moves, overlaps or spills when modes change
   tools/check-layout.mjs     runs that check with Playwright at every tier's sizes (npm run check:layout)
   tools/check-embed.mjs      the same for /embed/ at 300×300, 400×400 and 800×600 (npm run check:embed)
-  tools/snapshot.mjs         before/after comparison of 210 page states (npm run snapshot:save / snapshot:compare)
+  tools/snapshot.mjs         before/after comparison of 276 page states (npm run snapshot:save / snapshot:compare)
 vercel.json              redirects /v1 -> /v1/, /play -> /play/, /embed -> /embed/ and /b -> /
 ```
 
@@ -77,7 +77,7 @@ npm run check:embed   # changes to /embed/ or anything it shares (partials, base
 npm run snapshot:compare  # refactors: must match a baseline saved before the change (~1 min)
 npm run build      # before touching deploy config or v1
 ```
-For UI changes, run `npm run check:layout`. At every size from 320×568 to 1920×1080 it checks that nothing moves, overlaps or spills across every mode and temperature, that the star, readout, chart, color map and controls fit on the first screen, and that the desktop columns end together. It saves a screenshot per size to `build/__shots/`; look at the ones your change affects. There is no light theme. For refactors and anything meant to look the same, run `npm run snapshot:save` before the change and `npm run snapshot:compare` after: 210 states (6 sizes × 35 URL and interaction states) must match pixel for pixel, including the chart canvas, URL and DOM. Judge layout from measurements (`getBoundingClientRect`, that check), not screenshots alone: browser-pane screenshots can come back scaled or stale, especially while the pane is hidden. Only Chrome has been tested; Safari renders form controls differently, so be conservative with input sizing.
+For UI changes, run `npm run check:layout`. At every size from 320×568 to 1920×1080 it checks that nothing moves, overlaps or spills across every mode and temperature, that the star, readout, chart, color map and controls fit on the first screen, and that the desktop columns end together. It saves a screenshot per size to `build/__shots/`; look at the ones your change affects. There is no light theme. For refactors and anything meant to look the same, run `npm run snapshot:save` before the change and `npm run snapshot:compare` after: 276 states (6 sizes × 46 URL and interaction states, 4 of them on `/embed/`) must match pixel for pixel, including the chart canvas, URL and DOM. Judge layout from measurements (`getBoundingClientRect`, that check), not screenshots alone: browser-pane screenshots can come back scaled or stale, especially while the pane is hidden. Only Chrome has been tested; Safari renders form controls differently, so be conservative with input sizing.
 
 ## Known benign noise (don't chase these)
 

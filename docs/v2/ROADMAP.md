@@ -16,26 +16,31 @@ Written 2026-10-25. The owner asked for all 25 ideas from the brainstorm, built 
 | P1.B Everyday and cosmic objects | #6, #7 | P0.2 | done 2026-10-25 | +2.7 |
 | P1.C Color output: P3, copy, share | #16, #17, #19 | P0.2 | done 2026-10-25 | +1.8 |
 | P1.D Heat it up, keyboard shortcuts | #1, #21 | P0.2 | done 2026-10-25 | +1.2 |
-| P2.A Chart: per-frequency, lines, energy split | #10, #11, #12 | P0.2 | not started | est. +2 |
+| P2.A Chart: per-frequency, lines, energy split | #10, #11, #12 | P0.2 | done 2026-10-29 | +1.8 |
 | P2.B Scotopic vision | #15 | — | done 2026-10-25 | +0.6 |
 | P3.A Compare two temperatures | #9 | P2.A | not started | est. +2 |
-| P3.B HR diagram view | #13 | P1.B | not started | est. +2 |
+| P3.B HR diagram view | #13 | P1.B | done 2026-10-29 | +1.6 |
 | P3.C Daylight on another world | #8 | P3.B | not started | est. +2 |
 | P3.D Orion in true color | #3 | P0.2 | done 2026-10-26 | +1.5 |
 | P4.A Guided tour | #14 | P1.B, P1.D | not started | est. +2 |
 | P4.B Guess-the-temperature game | #2 | P0.2 | done 2026-10-26 | own page, 17.7 (budget 20); main page +0.16 for its links |
 | P5.A Per-star pages and preview images | #18 | P0.4, P1.B | not started | own pages |
-| P5.B Embed page | #20 | P0.4 | not started | own page |
+| P5.B Embed page | #20 | P0.4 | done 2026-10-29 | own page, 21.7 (budget 22); main page +0.4 for its FAQ entry |
 
 Feature numbers match the brainstorm list (reproduced at the end). The main page is 27.5 KB gzipped after Phase 0 (budget 40 KB, see D1); the remaining estimates add up to about 40 KB.
 
-### Next up (updated 2026-10-27)
+### Next up (updated 2026-10-29)
 
-Phase 0 is done and deployed, with P2.B. Wave 2 (P1.A, P1.B, P1.C, P1.D, P3.D, P4.B) is merged on `main`, not yet pushed: the main page is 35.7 KB gzipped, `/play/` 18.1 KB (it shares `base.css` and `objects.js`, so P3.D added 0.4 KB to it too).
+Wave 3 (P2.A, P3.B, P5.B) is merged on `main`, not yet pushed. The main page is 39.5 KB gzipped (40,443 bytes), `/play/` 18.7 KB of 20, `/embed/` 21.7 KB of 22. Measured together, the three packages added 3.7 KB to the main page.
 
-- **Ready now, can run in parallel:** wave 3: P2.A, P3.B and P5.B (its own page). Budget: 4.3 KB of the 40 KB is left, but the remaining main-page estimates (P2.A, P3.A, P3.B, P3.C, P4.A) add up to about 10 KB, so expect to trim or raise D1 before wave 3 finishes.
-- **Starting a package:** run `npm install`, then `npm run snapshot:save` on the starting commit if the package should leave existing states looking the same. Baselines are local (`v2/.snapshots/`, gitignored), so every session saves its own. Finish with `npm run test:v2`, `npm run check:layout` and, where relevant, `npm run snapshot:compare`; add a snapshot state for any new control.
-- **Known issue to fold into the next package that touches the chart (P2.A):** at 375×667 the chart legend gets only about 6 px of height and is clipped, with or without JS. It predates Phase 0.
+- **Budget:** 0.5 KB of the main page's 40 KB is left. The remaining main-page packages (P3.A, P3.C, P4.A) are estimated at about 2 KB each, so none of them fits without trimming or a new D1 answer.
+- **Wave 4 (P3.A, P3.C, P5.A) needs answers first:** D1 (raise the budget or trim), D6 (star page URLs) and D7 (preview images).
+- **Starting a package:** run `npm install`, then `npm run snapshot:save` on the starting commit if the package should leave existing states looking the same. Baselines are local (`v2/.snapshots/`, gitignored), so every session saves its own. Finish with `npm run test:v2`, `npm run check:layout`, `npm run check:embed` if it touches a shared partial, `base.css`, `chart.js` or `readout.js`, and, where relevant, `npm run snapshot:compare`; add a snapshot state for any new control.
+- **Known issues found while merging wave 3:**
+  - `check:layout --browser webkit` now runs (the harness no longer asks WebKit for clipboard permissions). It fails at the 8 phone, tablet and short-landscape sizes, the same way on the commit before wave 3: with "Show all three" on, the three discs shift sideways as the slider sweeps. Desktop sizes and `check:embed --browser webkit` pass.
+  - On phones the Per Hz chart's legend is wider than the card and cut off until swiped (375 and 390 px wide, and 600 px tablet width).
+  - On phones the HR diagram is about 150 px square, with labels around 5 px, like the color map's.
+  - P2.A's TiO band heads (476.1, 495.4, 516.7, 615.9, 705.4 nm) are cited to Gray & Corbally 2009 but weren't checked against the book. P3.B's L and R values come from Wikipedia infoboxes and the papers they cite, not each paper's tables; Zeta Puppis's L is the least certain, and Bellatrix's R is computed from its L and T.
 
 ## Decisions for the owner
 
