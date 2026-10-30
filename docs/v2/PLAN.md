@@ -31,7 +31,7 @@ Layout tiers (all in `v2/pages/index.html`), each checked for overflow and first
 - Build: `npm run build` builds v1 into `build/v1` (CRA with `PUBLIC_URL=/v1`), then v2 into `build/`. `npm run build:v2` rebuilds only v2 (about 0.1 s).
 - The embed page has its own two tiers in `v2/pages/embed/index.html`: compact (one column; under 380 px tall or 340 px wide the mode buttons and reference marks hide, and the URL still sets the modes) and wide (≥ 640×500: star, readout and controls left, chart right). Its budget is 22 KB gzipped (20.6 KB at launch).
 - Tests: `npm run test:v2`: 22 tests (15 physics, 5 slider scale, 2 object data), Node's built-in runner. UI: `npm run check:layout` runs `v2/tools/layout-stability.js` in Playwright at 12 sizes, checking for movement, overlaps and spills across every mode and temperature, plus first-screen fit and desktop column balance.
-- The page is a single self-contained HTML file of about 27.5 KB gzipped, with the first screen prerendered for the Sun (`v2/src/prerender.js`). The build fails over 40 KB (owner's decision D1 in `ROADMAP.md`).
+- The page is a single self-contained HTML file of about 27.5 KB gzipped, with the first screen prerendered for the Sun (`v2/src/prerender.js`). The build fails over 46 KB (owner's decision D1 in `ROADMAP.md`).
 
 ---
 
@@ -235,7 +235,7 @@ The interactive part is one slider driving about 400 Planck evaluations and one 
 | LCP (Moto G4, 4G) | < 1.0 s | — | — |
 | Lighthouse performance and accessibility | 100 / 100 | — | — |
 
-`build.mjs` fails the build when a page is over its gzip budget (`BUDGETS_KB`: 40 KB for the main page since 2026-10-25, which replaces the JS-only budget above). Lighthouse CI is still an open item (section 9).
+`build.mjs` fails the build when a page is over its gzip budget (`BUDGETS_KB`: 46 KB for the main page since 2026-10-30, 40 KB before that, which replaces the JS-only budget above). Lighthouse CI is still an open item (section 9).
 
 ---
 

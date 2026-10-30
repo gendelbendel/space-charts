@@ -48,7 +48,7 @@ v2: plain JavaScript (ES modules), no framework, no runtime dependencies, no web
 ## Core rules
 
 1. **Never change v1's behavior.** Its only allowed edit is the banner linking back to v2. Don't upgrade, restyle or fix it. (Why: `docs/WHY.md#v1-is-preserved-as-it-stands`)
-2. **v2 stays framework-free and ships each page as one file.** No runtime dependencies, no fonts, no chart library. `build.mjs` fails a page over its gzip budget (`BUDGETS_KB`; the main page is ~25 KB of a 40 KB budget). (Why: `docs/WHY.md#v2-has-no-framework-and-ships-one-file-per-page`)
+2. **v2 stays framework-free and ships each page as one file.** No runtime dependencies, no fonts, no chart library. `build.mjs` fails a page over its gzip budget (`BUDGETS_KB`; the main page is ~39.5 KB of a 46 KB budget). (Why: `docs/WHY.md#v2-has-no-framework-and-ships-one-file-per-page`)
 3. **Physics changes need a golden test.** Compare against a published value, never against the code's own output. `npm run test:v2` must stay green. (Why: `docs/WHY.md#the-math-is-checked-against-published-values`)
 4. **Cold objects render black or grey, never saturated red**, in the default "Your eye" mode. Brightness comes from real luminance. (Why: `docs/WHY.md#cold-objects-render-black-not-red`)
 5. **Switching modes or dragging the slider must not move the layout.** Anything whose text changes gets a fixed or reserved height, and type never changes size with content length. Run `npm run check:layout` after UI changes. (Why: `docs/WHY.md#nothing-moves-when-modes-change`)
