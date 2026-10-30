@@ -90,4 +90,4 @@ For UI changes, run `npm run check:layout`. At every size from 320×568 to 1920�
 
 ## Current status
 
-Live on Vercel from `main` at https://space-charts.vercel.app: v2 at `/`, the game at `/play/`, v1 at `/v1/`. The `vercel.json` redirects (`/v1` → `/v1/`, `/b` → `/`, `/play` → `/play/`) keep the query string, verified on the live site on 2026-10-25 (`/play` on 2026-10-27). The slider uses the "Balanced" weighted scale the owner chose on 2026-10-25. Open items are listed in `docs/v2/PLAN.md` under "Open questions".
+Live on Vercel from `main` at https://space-charts.vercel.app: v2 at `/`, the game at `/play/`, the embed at `/embed/`, v1 at `/v1/`. The `vercel.json` redirects (`/v1` → `/v1/`, `/b` → `/`, `/play` → `/play/`, `/embed` → `/embed/`) keep the query string, verified on the live site on 2026-10-25 (`/play` on 2026-10-27, `/embed` on 2026-10-30). The slider uses the "Balanced" weighted scale the owner chose on 2026-10-25. Open items are listed in `docs/v2/PLAN.md` under "Open questions".
