@@ -30,7 +30,7 @@ const clickTab = view => async page => {
   if (await tab.isVisible()) await tab.click();
 };
 // [name, query, optional action]. Covers URL parsing, every control and the main interactions. A query
-// that starts with a path instead of "?" opens another page (the embed).
+// that starts with a path instead of "?" opens another page (the embed, a star page).
 const STATES = [
   ["sun", "?t=5772"],
   ["cold", "?t=100"],
@@ -74,8 +74,14 @@ const STATES = [
     await page.fill("#num", "wise 0855");
     await page.press("#num", "Enter");
   }],
-  ["card", "?t=5772", page => page.locator("#objects button", { hasText: "Betelgeuse" }).click()],
-  ["cmb-card", "?t=5772", page => page.locator("#objects button", { hasText: "Cosmic microwave background" }).click()],
+  ["card", "?t=5772", page => page.locator("#objects a", { hasText: "Betelgeuse" }).click()],
+  ["cmb-card", "?t=5772", page => page.locator("#objects a", { hasText: "Cosmic microwave background" }).click()],
+  // A card opens its page in a new tab with a modifier, so this page stays put.
+  ["card-modified", "?t=5772", page => page.locator("#objects a", { hasText: "Betelgeuse" }).click({ modifiers: ["ControlOrMeta"] })],
+  ["card-space", "?t=5772", async page => {
+    await page.locator("#objects a", { hasText: "Rigel" }).focus();
+    await page.keyboard.press("Space");
+  }],
   ["orion-click", "?t=5772", page => page.locator("#orion button", { hasText: "Mintaka" }).click()],
   ["orion-focus", "?t=3600&light=sun", page => page.focus("#orion button")],
   ["copy", "?t=1200", page => page.click("#copyColor")],
@@ -129,6 +135,15 @@ const STATES = [
     const box = await page.locator("#chart").boundingBox();
     if (box) await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
   }],
+  // Star pages, which are the main page baked at the object's temperature.
+  ["star-page", "stars/betelgeuse/"],
+  ["star-page-cmb", "stars/cmb/"],
+  ["star-page-link", "stars/betelgeuse/?t=9940&model=star"],
+  ["star-page-slider", "stars/rigel/", page => page.evaluate(() => {
+    const slider = document.getElementById("slider");
+    slider.value = 333;
+    slider.dispatchEvent(new Event("input"));
+  })],
   // The embed page (/embed/); `npm run check:embed` covers its own iframe sizes.
   ["embed", "embed/?t=5772"],
   ["embed-modes", "embed/?t=3600&model=star&light=sun"],

@@ -3,11 +3,14 @@ import { MODELS, SUN_TEFF, parseTemperature } from "./physics.js";
 export const MODEL_KEYS = Object.keys(MODELS);
 export const LIGHT_KEYS = ["hue", "eye", "sun"];
 
+// A star page (/stars/<slug>/) names its temperature on <html>; other pages start at the Sun.
+const pageT = globalThis.document?.documentElement.dataset.t;
+
 // Reads the page state from a query string. v1's `?temp=` still works.
 export function readState(search) {
   const query = new URLSearchParams(search);
   return {
-    T: parseTemperature(query.get("t") ?? query.get("temp")) ?? SUN_TEFF,
+    T: parseTemperature(query.get("t") ?? query.get("temp")) ?? (+pageT || SUN_TEFF),
     model: MODEL_KEYS.includes(query.get("model")) ? query.get("model") : "cie",
     light: LIGHT_KEYS.includes(query.get("light")) ? query.get("light") : "eye",
     compare: query.get("compare") === "1",
@@ -43,13 +46,14 @@ export function setTemperature(T) {
   update({ T, animating: false });
 }
 
-// The query string that reopens the page in its current state.
+// The query string that reopens the page in its current state. A star page in its own state needs none.
 export function stateQuery() {
   const p = new URLSearchParams({ t: state.T });
   if (state.model !== "cie") p.set("model", state.model);
   if (state.light !== "eye") p.set("light", state.light);
   if (state.compare) p.set("compare", "1");
-  return "?" + p;
+  const query = "?" + p;
+  return query === `?t=${pageT}` ? "" : query;
 }
 
 let urlTimer;
@@ -57,7 +61,7 @@ export function updateUrl() {
   clearTimeout(urlTimer);
   urlTimer = setTimeout(() => {
     try {
-      history.replaceState(null, "", stateQuery());
+      history.replaceState(null, "", stateQuery() || location.pathname);
     } catch {
       // Opaque origins (file:// previews) reject URL updates.
     }

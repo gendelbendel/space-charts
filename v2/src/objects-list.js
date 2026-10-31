@@ -6,13 +6,13 @@ import { state, setTemperature } from "./state.js";
 import { copyText } from "./share.js";
 import { $, scrollToFirstScreen } from "./dom.js";
 
-const objectHtml = ({ name, type, T, note }, i) => {
+const objectHtml = ({ slug, name, type, T, note }, i) => {
   const color = screenColor(T, state.model, state.light, state.wide).paint();
   const current = T === state.T ? ' aria-current="true"' : "";
-  return `<li><button type="button" data-i="${i}"${current}>
+  return `<li><a href="/stars/${slug}/" data-i="${i}"${current}>
       <span class="dot" style="background:${color}"></span>
       <span class="obj-main"><span class="obj-name">${name}</span><span class="obj-meta">${type} · ${formatK(T)} K</span>${note ? `<span class="obj-note">${note}</span>` : ""}</span>
-    </button></li>`;
+    </a></li>`;
 };
 
 // One heading and grid per category, coldest first within each.
@@ -23,7 +23,7 @@ export const objectsHtml = () => CATEGORIES.map(([category, heading]) => {
 
 // Updates the prerendered cards in place, so a row scrolled sideways stays where it is.
 export function renderObjects() {
-  for (const button of $("objects").querySelectorAll("button[data-i]")) {
+  for (const button of $("objects").querySelectorAll("a[data-i]")) {
     const { T } = OBJECTS[button.dataset.i];
     button.firstElementChild.style.background = screenColor(T, state.model, state.light, state.wide).paint();
     if (T === state.T) button.setAttribute("aria-current", "true");
@@ -40,10 +40,18 @@ ${[...OBJECTS].sort((a, b) => a.T - b.T).map(o => `  --${o.slug}: ${displayColor
 
 export function initObjectsList() {
   $("objects").addEventListener("click", e => {
-    const button = e.target.closest("button[data-i]");
-    if (!button) return;
-    setTemperature(OBJECTS[+button.dataset.i].T);
+    const card = e.target.closest("a[data-i]");
+    if (!card || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    e.preventDefault();
+    setTemperature(OBJECTS[+card.dataset.i].T);
     scrollToFirstScreen();
+  });
+  // The cards were buttons, and Space should go on loading one instead of scrolling the page.
+  $("objects").addEventListener("keydown", e => {
+    if (e.key === " " && e.target.matches("a[data-i]")) {
+      e.preventDefault();
+      e.target.click();
+    }
   });
   $("copyVars").addEventListener("click", () => copyText(cssVariables(state.model, state.light), `Copied ${OBJECTS.length} colors`));
 }

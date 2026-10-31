@@ -20,7 +20,8 @@ import { orionHtml } from "./orion.js";
 import { classListHtml } from "./faq.js";
 
 export function prerender(T) {
-  Object.assign(state, readState(`?t=${T}`));
+  // { T } keeps the CMB's 2.72548 K, which the parser would round to 2.725.
+  Object.assign(state, readState(`?t=${T}`), { T });
   const peakNm = wienPeakNm(T);
   const Lv = luminance(T);
   const looks = discLooks(Lv);

@@ -2,22 +2,27 @@
 // CSS and the bundled app script are inlined, so each page is one request.
 // v1 lives in build/v1 (built separately by react-scripts) and is left alone.
 import { build, transform } from "esbuild";
-import { readFile, writeFile, mkdir, readdir, rm, copyFile } from "node:fs/promises";
+import { appendFile, readFile, writeFile, mkdir, readdir, rm, copyFile } from "node:fs/promises";
 import { gzipSync } from "node:zlib";
 import { dirname, join, relative } from "node:path";
 import { fileURLToPath } from "node:url";
 import { SUN_TEFF } from "./src/physics.js";
+import { OBJECTS } from "./src/data/objects.js";
 import { prerender } from "./src/prerender.js";
+import { MAIN_HEAD, SITE, starHead, sitemapXml } from "./src/star-pages.js";
 
 const root = dirname(fileURLToPath(import.meta.url));
+const ogDir = join(root, "og");
 const out = join(root, "..", "build");
 const publicDir = join(root, "..", "public");
 const PUBLIC_ASSETS = ["favicon.ico", "preview.webp", "robots.txt"];
 // Gzipped size limit per page, in KB. Every page needs an entry; the build
 // fails when one is missing or over. Raise a budget only on the owner's say-so.
 // The game and the embed reuse base.css (4.9 KB) and the physics and object modules (~10 KB). The embed
-// also carries the chart (1.5 KB), so it gets 22.
-const BUDGETS_KB = { "index.html": 46, "play/index.html": 20, "embed/index.html": 24 };
+// also carries the chart (1.5 KB), so it gets 24. Star pages are the main page plus a few head tags,
+// so one rule covers them all, at the main page's budget.
+const STAR_PAGES = "stars/<slug>/index.html";
+const BUDGETS_KB = { "index.html": 46, "play/index.html": 20, "embed/index.html": 24, [STAR_PAGES]: 46 };
 
 async function listPages(dir) {
   const entries = await readdir(dir, { withFileTypes: true });
@@ -47,11 +52,13 @@ async function inlineCss(html) {
   return html.replace(pattern, () => files[i++]);
 }
 
+// Every star page repeats the main page's CSS, so each distinct block is minified once.
+const minifiedCss = new Map();
 async function minifyCss(html) {
   const blocks = [...html.matchAll(/<style>([\s\S]*?)<\/style>/g)];
   for (const [whole, css] of blocks) {
-    const { code } = await transform(css, { loader: "css", minify: true });
-    html = html.replace(whole, () => `<style>${code.trim()}</style>`);
+    if (!minifiedCss.has(css)) minifiedCss.set(css, (await transform(css, { loader: "css", minify: true })).code.trim());
+    html = html.replace(whole, () => `<style>${minifiedCss.get(css)}</style>`);
   }
   return html;
 }
@@ -85,27 +92,60 @@ async function inlineScripts(html) {
   return html.replace(pattern, (_, entry) => `<script>${scripts.get(entry)}</script>`);
 }
 
-await cleanOutput();
-const pagesDir = join(root, "pages");
-const overBudget = [];
-for (const page of await listPages(pagesDir)) {
-  let html = await readFile(page, "utf8");
+const gzipKbOf = html => gzipSync(html, { level: 9 }).length / 1024;
+
+async function buildPage(template, values, name) {
+  let html = await readFile(template, "utf8");
   html = await expandIncludes(html);
-  html = fillPrerender(html, prerender(SUN_TEFF));
+  html = fillPrerender(html, values);
   html = await inlineCss(html);
   html = await minifyCss(html);
   html = await inlineScripts(html);
-  const target = join(out, relative(pagesDir, page));
+  const target = join(out, name);
   await mkdir(dirname(target), { recursive: true });
   await writeFile(target, html);
-  const name = relative(pagesDir, page);
-  const gzipKb = gzipSync(html, { level: 9 }).length / 1024;
-  const budget = BUDGETS_KB[name];
-  console.log(`${relative(join(root, ".."), target).padEnd(22)} ${(html.length / 1024).toFixed(1).padStart(6)} KB  ${gzipKb.toFixed(1).padStart(5)} KB gzip  (budget ${budget ?? "none"})`);
+  return html;
+}
+
+await cleanOutput();
+const pagesDir = join(root, "pages");
+const overBudget = [];
+const checkBudget = (name, rule, gzipKb) => {
+  const budget = BUDGETS_KB[rule];
   if (budget === undefined) overBudget.push(`${name} has no size budget; add one to BUDGETS_KB in v2/build.mjs`);
   else if (gzipKb > budget) overBudget.push(`${name} is ${gzipKb.toFixed(1)} KB gzipped, over its ${budget} KB budget`);
+  return budget ?? "none";
+};
+const report = (path, html, gzipKb, budget) => console.log(`${path.padEnd(22)} ${(html.length / 1024).toFixed(1).padStart(6)} KB  ${gzipKb.toFixed(1).padStart(5)} KB gzip  (budget ${budget})`);
+
+for (const page of await listPages(pagesDir)) {
+  const name = relative(pagesDir, page);
+  const html = await buildPage(page, { ...MAIN_HEAD, ...prerender(SUN_TEFF) }, name);
+  const gzipKb = gzipKbOf(html);
+  report(`build/${name}`, html, gzipKb, checkBudget(name, name, gzipKb));
 }
+
+const images = new Set(await readdir(ogDir).catch(() => []));
+const missingImages = OBJECTS.filter(o => !images.has(`${o.slug}.jpg`)).map(o => o.slug);
+if (missingImages.length) {
+  console.error(`No preview image for ${missingImages.join(", ")}; run \`npm run og\` and commit v2/og/.`);
+  process.exit(1);
+}
+let largest = { html: "", gzipKb: 0 };
+for (const o of OBJECTS) {
+  const name = `stars/${o.slug}/index.html`;
+  const html = await buildPage(join(pagesDir, "index.html"), { ...starHead(o), ...prerender(o.T) }, name);
+  const gzipKb = gzipKbOf(html);
+  checkBudget(name, STAR_PAGES, gzipKb);
+  if (gzipKb > largest.gzipKb) largest = { html, gzipKb };
+}
+report(`build/stars/ (${OBJECTS.length} pages, largest)`, largest.html, largest.gzipKb, BUDGETS_KB[STAR_PAGES]);
+await mkdir(join(out, "og"));
+await Promise.all([...images].map(name => copyFile(join(ogDir, name), join(out, "og", name))));
+await writeFile(join(out, "sitemap.xml"), sitemapXml());
 await Promise.all(PUBLIC_ASSETS.map(name => copyFile(join(publicDir, name), join(out, name))));
+// robots.txt comes from v1's folder, which stays as it is, so the sitemap line is added here.
+await appendFile(join(out, "robots.txt"), `Sitemap: ${SITE}/sitemap.xml\n`);
 if (overBudget.length) {
   console.error(overBudget.map(line => `Size budget: ${line}`).join("\n"));
   process.exit(1);

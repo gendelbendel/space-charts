@@ -8,7 +8,7 @@ import { fileURLToPath } from "node:url";
 export const root = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 export const buildDir = join(root, "build");
 
-const CONTENT_TYPES = { ".html": "text/html; charset=utf-8", ".js": "text/javascript", ".ico": "image/x-icon", ".webp": "image/webp", ".png": "image/png", ".txt": "text/plain" };
+const CONTENT_TYPES = { ".html": "text/html; charset=utf-8", ".js": "text/javascript", ".ico": "image/x-icon", ".webp": "image/webp", ".png": "image/png", ".jpg": "image/jpeg", ".xml": "application/xml", ".txt": "text/plain" };
 
 export async function serveBuild() {
   const server = createServer(async (req, res) => {

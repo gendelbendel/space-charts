@@ -101,7 +101,41 @@ for (const [tier, width, height] of sizes) {
   await page.close();
 }
 
+// A star page (spot-checked): its head, and it hydrates like the main page does.
+const STAR_PAGE_SIZES = [[375, 667], [1440, 900]];
+for (const [width, height] of STAR_PAGE_SIZES) {
+  const url = `${server.origin}/stars/betelgeuse/`;
+  const staticPage = await openPage(browser, url, width, height, { javaScript: false });
+  const before = await staticPage.evaluate(measureBlocks, HYDRATION_BLOCKS);
+  const bakedReadout = await staticPage.inputValue("#num");
+  await staticPage.close();
+  const page = await openPage(browser, url, width, height);
+  const after = await page.evaluate(measureBlocks, HYDRATION_BLOCKS);
+  const head = await page.evaluate(() => ({
+    title: document.title,
+    canonical: document.querySelector("link[rel=canonical]")?.href,
+    image: document.querySelector("meta[property='og:image']")?.content,
+    readout: document.getElementById("num").value,
+  }));
+  const imageStatus = (await page.request.get(new URL(new URL(head.image).pathname, server.origin).href)).status();
+  const problems = [
+    ...HYDRATION_BLOCKS.filter(s => moved(before[s], after[s])).map(s => `moves when the script runs: ${s}`),
+    head.title === "What color is Betelgeuse?" ? null : `title: ${head.title}`,
+    head.canonical === "https://space-charts.vercel.app/stars/betelgeuse/" ? null : `canonical: ${head.canonical}`,
+    imageStatus === 200 ? null : `og:image ${head.image}: ${imageStatus}`,
+    head.readout === bakedReadout && head.readout === "3,600" ? null : `readout ${bakedReadout} -> ${head.readout}`,
+    ...page.errors,
+  ].filter(Boolean);
+  await page.waitForTimeout(250); // the URL is written back after 150 ms
+  const settledUrl = await page.evaluate(() => location.pathname + location.search);
+  if (settledUrl !== "/stars/betelgeuse/") problems.push(`url: ${settledUrl}`);
+  console.log(`${problems.length ? "FAIL" : "ok  "}  star    ${width}x${height}`);
+  for (const problem of problems) console.log(`      ${problem}`);
+  failures += problems.length ? 1 : 0;
+  await page.close();
+}
+
 await browser.close();
 server.close();
-console.log(failures ? `\n${failures} of ${sizes.length} sizes failed (${args.browser}).` : `\nAll ${sizes.length} sizes passed (${args.browser}). Screenshots in build/__shots/.`);
+console.log(failures ? `\n${failures} of ${sizes.length + STAR_PAGE_SIZES.length} sizes failed (${args.browser}).` : `\nAll ${sizes.length} sizes and the star page passed (${args.browser}). Screenshots in build/__shots/.`);
 process.exit(failures ? 1 : 0);

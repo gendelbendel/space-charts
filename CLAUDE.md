@@ -22,6 +22,8 @@ v2/
   pages/index.html       the v2 page, served at /
   pages/play/index.html  the guess-the-temperature game, served at /play/ (src/game.js rules, src/game-page.js UI)
   pages/embed/index.html the iframe embed, served at /embed/: star, readout, slider and chart (src/embed-page.js)
+  (generated)            /stars/<slug>/: build.mjs bakes pages/index.html at each object's temperature (src/star-pages.js)
+  og/                    1200×630 preview card per object, from `npm run og`, committed; copied to build/og/
   partials/*.html        shared HTML pieces, expanded at build (<!-- include: name -->)
   src/physics.js         Planck, CIE 1931 pipeline, real-star lookup, brightness model, input parsing
   src/prerender.js       bakes the first screen into the HTML at build time, from the same builders
@@ -37,8 +39,9 @@ v2/
   tools/layout-stability.js  browser check: nothing moves, overlaps or spills when modes change
   tools/check-layout.mjs     runs that check with Playwright at every tier's sizes (npm run check:layout)
   tools/check-embed.mjs      the same for /embed/ at 300×300, 400×400 and 800×600 (npm run check:embed)
+  tools/og.mjs               renders the preview cards (npm run og)
   tools/snapshot.mjs         before/after comparison of 276 page states (npm run snapshot:save / snapshot:compare)
-vercel.json              redirects /v1 -> /v1/, /play -> /play/, /embed -> /embed/ and /b -> /
+vercel.json              redirects /v1 -> /v1/, /play -> /play/, /embed -> /embed/, /stars/<slug> -> /stars/<slug>/ and /b -> /
 ```
 
 ## Tech stack
