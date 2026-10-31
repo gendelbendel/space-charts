@@ -5,7 +5,7 @@ import {
   PHYS, planck, trapezoid, cieHue, simpleHue, starHue, displayColor, luminance,
   wienPeakNm, wienPeakHz, planckPerHz, blackbodyFraction, energySplit, radiantExitance, parseTemperature, toKelvin, encodeSrgb, toHex,
   scotopicLuminance, eyeLuminance, VISION, linearP3ToXyz, xyzToLinearP3, displayColorP3, linearSrgbToXy, relLuminance,
-  IAU_SUN, sphereLuminosity,
+  IAU_SUN, sphereLuminosity, powerRatio,
 } from "../src/physics.js";
 import { HARRE_HELLER_2021 } from "../src/data/harre-heller-2021.js";
 import { CIE1931_2DEG, CMF_START_NM, CMF_STEP_NM, CMF_ROWS } from "../src/data/cie1931.js";
@@ -110,6 +110,26 @@ test("Planck's law integrates to the Stefan–Boltzmann law", () => {
   const T = 5772;
   const integral = Math.PI * trapezoid(nm => planck(nm, T) * 1e-9, 10, 1e6, 200000);
   close(integral / radiantExitance(T), 1, 1e-4, "ratio");
+});
+
+// The pinned comparison's "× B" stat: how much more power per m² A radiates than B. The expected
+// values are the published ones, not recomputed here:
+// - OpenStax Astronomy 2e §5.2, "Radiation Laws" and Example 5.4: a Sun twice as hot (5,800 K to
+//   11,600 K) radiates 16 times the power; 12,000 K against 6,000 K, 16 times; 8,700 K against
+//   2,900 K, "3⁴ = 81 times". https://openstax.org/books/astronomy-2e/pages/5-2-the-electromagnetic-spectrum
+// - OpenStax University Physics 3 §6.1, Example 6.2: a white dwarf at 2.5 × 10⁴ K against a red giant
+//   at 3.0 × 10³ K, 4.8 × 10³ per unit area ("about 5000 times").
+//   https://openstax.org/books/university-physics-volume-3/pages/6-1-blackbody-radiation
+// - Sirius A against the Sun, as a check independent of T⁴: its published luminosity and radius
+//   (L = 25.4 L☉, Liebert et al. 2005; R = 1.711 R☉, Davis et al. 2011) give a surface flux of
+//   L/R² = 8.68 Suns. The 9,940 K and 5,772 K the page uses must land within 2 % of that.
+test("the power ratio of two temperatures matches published Stefan–Boltzmann ratios", () => {
+  close(powerRatio(11600, 5800), 16, 1e-9, "twice as hot");
+  close(powerRatio(12000, 6000), 16, 1e-9, "star B over star A");
+  close(powerRatio(8700, 2900), 81, 1e-9, "three times as hot");
+  close(powerRatio(5800, 11600), 1 / 16, 1e-9, "the other way round");
+  close(powerRatio(2.5e4, 3e3) / 4.8e3, 1, 0.01, "white dwarf over red giant");
+  close(powerRatio(9940, 5772) / (25.4 / 1.711 ** 2), 1, 0.02, "Sirius A over the Sun");
 });
 
 // Wien's frequency displacement law: B_ν peaks at ν = b′T, with b′ = 5.878 925 757 × 10¹⁰ Hz/K

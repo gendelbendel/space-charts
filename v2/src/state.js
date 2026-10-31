@@ -6,11 +6,14 @@ export const LIGHT_KEYS = ["hue", "eye", "sun"];
 // Reads the page state from a query string. v1's `?temp=` still works.
 export function readState(search) {
   const query = new URLSearchParams(search);
+  const vs = parseTemperature(query.get("vs"));
   return {
     T: parseTemperature(query.get("t") ?? query.get("temp")) ?? SUN_TEFF,
     model: MODEL_KEYS.includes(query.get("model")) ? query.get("model") : "cie",
     light: LIGHT_KEYS.includes(query.get("light")) ? query.get("light") : "eye",
-    compare: query.get("compare") === "1",
+    compare: query.get("compare") === "1" && vs === null,
+    // The pinned temperature B, compared with T as A. Never on together with `compare`.
+    vs,
     // Wide-gamut (P3) screens get deeper reds below ~1,900 K. The build has no screen, so it's sRGB.
     wide: globalThis.matchMedia?.("(color-gamut: p3)").matches === true,
     yscale: "lin",
@@ -43,12 +46,16 @@ export function setTemperature(T) {
   update({ T, animating: false });
 }
 
+export const setCompare = compare => update({ compare, vs: null });
+export const togglePin = () => update(state.vs === null ? { vs: state.T, compare: false } : { vs: null });
+
 // The query string that reopens the page in its current state.
 export function stateQuery() {
   const p = new URLSearchParams({ t: state.T });
   if (state.model !== "cie") p.set("model", state.model);
   if (state.light !== "eye") p.set("light", state.light);
   if (state.compare) p.set("compare", "1");
+  if (state.vs !== null) p.set("vs", state.vs);
   return "?" + p;
 }
 

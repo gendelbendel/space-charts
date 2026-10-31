@@ -23,7 +23,7 @@ const HYDRATION_BLOCKS = [".b-top", ".stage", ".readout-block", ".temp-big .unit
 // Everything the embed shows. Hidden ones (the mode buttons in the smallest frames) are skipped.
 const SHOWN = [".stage", ".readout-block", "#fullPage", "#slider", ".ticks", ".controls", "#spectrum", ".chart-box", ".legend"];
 // Modes the URL can set, each checked for fit at a cold, a middle and the hottest temperature.
-const MODE_QUERIES = ["", "model=star", "model=simple&light=sun", "light=hue", "compare=1", "compare=1&light=hue&model=star"];
+const MODE_QUERIES = ["", "model=star", "model=simple&light=sun", "light=hue", "compare=1", "compare=1&light=hue&model=star", "vs=9940"];
 const FIT_TEMPERATURES = [100, 3600, 1000000];
 const STATE_QUERY = "?t=3600&model=star&light=sun&compare=1";
 

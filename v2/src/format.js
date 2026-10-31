@@ -1,5 +1,5 @@
 // Pure text formatting, with no DOM access, so the build can use it too.
-import { VISION, energySplit, radiantExitance, eyeLuminance, displayColor, displayColorP3 } from "./physics.js";
+import { VISION, energySplit, radiantExitance, powerRatio, wienPeakNm, eyeLuminance, displayColor, displayColorP3 } from "./physics.js";
 
 export const formatK = T => T.toLocaleString("en-US");
 export function formatWavelength(nm) {
@@ -33,20 +33,33 @@ const percent = share => {
   const p = share * 100;
   return (p >= 9.95 ? p.toFixed(0) : p >= 0.05 ? p.toFixed(1) : "0") + "%";
 };
+const splitBar = shares => `<span class="split-bar">${shares.map(s => `<i style="width:${(s * 100).toFixed(2)}%"></i>`).join("")}</span>`;
 // The UV / visible / IR bar: three segments and their percentages, the same width at any temperature.
 export function splitHtml(T) {
   const shares = energySplit(T);
-  const bar = shares.map(s => `<i style="width:${(s * 100).toFixed(2)}%"></i>`).join("");
-  return `<span class="split-bar">${bar}</span><span class="split-pct">${shares.map(s => `<span>${percent(s)}</span>`).join("")}</span>`;
+  return `${splitBar(shares)}<span class="split-pct">${shares.map(s => `<span>${percent(s)}</span>`).join("")}</span>`;
 }
+// One line per temperature, with its visible share, in the two lines the stat reserves.
+const splitRow = (label, T) => {
+  const shares = energySplit(T);
+  return `<span class="split-pct">${label}${splitBar(shares)}<span>${percent(shares[1])}</span></span>`;
+};
 
-// The four stats under the chart, keyed by element id, as HTML.
-export function statsText(T, Lv, peakNm) {
-  return {
+// The four stats under the chart, keyed by element id, as HTML. With B pinned they compare A with it.
+export function statsText(T, Lv, peakNm, vs = null) {
+  const stats = {
     sPeak: formatWavelength(peakNm),
     sVis: splitHtml(T),
     sLum: formatSci(Lv) + " cd/m²",
     sFlux: formatSci(radiantExitance(T)) + " W",
+  };
+  if (vs === null) return stats;
+  const shift = peakNm - wienPeakNm(vs);
+  return {
+    ...stats,
+    sPeak: `${shift > 0 ? "+" : shift < 0 ? "−" : ""}${formatWavelength(Math.abs(shift))} vs\u00a0B`,
+    sVis: splitRow("A", T) + splitRow("B", vs),
+    sFlux: `${formatSci(powerRatio(T, vs))}×\u00a0B`,
   };
 }
 

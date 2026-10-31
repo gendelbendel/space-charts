@@ -35,7 +35,7 @@ header.top { display: flex; align-items: center; justify-content: space-between;
 .stage { position: relative; border-radius: var(--radius); background: radial-gradient(ellipse at 50% 40%, #0b0d14 0%, #000 70%); border: 1px solid var(--line); display: grid; place-items: center; overflow: hidden; }
 .discs { display: flex; justify-content: center; align-items: center; gap: 6%; width: 100%; height: 100%; }
 .disc-wrap { margin: 0; display: flex; flex-direction: column; align-items: center; gap: 8px; width: 56%; min-width: 0; }
-.comparing .disc-wrap { width: 26%; }
+.comparing .disc-wrap, .pinned .disc-wrap { width: 26%; }
 .disc { width: 100%; aspect-ratio: 1; border-radius: 50%; transition: box-shadow .15s, background .15s; }
 .disc.invisible { outline: 1px dashed rgba(255, 255, 255, .22); outline-offset: 4px; }
 .disc-wrap figcaption { max-width: 100%; font-size: 12px; color: var(--muted); text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -93,6 +93,13 @@ header.top { display: flex; align-items: center; justify-content: space-between;
 .verdict strong { color: var(--text); font-weight: 600; }
 .stage-note { margin: 4px 0 0; font-size: 13px; line-height: 1.4; min-height: 1.4em; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .stage-note.warn { color: var(--accent); }
+/* Pin shares the note's line and stays within its height, so the readout block is the same with or without it. */
+.note-row { display: flex; align-items: flex-end; gap: 6px; }
+.note-row .stage-note { flex: 1; min-width: 0; }
+.pin-btn { position: relative; flex: none; height: 16px; padding: 0 6px; border: 1px solid var(--line-strong); border-radius: 999px; background: none; color: var(--muted); font: 600 11px/14px var(--sans); cursor: pointer; }
+.pin-btn::after { content: ""; position: absolute; inset: -9px -4px; }
+.pin-btn:hover { color: var(--text); }
+.pin-btn[aria-pressed=true] { color: var(--text); border-color: var(--accent); }
 
 /* controls */
 /* Play sits at the slider's left end, out of the flow, so the slider row keeps its height; its 26 px match the thumb. */
@@ -141,6 +148,9 @@ input[type=range]::-moz-range-thumb { box-sizing: border-box; width: 26px; heigh
 .split-bar i:nth-child(2) { background: linear-gradient(90deg, #8040ff, #00f, #0ff, #0f0, #ff0, #f00); }
 .split-bar i:nth-child(3) { background: var(--ir); }
 .split-pct { display: flex; justify-content: space-between; gap: 4px; font-size: 12px; line-height: 1.35; white-space: nowrap; }
+/* A and B: one bar and share per line. */
+.split:has(.split-pct .split-bar) { gap: 3px; padding-top: 2px; }
+.split-pct .split-bar { flex: 1; align-self: center; }
 
 /* cards */
 .card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 18px; }

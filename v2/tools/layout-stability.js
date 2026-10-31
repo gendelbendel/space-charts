@@ -7,11 +7,11 @@
 // It also checks that stacked blocks never overlap (the temperature spilling into
 // the verdict line was a real bug that the movement check couldn't see).
 // Then it turns compare on and sweeps again against a new baseline (turning it on changes the
-// layout on purpose), switches the color-map card to the HR diagram and taps every star (nothing
+// layout on purpose), pins a temperature (nothing may move, and pin and compare exclude each other), switches the color-map card to the HR diagram and taps every star (nothing
 // may move), and opens each visualization tab in both views: only the Numbers tab may scroll.
 // A clean run returns { shifts: "none", overlaps: "none", readoutOverflow: "none", panelScroll: "none", overflowX: 0 }.
 (() => {
-  const selectors = [".b-top", ".readout-block", ".b-dock", "#slider", "#spectrum", ".legend", ".chart-box", "#colormap", "#colormap > svg", ".stats", "#classChip", "#num"];
+  const selectors = [".b-top", ".readout-block", "#stageNote", ".b-dock", "#slider", "#spectrum", ".legend", ".chart-box", "#colormap", "#colormap > svg", ".stats", "#classChip", "#num"];
   const snapshot = () => ({
     ...Object.fromEntries(selectors.map(s => {
       // The first match with a box: the color map's two diagrams take turns. The embed page
@@ -100,6 +100,29 @@
     check(`compare @ slider ${position}`, compareBase, compareSnapshot);
   }
   document.getElementById("compare").click();
+
+  // Pinning adds a second disc inside the same stage and a second curve on the same canvas, so unlike
+  // compare it's checked against the page's own baseline, and the discs mustn't move once they're there.
+  const pin = document.getElementById("pin"), compare = document.getElementById("compare");
+  slider.value = 500;
+  slider.dispatchEvent(new Event("input"));
+  pin.click();
+  check("pinned", base);
+  const pinnedBase = compareSnapshot();
+  for (const light of ["eye", "hue", "sun"]) {
+    document.querySelector(`.seg[data-key=light] [data-v=${light}]`).click();
+    for (let position = 0; position <= 1000; position += 50) {
+      slider.value = position;
+      slider.dispatchEvent(new Event("input"));
+      check(`pinned, ${light} @ slider ${position}`, pinnedBase, compareSnapshot);
+    }
+  }
+  compare.click();
+  if (pin.getAttribute("aria-pressed") !== "false") overlaps["compare models left the pin on"] = "both on";
+  pin.click();
+  if (compare.checked) overlaps["pinning left compare models on"] = "both on";
+  pin.click();
+  check("unpinned", base);
 
   // The color-map card's switcher: the HR diagram takes the color map's place exactly, at every
   // temperature (its readout changes with the star), and switching back restores everything.

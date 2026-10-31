@@ -105,6 +105,22 @@ const STATES = [
     for (const key of ["ArrowRight", "Shift+M", "m", "b", "c"]) await page.keyboard.press(key);
   }],
   ["compare-no-data", "?t=1000&compare=1"],
+  ["pinned-url", "?t=5772&vs=9940"],
+  ["pinned-compare-url", "?t=5772&vs=9940&compare=1"],
+  ["pinned-star-sun", "?t=3600&vs=1000&model=star&light=sun"],
+  ["pinned-numbers", "?t=5772&vs=3600", clickTab("numbers")],
+  ["pinned-per-hz", "?t=3000&vs=12000", page => page.locator(".seg[data-key=axis] [data-v=hz]").first().click()],
+  ["pin-click", "?t=9940", async page => {
+    await page.click("#pin");
+    await page.evaluate(() => {
+      const slider = document.getElementById("slider");
+      slider.value = 450;
+      slider.dispatchEvent(new Event("input"));
+    });
+  }],
+  ["pin-ends-compare", "?t=6000&compare=1", page => page.click("#pin")],
+  ["compare-ends-pin", "?t=6000&vs=3000", page => page.click("#compare")],
+  ["unpin", "?t=6000&vs=3000", page => page.click("#pin")],
   // Scroll positions that must survive the slider: the Numbers tab (phones) and a row of objects (touch screens).
   ["numbers-scrolled", "?t=5772", async page => {
     await clickTab("numbers")(page);
@@ -133,6 +149,7 @@ const STATES = [
   ["embed", "embed/?t=5772"],
   ["embed-modes", "embed/?t=3600&model=star&light=sun"],
   ["embed-compare", "embed/?t=1000&compare=1&light=hue"],
+  ["embed-pinned", "embed/?t=5772&vs=9940"],
   ["embed-class-chip", "embed/?t=12100", page => page.locator("#classChip").click()],
 ];
 
