@@ -24,12 +24,12 @@
 .panel[data-view-panel=numbers] { grid-area: numbers; display: grid; gap: 12px; align-content: start; }
 .chart-box { flex: 1; height: auto; min-height: 160px; }
 .colormap svg.cie { flex: 1 1 auto; min-height: 0; margin: 0 auto; }
-/* The color-map card's two views share every box: both headings take the taller one's height,
+/* The color-map card's views share every box: the headings take the tallest one's height,
    and the diagrams the same square, so switching moves nothing. */
 .map-head { display: grid; }
 .map-head > * { grid-area: 1 / 1; }
-[data-map=hr] .map-head > :first-child, [data-map=cie] .map-head > :last-child { visibility: hidden; }
-[data-map=hr] #cie, [data-map=cie] #hr { display: none; }
+.colormap:not([data-map=cie]) .map-head > :nth-child(1), .colormap:not([data-map=hr]) .map-head > :nth-child(2), .colormap:not([data-map=day]) .map-head > :nth-child(3) { visibility: hidden; }
+.colormap:not([data-map=cie]) #cie, .colormap:not([data-map=hr]) #hr, .colormap:not([data-map=day]) #day { display: none; }
 .colormap > .seg { align-self: flex-start; margin-bottom: 6px; }
 .colormap > .seg button { padding: 3px 9px; font-size: 12px; line-height: 16px; }
 #hr .band { fill: var(--line); stroke: var(--line-strong); }
@@ -38,6 +38,11 @@
 #hr .dot { stroke: var(--bg); }
 #hr [aria-current] .dot { stroke: var(--text); stroke-width: 2; }
 #hr .star:focus-visible .dot { stroke: var(--focus); stroke-width: 3; }
+#day .big { font-size: 15px; fill: var(--text); }
+#day .swatch-line { stroke: var(--line-strong); }
+#dayWhite { cursor: pointer; outline: 0; }
+#dayWhite rect { fill: none; stroke: var(--line-strong); }
+#dayWhite:focus-visible rect { stroke: var(--focus); stroke-width: 2; }
 .control { grid-template-columns: 1fr; gap: 4px; }
 .control > .lbl { font-size: 12px; }
 .after-core > .card { margin: 0 0 16px; }
@@ -148,6 +153,8 @@
   .panel.active { display: flex; flex: 1; min-height: 0; overflow: hidden; }
   .panel[data-view-panel=numbers].active { display: grid; gap: 10px; overflow: auto; overscroll-behavior: contain; }
   .panel .spectrum h2, .panel .colormap h2, .panel .colormap .sub, .panel .spectrum .sub { display: none; }
+  /* Three views beside the readout. */
+  .colormap > .seg button { padding: 3px 6px; }
   .chart-box { flex: 1 1 0; min-height: 0; }
   .colormap svg.cie { flex: 1 1 0; height: 0; width: 100%; }
   .panel .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -230,6 +237,8 @@
   .panel[data-view-panel=numbers].active { display: grid; gap: 8px; overflow: auto; overscroll-behavior: contain; }
   .panel > .card { padding: 10px; }
   .panel .spectrum h2, .panel .colormap h2, .panel .colormap .sub, .panel .spectrum .sub { display: none; }
+  /* Three views beside the readout. */
+  .colormap > .seg button { padding: 3px 6px; }
   .chart-box { flex: 1 1 0; min-height: 0; }
   .colormap svg.cie { flex: 1 1 0; height: 0; width: 100%; }
   .panel .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -244,6 +253,8 @@
   .colormap .cie-readout { position: absolute; top: 8px; right: 10px; margin: 0; min-height: 0; font-size: 10.5px; line-height: 1.35; text-align: right; }
   .cie-readout span { display: block; }
   .cie-readout br { display: none; }
+  /* The scene fills the corner the other views leave empty, and shows the same thing. */
+  [data-map=day] .cie-readout { display: none; }
 }
 
 /* desktop: controls left; chart and color map side by side, the same height; stats beside the

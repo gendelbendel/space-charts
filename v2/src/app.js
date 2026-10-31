@@ -11,6 +11,7 @@ import { renderPipelines } from "./pipelines.js";
 import { drawChart, initChart } from "./chart.js";
 import { drawCie } from "./cie-diagram.js";
 import { renderHr, initHr } from "./hr-diagram.js";
+import { renderDaylight, initDaylight } from "./daylight.js";
 import { renderObjects, initObjectsList } from "./objects-list.js";
 import { renderOrion, initOrion } from "./orion.js";
 import { initFaq } from "./faq.js";
@@ -56,6 +57,7 @@ function render() {
   drawChart();
   $("colormap").dataset.map = state.map;
   if (state.map === "hr") renderHr();
+  else if (state.map === "day") renderDaylight();
   else drawCie();
   renderOrion();
   // Rebuilding these took half of each frame during Play; they render once when it ends.
@@ -73,6 +75,7 @@ initChart();
 initObjectsList();
 initOrion();
 initHr();
+initDaylight();
 initFaq();
 initShare();
 initPlay();

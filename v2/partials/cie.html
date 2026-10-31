@@ -4,12 +4,16 @@
     <p class="sub">Every blackbody sits on the orange curve, which never reaches green or purple.</p></div>
     <div><h2>Where it sits among the stars</h2>
     <p class="sub">Stars by temperature and power. Tap one to load it.</p></div>
+    <div><h2>Daylight on another world</h2>
+    <p class="sub">Under a red star, paper looks orange at first, then white as your eye adapts.</p></div>
   </div>
   <div class="seg" role="group" aria-label="Diagram" data-key="map">
     <button type="button" data-v="cie" aria-pressed="true">Color map</button>
-    <button type="button" data-v="hr" aria-pressed="false">HR diagram</button>
+    <button type="button" data-v="hr" aria-pressed="false" aria-label="HR diagram">HR</button>
+    <button type="button" data-v="day" aria-pressed="false">Daylight</button>
   </div>
   <svg class="cie" id="cie" viewBox="0 0 320 320" role="img" aria-label="CIE 1931 chromaticity diagram with the Planckian locus"></svg>
   <svg class="cie" id="hr" viewBox="0 0 320 320" role="group" aria-label="Hertzsprung–Russell diagram: luminosity against temperature"></svg>
+  <svg class="cie" id="day" viewBox="0 0 320 320" role="group" aria-label="White paper with three paint swatches in this star's light, as a daylight camera and an adapted eye see it"></svg>
   <p class="cie-readout" id="cieReadout"></p>
 </section>
