@@ -2,7 +2,7 @@
 import { SUN_TEFF } from "./physics.js";
 import { SPECTRAL_CLASSES } from "./data/objects.js";
 import { sliderScale, classMidpoint, tToSlider, sliderToT } from "./slider-marks.js";
-import { state, update, setTemperature, MODEL_KEYS, LIGHT_KEYS } from "./state.js";
+import { state, update, setCompare, setTemperature, MODEL_KEYS, LIGHT_KEYS } from "./state.js";
 import { togglePlay } from "./play.js";
 import { $ } from "./dom.js";
 
@@ -19,7 +19,7 @@ export function initKeys() {
     m: () => update({ model: next(MODEL_KEYS, state.model) }),
     b: () => update({ light: next(LIGHT_KEYS, state.light) }),
     s: () => setTemperature(SUN_TEFF),
-    c: () => update({ compare: !state.compare }),
+    c: () => setCompare(!state.compare),
     p: togglePlay,
     "?": () => (dialog.open ? dialog.close() : dialog.showModal()),
     // Shift moves one slider position; otherwise to the next class's midpoint.

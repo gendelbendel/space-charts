@@ -36,7 +36,7 @@ function renderTabs() {
 // ---------- stats ----------
 
 function renderStats(Lv, peakNm) {
-  for (const [id, text] of Object.entries(statsText(state.T, Lv, peakNm))) $(id).innerHTML = text;
+  for (const [id, text] of Object.entries(statsText(state.T, Lv, peakNm, state.vs))) $(id).innerHTML = text;
 }
 
 // ---------- render ----------

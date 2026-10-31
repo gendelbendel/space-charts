@@ -28,7 +28,7 @@ body { overflow-x: hidden; }
 .b-top .stage .disc-wrap { width: 70%; }
 .b-top .stage-hex { display: none; }
 .readout-block { min-width: 0; }
-.readout-actions { display: none; }
+.readout-actions, .pin-btn { display: none; }
 /* In the readout row's empty right end, which "1,000,000 K" still leaves free. */
 .full-link { position: absolute; top: 2px; right: 0; max-width: 56px; font-size: 11px; line-height: 1.3; text-align: right; color: var(--focus); }
 .temp-big { font-size: 30px; }
@@ -41,6 +41,10 @@ body { overflow-x: hidden; }
 .b-top .stage.comparing .disc-wrap { width: auto; height: 27%; }
 .b-top .stage.comparing .disc { width: auto; height: 100%; }
 .b-top .stage.comparing figcaption { display: none; }
+/* A pinned B (from the URL; Pin itself needs the full page): two discs side by side in the square. */
+.b-top .stage.pinned .disc-wrap { width: 42%; height: auto; gap: 2px; }
+.b-top .stage.pinned .disc { width: 100%; height: auto; }
+.b-top .stage.pinned figcaption { font-size: 10px; line-height: 1.2; }
 
 .b-dock { min-width: 0; }
 .controls { margin-top: 6px; grid-template-columns: auto auto; justify-content: space-between; align-items: center; gap: 4px 8px; }
@@ -74,6 +78,8 @@ body { overflow-x: hidden; }
   .b-top .stage, .b-top .stage.comparing { align-self: auto; aspect-ratio: auto; height: clamp(90px, 100svh - 390px, 240px); border-radius: var(--radius); }
   .b-top .stage .disc-wrap { width: auto; height: 72%; }
   .b-top .stage .disc { width: auto; height: 100%; }
+  .b-top .stage.pinned .disc-wrap { width: 26%; height: auto; gap: 8px; }
+  .b-top .stage.pinned .discs { padding-bottom: 24px; }
   .b-top .stage.comparing .discs { flex-direction: row; gap: 6%; }
   .b-top .stage.comparing .disc-wrap { width: 26%; height: auto; }
   .b-top .stage.comparing .disc { width: 100%; height: auto; }

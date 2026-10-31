@@ -1,13 +1,14 @@
-// The slider (with its painted track and marks), the segmented controls and the Compare checkbox.
+// The slider (with its painted track and marks), the segmented controls, the Compare checkbox and Pin.
 import { createSliderMarks, sliderScale, tToSlider, sliderToT, sliderTrack } from "./slider-marks.js";
 import { formatK } from "./format.js";
-import { state, update, setTemperature } from "./state.js";
+import { state, update, setCompare, setTemperature, togglePin } from "./state.js";
 import { $ } from "./dom.js";
 
 const slider = $("slider");
 slider.addEventListener("input", () => setTemperature(sliderToT(+slider.value)));
 
-$("compare").addEventListener("change", e => update({ compare: e.target.checked }));
+$("compare").addEventListener("change", e => setCompare(e.target.checked));
+$("pin").addEventListener("click", togglePin);
 document.querySelectorAll(".seg[data-key]").forEach(group => {
   group.addEventListener("click", e => {
     const button = e.target.closest("button");
@@ -36,6 +37,7 @@ export function renderControls() {
     for (const b of group.querySelectorAll("button")) b.setAttribute("aria-pressed", String(b.dataset.v === state[group.dataset.key]));
   });
   $("compare").checked = state.compare;
+  $("pin").setAttribute("aria-pressed", String(state.vs !== null));
 }
 
 export function renderTrack() {

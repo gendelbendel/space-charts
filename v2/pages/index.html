@@ -56,8 +56,9 @@
   .b-top .stage .disc-wrap { width: 70%; }
   .b-top .stage-hex { display: none; }
   .b-top .stage.comparing { grid-column: 1 / -1; aspect-ratio: auto; height: 84px; }
-  .b-top .stage.comparing .disc-wrap { width: auto; height: 78%; }
-  .b-top .stage.comparing .disc { width: auto; height: 100%; }
+  /* Fixed sizes: WebKit widened these wraps when their width came from a percentage height. */
+  .b-top .stage.comparing .disc-wrap { width: 64px; height: 64px; }
+  .b-top .stage.comparing .disc { width: 45px; }
   .b-top .stage.comparing figcaption { font-size: 10px; }
   .b-top:has(.stage.comparing) .readout-block { grid-column: 1 / -1; }
   /* One type size (sized for 1,000,000 K); with .temp-big's fixed height, the row never changes while sliding. */
@@ -116,12 +117,31 @@
   .objects > li { scroll-snap-align: start; }
 }
 
+/* Below the desktop columns the star is too small for captions under full-size discs, and the
+   chart's card too narrow for the legend's one line: it gets two, always, so no mode moves the chart. */
+@media (max-width: 899px), (max-height: 520px) {
+  .b-top .stage.pinned .disc-wrap { width: 42%; gap: 2px; }
+  .b-top .stage.pinned figcaption { font-size: 10px; line-height: 1.2; }
+  .legend { flex-wrap: wrap; align-content: flex-start; gap: 0 10px; height: 3em; overflow: hidden; font-size: 11px; }
+  .core:has(.comparing) .legend .basic { display: none; }
+}
+
+/* Too narrow for Pin beside the longest note, which fills the line here: it sits in the star's corner,
+   the discs leaving it room, or the empty corner of the wide stage with all three models. */
+@media (max-width: 359px), (max-height: 520px) and (min-width: 600px) {
+  .note-row { display: block; }
+  /* .b-top centers the star, so its height is the only offset that holds at any readout height. */
+  .pin-btn { position: absolute; left: 36px; top: calc(50% + 19px); background: var(--bg); }
+  .b-top:has(.comparing) .pin-btn { left: 4px; top: 4px; }
+  .b-top .stage.pinned .discs { padding-bottom: 14px; }
+}
+
 /* phone: one visual at a time */
 @media (max-width: 599px) {
   /* Sized by the space left over, not by its content, so the container query below can ask how much room there is. */
   .viz { container: viz / size; display: flex; flex-direction: column; gap: 8px; }
   .tabs .both { display: none; }
-  .legend { font-size: 11px; margin-top: 4px; gap: 10px; }
+  .legend { margin-top: 4px; }
   .tabs { display: flex; }
   .panel, .panel[data-view-panel=numbers] { display: none; }
   /* Only the Numbers tab scrolls; the chart and the color map shrink to fit. */
@@ -163,7 +183,8 @@
   .viz { display: grid; gap: 12px; grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); grid-template-areas: "spectrum map" "numbers numbers"; align-content: start; }
   /* The chart sets the row's height; the color map fills its side (it used to set the height by its own square). */
   /* Was 300px: the chart's two switches made its header 7.75px taller, so the row keeps its height. */
-  .chart-box { min-height: 292.25px; }
+  /* And the legend's second line came out of the chart. */
+  .chart-box { min-height: 277.25px; }
   .colormap svg.cie { flex: 1 1 0; height: 0; width: 100%; }
   .b-dock .controls { grid-template-columns: 1fr 1fr auto; }
   .b-dock .control:nth-child(1) > .lbl { grid-row: 1; grid-column: 1; }
@@ -185,8 +206,8 @@
   .b-top .stage .disc-wrap { width: 70%; }
   .b-top .stage-hex { display: none; }
   .b-top .stage.comparing { grid-column: 1 / -1; aspect-ratio: auto; height: 64px; }
-  .b-top .stage.comparing .disc-wrap { width: auto; height: 76%; }
-  .b-top .stage.comparing .disc { width: auto; height: 100%; }
+  .b-top .stage.comparing .disc-wrap { width: 47.12px; height: 47.12px; }
+  .b-top .stage.comparing .disc { width: 100%; }
   .b-top .stage.comparing figcaption { display: none; }
   .b-top:has(.stage.comparing) .readout-block { grid-column: 1 / -1; }
   .temp-big { font-size: 28px; }
@@ -237,6 +258,8 @@
   .b-left { grid-area: left; }
   .b-top { grid-template-columns: minmax(0, 1fr); }
   .b-top .stage { height: var(--stage-h); }
+  /* Keeps the captions clear of the hex line. */
+  .stage.pinned .discs { padding-bottom: 24px; }
   .temp-big { font-size: clamp(44px, 5.5vh, 60px); }
   .verdict { min-height: calc(3 * 1.45em); }
   .viz, .panel[data-view-panel=numbers] { display: contents; }
