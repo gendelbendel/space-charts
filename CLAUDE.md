@@ -28,7 +28,7 @@ v2/
   src/physics.js         Planck, CIE 1931 pipeline, real-star lookup, brightness model, input parsing
   src/prerender.js       bakes the first screen into the HTML at build time, from the same builders
   src/app.js             wires the UI modules: state.js (state, URL) -> render() -> controls, readout,
-                         stage, chart, cie-diagram, hr-diagram, pipelines, objects-list, orion, faq, share (copy, share, toast),
+                         stage, chart, cie-diagram, hr-diagram, daylight, pipelines, objects-list, orion, faq, share (copy, share, toast),
                          play (Play button) and keys (shortcuts, `?` list); animate.js moves T by code; format.js is pure
   src/slider-scale.js    temperature <-> slider position (piecewise log, weighted toward 2,400–12,000 K)
   src/slider-marks.js    class letters and reference marks under a slider, collision-aware
@@ -40,7 +40,7 @@ v2/
   tools/check-layout.mjs     runs that check with Playwright at every tier's sizes (npm run check:layout)
   tools/check-embed.mjs      the same for /embed/ at 300×300, 400×400 and 800×600 (npm run check:embed)
   tools/og.mjs               renders the preview cards (npm run og)
-  tools/snapshot.mjs         before/after comparison of 276 page states (npm run snapshot:save / snapshot:compare)
+  tools/snapshot.mjs         before/after comparison of 396 page states (npm run snapshot:save / snapshot:compare)
 vercel.json              redirects /v1 -> /v1/, /play -> /play/, /embed -> /embed/, /stars/<slug> -> /stars/<slug>/ and /b -> /
 ```
 
@@ -51,7 +51,7 @@ v2: plain JavaScript (ES modules), no framework, no runtime dependencies, no web
 ## Core rules
 
 1. **Never change v1's behavior.** Its only allowed edit is the banner linking back to v2. Don't upgrade, restyle or fix it. (Why: `docs/WHY.md#v1-is-preserved-as-it-stands`)
-2. **v2 stays framework-free and ships each page as one file.** No runtime dependencies, no fonts, no chart library. `build.mjs` fails a page over its gzip budget (`BUDGETS_KB`; the main page is ~39.5 KB of a 46 KB budget). (Why: `docs/WHY.md#v2-has-no-framework-and-ships-one-file-per-page`)
+2. **v2 stays framework-free and ships each page as one file.** No runtime dependencies, no fonts, no chart library. `build.mjs` fails a page over its gzip budget (`BUDGETS_KB`; the main page is ~42 KB of a 46 KB budget). (Why: `docs/WHY.md#v2-has-no-framework-and-ships-one-file-per-page`)
 3. **Physics changes need a golden test.** Compare against a published value, never against the code's own output. `npm run test:v2` must stay green. (Why: `docs/WHY.md#the-math-is-checked-against-published-values`)
 4. **Cold objects render black or grey, never saturated red**, in the default "Your eye" mode. Brightness comes from real luminance. (Why: `docs/WHY.md#cold-objects-render-black-not-red`)
 5. **Switching modes or dragging the slider must not move the layout.** Anything whose text changes gets a fixed or reserved height, and type never changes size with content length. Run `npm run check:layout` after UI changes. (Why: `docs/WHY.md#nothing-moves-when-modes-change`)
@@ -80,7 +80,7 @@ npm run check:embed   # changes to /embed/ or anything it shares (partials, base
 npm run snapshot:compare  # refactors: must match a baseline saved before the change (~1 min)
 npm run build      # before touching deploy config or v1
 ```
-For UI changes, run `npm run check:layout`. At every size from 320×568 to 1920×1080 it checks that nothing moves, overlaps or spills across every mode and temperature, that the star, readout, chart, color map and controls fit on the first screen, and that the desktop columns end together. It saves a screenshot per size to `build/__shots/`; look at the ones your change affects. There is no light theme. For refactors and anything meant to look the same, run `npm run snapshot:save` before the change and `npm run snapshot:compare` after: 276 states (6 sizes × 46 URL and interaction states, 4 of them on `/embed/`) must match pixel for pixel, including the chart canvas, URL and DOM. Judge layout from measurements (`getBoundingClientRect`, that check), not screenshots alone: browser-pane screenshots can come back scaled or stale, especially while the pane is hidden. Only Chrome has been tested; Safari renders form controls differently, so be conservative with input sizing.
+For UI changes, run `npm run check:layout`. At every size from 320×568 to 1920×1080 it checks that nothing moves, overlaps or spills across every mode and temperature, that the star, readout, chart, color map and controls fit on the first screen, and that the desktop columns end together. It saves a screenshot per size to `build/__shots/`; look at the ones your change affects. There is no light theme. For refactors and anything meant to look the same, run `npm run snapshot:save` before the change and `npm run snapshot:compare` after: 396 states (6 sizes × 66 URL and interaction states, 5 of them on `/embed/` and 4 on star pages) must match pixel for pixel, including the chart canvas, URL and DOM. Judge layout from measurements (`getBoundingClientRect`, that check), not screenshots alone: browser-pane screenshots can come back scaled or stale, especially while the pane is hidden. `check:layout` and `check:embed` also take `-- --browser webkit`, and both pass at every size in Playwright's WebKit. That isn't real Safari, which hasn't been tested on a device, and Safari renders form controls differently, so be conservative with input sizing.
 
 ## Known benign noise (don't chase these)
 

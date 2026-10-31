@@ -32,7 +32,7 @@ Layout tiers (all in `v2/pages/index.html`), each checked for overflow and first
 - Star pages: `build.mjs` also bakes `pages/index.html` at every object's temperature into `/stars/<slug>/` (34 pages, about 40 KB gzipped each, sharing one budget rule), with its own title, description, canonical URL and `og:image`. Preview cards come from `npm run og` (`v2/tools/og.mjs`), are committed in `v2/og/` and copied to `build/og/`. `sitemap.xml` lists `/`, `/play/` and the star pages.
 - The embed page has its own two tiers in `v2/pages/embed/index.html`: compact (one column; under 380 px tall or 340 px wide the mode buttons and reference marks hide, and the URL still sets the modes) and wide (≥ 640×500: star, readout and controls left, chart right). Its budget is 22 KB gzipped (20.6 KB at launch).
 - Tests: `npm run test:v2`: 22 tests (15 physics, 5 slider scale, 2 object data), Node's built-in runner. UI: `npm run check:layout` runs `v2/tools/layout-stability.js` in Playwright at 12 sizes, checking for movement, overlaps and spills across every mode and temperature, plus first-screen fit and desktop column balance.
-- The page is a single self-contained HTML file of about 27.5 KB gzipped, with the first screen prerendered for the Sun (`v2/src/prerender.js`). The build fails over 46 KB (owner's decision D1 in `ROADMAP.md`).
+- The page is a single self-contained HTML file of about 42 KB gzipped, with the first screen prerendered for the Sun (`v2/src/prerender.js`). The build fails over 46 KB (owner's decision D1 in `ROADMAP.md`).
 
 ---
 

@@ -18,28 +18,32 @@ Written 2026-10-25. The owner asked for all 25 ideas from the brainstorm, built 
 | P1.D Heat it up, keyboard shortcuts | #1, #21 | P0.2 | done 2026-10-25 | +1.2 |
 | P2.A Chart: per-frequency, lines, energy split | #10, #11, #12 | P0.2 | done 2026-10-29 | +1.8 |
 | P2.B Scotopic vision | #15 | — | done 2026-10-25 | +0.6 |
-| P3.A Compare two temperatures | #9 | P2.A | not started | est. +2 |
+| P3.A Compare two temperatures | #9 | P2.A | done 2026-10-30 | +0.8 |
 | P3.B HR diagram view | #13 | P1.B | done 2026-10-29 | +1.6 |
-| P3.C Daylight on another world | #8 | P3.B | not started | est. +2 |
+| P3.C Daylight on another world | #8 | P3.B | done 2026-10-30 | +1.2 |
 | P3.D Orion in true color | #3 | P0.2 | done 2026-10-26 | +1.5 |
 | P4.A Guided tour | #14 | P1.B, P1.D | not started | est. +2 |
 | P4.B Guess-the-temperature game | #2 | P0.2 | done 2026-10-26 | own page, 17.7 (budget 20); main page +0.16 for its links |
-| P5.A Per-star pages and preview images | #18 | P0.4, P1.B | not started | own pages |
+| P5.A Per-star pages and preview images | #18 | P0.4, P1.B | done 2026-10-30 | own pages, 34 at 42.2 KB (one 46 KB rule); main page +0.3 for its links |
 | P5.B Embed page | #20 | P0.4 | done 2026-10-29 | own page, 21.7 (budget 22); main page +0.4 for its FAQ entry |
 
-Feature numbers match the brainstorm list (reproduced at the end). The main page is 27.5 KB gzipped after Phase 0 (budget 40 KB, see D1); the remaining estimates add up to about 40 KB.
+Feature numbers match the brainstorm list (reproduced at the end). The main page was 27.5 KB gzipped after Phase 0; see "Next up" for today's size against the budget (D1).
 
 ### Next up (updated 2026-10-30)
 
-Wave 3 (P2.A, P3.B, P5.B) is merged on `main` and deployed. The main page is 39.5 KB gzipped (40,443 bytes), `/play/` 18.7 KB of 20, `/embed/` 21.7 KB of 22. Measured together, the three packages added 3.7 KB to the main page.
+Wave 4 (P3.A, P3.C, P5.A) is merged on `main` and **not pushed**. The main page is 42.1 KB gzipped (43,091 bytes) of 46, `/play/` 18.9 KB of 20, `/embed/` 22.4 KB of 24, and each of the 34 star pages at most 42.2 KB of 46. Measured alone, the packages cost the main page +0.3 (P5.A), +0.8 (P3.A) and +1.2 KB (P3.C), +2.2 KB once merged, and a FAQ entry on why Betelgeuse is so luminous adds 0.35 KB.
 
-- **Budget:** 0.5 KB of the main page's 40 KB is left. The remaining main-page packages (P3.A, P3.C, P4.A) are estimated at about 2 KB each, so none of them fits without trimming or a new D1 answer.
-- **Wave 4 (P3.A, P3.C, P5.A) needs answers first:** D1 (raise the budget or trim), D6 (star page URLs) and D7 (preview images).
-- **Starting a package:** run `npm install`, then `npm run snapshot:save` on the starting commit if the package should leave existing states looking the same. Baselines are local (`v2/.snapshots/`, gitignored), so every session saves its own. Finish with `npm run test:v2`, `npm run check:layout`, `npm run check:embed` if it touches a shared partial, `base.css`, `chart.js` or `readout.js`, and, where relevant, `npm run snapshot:compare`; add a snapshot state for any new control.
-- **Known issues found while merging wave 3:**
-  - `check:layout --browser webkit` now runs (the harness no longer asks WebKit for clipboard permissions). It fails at the 8 phone, tablet and short-landscape sizes, the same way on the commit before wave 3: with "Show all three" on, the three discs shift sideways as the slider sweeps. Desktop sizes and `check:embed --browser webkit` pass.
-  - On phones the Per Hz chart's legend is wider than the card and cut off until swiped (375 and 390 px wide, and 600 px tablet width).
-  - On phones the HR diagram is about 150 px square, with labels around 5 px, like the color map's.
+- **Budget:** 3.9 KB of the main page's 46 KB is left, and P4.A is estimated at about 2 KB.
+- **Wave 5 (P4.A, the guided tour) is next.**
+- **Waiting on the owner:** whether the tablet dock's change from the longer "Compare models" label is fine: at 768×1024 the two segmented controls each lose 8 px, and the second one's right edge sits 16 px further left.
+- **Starting a package:** run `npm install`, then `npm run snapshot:save` on the starting commit if the package should leave existing states looking the same. Baselines are local (`v2/.snapshots/`, gitignored), so every session saves its own. Finish with `npm run test:v2`, `npm run check:layout` (add `-- --browser webkit` for layout changes), `npm run check:embed` if it touches a shared partial, `base.css`, `chart.js` or `readout.js`, and, where relevant, `npm run snapshot:compare`; add a snapshot state for any new control. Agent worktrees start from `origin/main`, so a package built on an unpushed `main` has to fast-forward first.
+- **Not verified yet:** on a Vercel preview, `/stars/<slug>/` paths, the `/stars/:slug` redirect and the preview images in a real link unfurler; on real devices, Safari on iPhone or iPad. Playwright's WebKit passes `check:layout` and `check:embed`, but it isn't Safari.
+- **Known issues:**
+  - `/stars/` itself has no page and 404s.
+  - On phones the HR diagram and the Daylight scene are about 150 px square, with labels around 5 px, like the color map's.
+  - In Daylight, full Bradford adaptation is stretched past its range below about 1,500 K, so adapted paints drift (red paint turns pink at 1,100 K).
+  - P3.A pinned on a linear axis: a much cooler A is nearly flat next to a hot B, as it should be; Log shows both.
+  - Three 375×667 states with the map tab open differ by at most 1/255 in the card's top-right text on every render against the old baseline; no cause was found, and it can't be seen.
   - P2.A's TiO band heads (476.1, 495.4, 516.7, 615.9, 705.4 nm) are cited to Gray & Corbally 2009 but weren't checked against the book. P3.B's L and R values come from Wikipedia infoboxes and the papers they cite, not each paper's tables; Zeta Puppis's L is the least certain, and Bellatrix's R is computed from its L and T.
 
 ## Decisions for the owner
