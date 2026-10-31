@@ -7,8 +7,9 @@
 // It also checks that stacked blocks never overlap (the temperature spilling into
 // the verdict line was a real bug that the movement check couldn't see).
 // Then it turns compare on and sweeps again against a new baseline (turning it on changes the
-// layout on purpose), switches the color-map card to the HR diagram and taps every star (nothing
-// may move), and opens each visualization tab in both views: only the Numbers tab may scroll.
+// layout on purpose), switches the color-map card to the HR diagram and taps every star, then to
+// Daylight with both camera whites (nothing may move), and opens each visualization tab in every
+// view: only the Numbers tab may scroll.
 // A clean run returns { shifts: "none", overlaps: "none", readoutOverflow: "none", panelScroll: "none", overflowX: 0 }.
 (() => {
   const selectors = [".b-top", ".readout-block", ".b-dock", "#slider", "#spectrum", ".legend", ".chart-box", "#colormap", "#colormap > svg", ".stats", "#classChip", "#num"];
@@ -103,7 +104,7 @@
 
   // The color-map card's switcher: the HR diagram takes the color map's place exactly, at every
   // temperature (its readout changes with the star), and switching back restores everything.
-  const [cieView, hrView] = document.querySelectorAll(".seg[data-key=map] button");
+  const [cieView, hrView, dayView] = document.querySelectorAll(".seg[data-key=map] button");
   // The embed page has no color map card.
   if (hrView) {
     const mapTab = document.querySelector("[data-tabs] [data-view=map]");
@@ -119,6 +120,15 @@
       star.dispatchEvent(new MouseEvent("click", { bubbles: true }));
       check(`HR diagram @ ${star.ariaLabel}`, mapBase);
     }
+    dayView.click();
+    for (const white of ["D65", "Sun"]) {
+      for (let position = 0; position <= 1000; position += 50) {
+        slider.value = position;
+        slider.dispatchEvent(new Event("input"));
+        check(`Daylight, ${white} white @ slider ${position}`, mapBase);
+      }
+      document.getElementById("dayWhite").dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    }
     cieView.click();
     check("color map again", mapBase);
     document.querySelector("[data-tabs] [data-view=spectrum]")?.click();
@@ -127,7 +137,7 @@
   // The chart and the color map shrink to fit: a panel that scrolls hides part of them, and in
   // Safari its scroll position jumped whenever the slider moved.
   const panelScroll = [];
-  for (const view of hrView ? [hrView, cieView] : [null]) {
+  for (const view of hrView ? [hrView, dayView, cieView] : [null]) {
     view?.click();
     for (const tab of document.querySelectorAll("[data-tabs] button")) {
       if (!tab.offsetParent) continue;

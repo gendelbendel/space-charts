@@ -269,6 +269,73 @@ export function displayColorP3(T, model, light) {
   return { lin, enc: lin.map(encodeSrgb), xyz };
 }
 
+// Bradford cone response matrix and its inverse, as Lindbloom publishes them
+// (brucelindbloom.com, Eqn_ChromAdapt.html).
+export const BRADFORD = [
+  [0.8951, 0.2664, -0.1614],
+  [-0.7502, 1.7135, 0.0367],
+  [0.0389, -0.0685, 1.0296],
+];
+export const BRADFORD_INVERSE = [
+  [0.9869929, -0.1470543, 0.1599627],
+  [0.4323053, 0.5183603, 0.0492912],
+  [-0.0085287, 0.0400428, 0.9684867],
+];
+/** The tristimulus white of D65 (ASTM E308-01), Y = 1. */
+export const D65_WHITE = [0.95047, 1, 1.08883];
+
+/** The matrix taking XYZ seen under `source` white to XYZ that looks the same under `destination`. */
+export function bradfordMatrix(source, destination) {
+  const [s, d] = [mul(BRADFORD, source), mul(BRADFORD, destination)];
+  const scaled = BRADFORD.map((row, i) => row.map(v => (v * d[i]) / s[i]));
+  return BRADFORD_INVERSE.map(row => [0, 1, 2].map(j => row.reduce((sum, v, i) => sum + v * scaled[i][j], 0)));
+}
+export const adaptXyz = (xyz, source, destination) => mul(bradfordMatrix(source, destination), xyz);
+
+/** XYZ of blackbody light off a surface, with white paper (reflectance 1) at Y = 1. */
+export function surfaceXyz(T, reflectance) {
+  const body = Math.max(T, HUE_T_FLOOR);
+  const paperY = cieXYZ(body)[1];
+  const xyz = [0, 0, 0];
+  for (let i = 0; i < CMF_ROWS; i++) {
+    const nm = CMF_START_NM + i * CMF_STEP_NM;
+    const light = (planck(nm, body) * CMF_STEP_NM * 1e-9 * reflectance(nm)) / paperY;
+    for (const k of [0, 1, 2]) xyz[k] += light * CIE1931_2DEG[3 * i + k];
+  }
+  return xyz;
+}
+export const blackbodyWhite = T => surfaceXyz(T, () => 1);
+
+// Like cieHue: white added until nothing is negative, then scaled to fit under `peak`.
+function intoSrgb(xyz, peak) {
+  const raw = mul(SRGB_FROM_XYZ, xyz);
+  const lifted = raw.map(v => v - Math.min(0, ...raw));
+  return lifted.map(v => v / peak(lifted));
+}
+
+// A gaussian band of color on a dark base, like a paint: [center nm, width nm].
+const paint = ([center, width]) => nm => 0.04 + 0.8 * Math.exp(-(((nm - center) / width) ** 2));
+const PAINTS = [[640, 55], [530, 45], [455, 35]].map(paint);
+const PAPER_REFLECTANCE = 0.9;
+const TABLE_REFLECTANCE = 0.2;
+
+/**
+ * Hex colors of the Daylight scene, [paper, table, red, green, blue], twice: as a
+ * camera balanced to `cameraWhite` records them under this blackbody, and as an eye
+ * fully adapted to the blackbody sees them. The camera exposes so that the paper's
+ * brightest channel fills the range; the eye sees that paper as full white.
+ */
+export function daylightScene(T, cameraWhite) {
+  const white = blackbodyWhite(T);
+  const surfaces = [() => PAPER_REFLECTANCE, () => TABLE_REFLECTANCE, ...PAINTS].map(r => surfaceXyz(T, r));
+  const render = (toD65, peak) => surfaces.map(xyz => toHex(intoSrgb(toD65(xyz), peak).map(encodeSrgb)));
+  const cameraPeak = Math.max(...intoSrgb(adaptXyz(surfaces[0], cameraWhite, D65_WHITE), () => 1));
+  return {
+    camera: render(xyz => adaptXyz(xyz, cameraWhite, D65_WHITE), () => cameraPeak),
+    eye: render(xyz => adaptXyz(xyz, white, D65_WHITE), () => PAPER_REFLECTANCE),
+  };
+}
+
 /**
  * Parses a user-supplied temperature: kelvin, °C or °F ("1200 °C", "-40F"), or an
  * object's name or alias ("Vega", "bulb"). Returns kelvin, to 3 decimals below

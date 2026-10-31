@@ -125,6 +125,23 @@ const STATES = [
     await page.click(".seg[data-key=map] [data-v=hr]");
     await page.click("#hr .star[aria-label=Betelgeuse] .dot");
   }],
+  ["daylight-cool", "?t=3042", async page => {
+    await clickTab("map")(page);
+    await page.click(".seg[data-key=map] [data-v=day]");
+  }],
+  ["daylight-hot", "?t=30000", async page => {
+    await clickTab("map")(page);
+    await page.click(".seg[data-key=map] [data-v=day]");
+  }],
+  ["daylight-sun-white", "?t=5772", async page => {
+    await clickTab("map")(page);
+    await page.click(".seg[data-key=map] [data-v=day]");
+    await page.click("#dayWhite");
+  }],
+  ["daylight-dim", "?t=500", async page => {
+    await clickTab("map")(page);
+    await page.click(".seg[data-key=map] [data-v=day]");
+  }],
   ["chart-hover", "?t=5772", async page => {
     const box = await page.locator("#chart").boundingBox();
     if (box) await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);

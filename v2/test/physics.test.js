@@ -5,8 +5,7 @@ import {
   PHYS, planck, trapezoid, cieHue, simpleHue, starHue, displayColor, luminance,
   wienPeakNm, wienPeakHz, planckPerHz, blackbodyFraction, energySplit, radiantExitance, parseTemperature, toKelvin, encodeSrgb, toHex,
   scotopicLuminance, eyeLuminance, VISION, linearP3ToXyz, xyzToLinearP3, displayColorP3, linearSrgbToXy, relLuminance,
-  IAU_SUN, sphereLuminosity,
-} from "../src/physics.js";
+  IAU_SUN, sphereLuminosity, BRADFORD, BRADFORD_INVERSE, D65_WHITE, adaptXyz, bradfordMatrix, daylightScene } from "../src/physics.js";
 import { HARRE_HELLER_2021 } from "../src/data/harre-heller-2021.js";
 import { CIE1931_2DEG, CMF_START_NM, CMF_STEP_NM, CMF_ROWS } from "../src/data/cie1931.js";
 import { SCOTOPIC_V } from "../src/data/cie1951-scotopic.js";
@@ -357,4 +356,47 @@ test("wide-gamut colors stay inside P3 and cold objects stay black", () => {
     }
   }
   assert.deepEqual(displayColorP3(310, "cie", "eye").enc.map(v => Math.round(255 * v)), [0, 0, 0]);
+});
+
+// Golden values from Lindbloom's "Chromatic Adaptation" page (brucelindbloom.com,
+// Eqn_ChromAdapt.html, fetched 2026-10-30): the Bradford cone matrix, its published inverse,
+// the ASTM E308-01 whites, and the D65 → A adaptation matrix from the page's table. That
+// matrix is the check on bradfordMatrix: it's computed here from the whites and the cone
+// matrix, and must land on Lindbloom's seven-decimal values.
+test("Bradford adaptation from D65 to illuminant A matches Lindbloom's published matrix", () => {
+  const A_WHITE = [1.0985, 1, 0.35585];
+  const published = [
+    [1.2164557, 0.1109905, -0.1549325],
+    [0.1533326, 0.9152313, -0.0559953],
+    [-0.0239469, 0.0358984, 0.3147529],
+  ];
+  const matrix = bradfordMatrix(D65_WHITE, A_WHITE);
+  matrix.forEach((row, i) => row.forEach((v, j) => assert.ok(Math.abs(v - published[i][j]) < 2e-6, `[${i}][${j}] ${v} vs ${published[i][j]}`)));
+  // The published inverse really is the inverse, to the table's precision.
+  BRADFORD.forEach((row, i) => [0, 1, 2].forEach(j => {
+    const product = row.reduce((sum, v, k) => sum + v * BRADFORD_INVERSE[k][j], 0);
+    assert.ok(Math.abs(product - (i === j ? 1 : 0)) < 1e-6);
+  }));
+  adaptXyz(D65_WHITE, D65_WHITE, A_WHITE).forEach((v, i) => assert.ok(Math.abs(v - A_WHITE[i]) < 1e-5, "D65 white must land on A's white"));
+});
+
+// The Daylight view's claims. A fully adapted eye sees paper as the screen's white at any
+// temperature, by the definition of adaptation. A camera balanced to D65 sees a 6,504 K
+// blackbody close to neutral, sees paper under Proxima (3,042 K) as orange, red channel
+// highest, and under a 30,000 K star as blue. The paints test the point spectra make that a
+// color shift can't: Proxima's light has so little blue in it that blue paint stays dim next
+// to red paint even after adaptation, because reflectance is integrated against the real
+// spectrum, not rescaled afterwards.
+test("the Daylight scene: the eye keeps paper white, the camera doesn't, and blue paint stays dim under a red star", () => {
+  const channels = hex => [1, 3, 5].map(i => parseInt(hex.slice(i, i + 2), 16));
+  for (const T of [1500, 3042, 5772, 30000]) assert.equal(daylightScene(T, D65_WHITE).eye[0], "#ffffff");
+  const [r, g, b] = channels(daylightScene(3042, D65_WHITE).camera[0]);
+  assert.ok(r === 255 && r > g && g > b, `Proxima's paper should be orange, got ${r},${g},${b}`);
+  const [hotR, , hotB] = channels(daylightScene(30000, D65_WHITE).camera[0]);
+  assert.ok(hotB === 255 && hotR < hotB);
+  const near = channels(daylightScene(6504, D65_WHITE).camera[0]);
+  assert.ok(Math.max(...near) - Math.min(...near) <= 6, `6,504 K should look neutral, got ${near}`);
+  const under = T => daylightScene(T, D65_WHITE).eye.slice(2).map(hex => Math.max(...channels(hex)));
+  const [red, , blue] = under(3042), [sunRed, , sunBlue] = under(5772);
+  assert.ok(blue / red < sunBlue / sunRed, "blue paint should lose ground to red under a redder star");
 });

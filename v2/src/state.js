@@ -19,8 +19,10 @@ export function readState(search) {
     // The chart's absorption lines: null follows the model (on for Real stars), true or false once switched.
     lines: null,
     view: "spectrum",
-    // The color-map card's view: "cie" (the color map) or "hr" (the HR diagram).
+    // The color-map card's view: "cie" (the color map), "hr" (the HR diagram) or "day" (daylight).
     map: "cie",
+    // The white a camera is balanced to in the Daylight view: "d65" or "sun".
+    white: "d65",
     // True while Play (animate.js) moves the temperature.
     animating: false,
   };
