@@ -25,10 +25,11 @@ function discLook(T, model, caption, Lv) {
   };
 }
 
-// What each disc shows (null when it's hidden): one per model, or A and B with a temperature
-// pinned. The page applies these; the build bakes them into the HTML.
+// What each disc shows (null when it's hidden): one per model, or with a temperature pinned, the
+// pinned one on the left (captioned with its temperature) and the current one on the right.
+// The page applies these; the build bakes them into the HTML.
 export function discLooks(Lv) {
-  if (state.vs !== null) return [discLook(state.T, state.model, "A", Lv), discLook(state.vs, state.model, "B"), null];
+  if (state.vs !== null) return [discLook(state.vs, state.model, `${formatK(state.vs)}<span> K</span>`), discLook(state.T, state.model, "Now", Lv), null];
   const models = shownModels();
   return MODEL_KEYS.map(model => (models.includes(model) ? discLook(state.T, model, state.compare ? MODELS[model].label : "", Lv) : null));
 }
@@ -43,7 +44,7 @@ export const discsHtml = looks => looks.map(look => look
 export function stageNote(Lv) {
   let note = "As seen by a dark-adapted eye.", warn = false;
   if (state.vs !== null) {
-    note = `B is pinned at ${formatK(state.vs)} K.`;
+    note = `Pinned ${formatK(state.vs)} K on the left.`;
   } else if (state.model === "star" && !state.compare && !starHue(state.T).available) {
     note = "No star data here; using CIE 1931.";
     warn = true;
@@ -82,7 +83,7 @@ export function renderStage(Lv) {
     disc.style.boxShadow = look.boxShadow;
     disc.classList.toggle("invisible", look.invisible);
     disc.classList.toggle("no-data", look.noData);
-    caption.textContent = look.caption;
+    caption.innerHTML = look.caption;
   });
   $("labelHex").textContent = stageHex(looks);
 

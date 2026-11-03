@@ -151,7 +151,7 @@
         slider.dispatchEvent(new Event("input"));
         check(`Daylight, ${white} white @ slider ${position}`, mapBase);
       }
-      document.getElementById("dayWhite").dispatchEvent(new MouseEvent("click", { bubbles: true }));
+      document.querySelector("#day .day-white[data-v=sun]").dispatchEvent(new MouseEvent("click", { bubbles: true }));
     }
     cieView.click();
     check("color map again", mapBase);

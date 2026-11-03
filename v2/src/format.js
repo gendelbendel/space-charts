@@ -57,9 +57,9 @@ export function statsText(T, Lv, peakNm, vs = null) {
   const shift = peakNm - wienPeakNm(vs);
   return {
     ...stats,
-    sPeak: `${shift > 0 ? "+" : shift < 0 ? "−" : ""}${formatWavelength(Math.abs(shift))} vs\u00a0B`,
-    sVis: splitRow("A", T) + splitRow("B", vs),
-    sFlux: `${formatSci(powerRatio(T, vs))}×\u00a0B`,
+    sPeak: `${shift > 0 ? "+" : shift < 0 ? "−" : ""}${formatWavelength(Math.abs(shift))} vs\u00a0pinned`,
+    sVis: splitRow("Pin", vs) + splitRow("Now", T),
+    sFlux: `${formatSci(powerRatio(T, vs))}× pinned`,
   };
 }
 

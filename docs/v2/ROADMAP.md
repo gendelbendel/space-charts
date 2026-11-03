@@ -29,17 +29,16 @@ Written 2026-10-25. The owner asked for all 25 ideas from the brainstorm, built 
 
 Feature numbers match the brainstorm list (reproduced at the end). The main page was 27.5 KB gzipped after Phase 0; see "Next up" for today's size against the budget (D1).
 
-### Next up (updated 2026-10-30)
+### Next up (updated 2026-11-03)
 
-Wave 4 (P3.A, P3.C, P5.A) is merged on `main` and **not pushed**. The main page is 42.1 KB gzipped (43,091 bytes) of 46, `/play/` 18.9 KB of 20, `/embed/` 22.4 KB of 24, and each of the 34 star pages at most 42.2 KB of 46. Measured alone, the packages cost the main page +0.3 (P5.A), +0.8 (P3.A) and +1.2 KB (P3.C), +2.2 KB once merged, and a FAQ entry on why Betelgeuse is so luminous adds 0.35 KB.
+Wave 4 (P3.A, P3.C, P5.A) is deployed (2026-11-03). The owner tested it on the live site, and a round of fixes from that test is on `main`, not yet pushed. The main page is now 42.8 KB gzipped of 46, `/play/` 18.9 KB of 20, `/embed/` 22.4 KB of 24, and each of the 34 star pages at most 42.2 KB of 46. Measured alone, the packages cost the main page +0.3 (P5.A), +0.8 (P3.A) and +1.2 KB (P3.C), +2.2 KB once merged, and a FAQ entry on why Betelgeuse is so luminous adds 0.35 KB.
 
-- **Budget:** 3.9 KB of the main page's 46 KB is left, and P4.A is estimated at about 2 KB.
+- **Fixes after the live test (2026-11-03):** the address and the tab's title follow the picked object (a card, HR dot or Orion star goes to `/stars/<slug>/`, anything else to `/?t=…`; Back and Forward work; see `docs/WHY.md`). With a temperature pinned, the pinned disc is on the left, captioned with its temperature in bold, and the current one on the right ("Now"), and the legend and stats say "Pinned" and "Now" instead of A and B. Daylight's camera white is a visible D65 / Sun switch instead of a line of text. The chart's "Spectrum" title hides where it doesn't fit beside both switches (600–632 px wide, and 904–1,080 px on desktop) instead of sliding under them. `/stars` and `/stars/` redirect to the main page's star list. Snapshot against the deployed commit: every difference is one of these, plus 1/255 noise in the phone header.
+- **Budget:** 3.2 KB of the main page's 46 KB is left, and P4.A is estimated at about 2 KB.
 - **Wave 5 (P4.A, the guided tour) is next.**
-- **Waiting on the owner:** whether the tablet dock's change from the longer "Compare models" label is fine: at 768×1024 the two segmented controls each lose 8 px, and the second one's right edge sits 16 px further left.
 - **Starting a package:** run `npm install`, then `npm run snapshot:save` on the starting commit if the package should leave existing states looking the same. Baselines are local (`v2/.snapshots/`, gitignored), so every session saves its own. Finish with `npm run test:v2`, `npm run check:layout` (add `-- --browser webkit` for layout changes), `npm run check:embed` if it touches a shared partial, `base.css`, `chart.js` or `readout.js`, and, where relevant, `npm run snapshot:compare`; add a snapshot state for any new control. Agent worktrees start from `origin/main`, so a package built on an unpushed `main` has to fast-forward first.
-- **Not verified yet:** on a Vercel preview, `/stars/<slug>/` paths, the `/stars/:slug` redirect and the preview images in a real link unfurler; on real devices, Safari on iPhone or iPad. Playwright's WebKit passes `check:layout` and `check:embed`, but it isn't Safari.
+- **Verified on the live site (owner, 2026-11-03):** star pages, the `/stars/:slug` redirect, the sitemap and robots.txt, and the preview images in a link unfurler. The tablet dock's 16 px change from "Compare models" is accepted. **Not verified yet:** the new `/stars/` redirect; on real devices, Safari on iPhone or iPad. Playwright's WebKit passes `check:layout` and `check:embed`, but it isn't Safari.
 - **Known issues:**
-  - `/stars/` itself has no page and 404s.
   - On phones the HR diagram and the Daylight scene are about 150 px square, with labels around 5 px, like the color map's.
   - In Daylight, full Bradford adaptation is stretched past its range below about 1,500 K, so adapted paints drift (red paint turns pink at 1,100 K).
   - P3.A pinned on a linear axis: a much cooler A is nearly flat next to a hot B, as it should be; Log shows both.

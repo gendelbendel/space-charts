@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en"{{htmlAttrs}}>
+<html lang="en">
 <head>
 <!-- include: head -->
 <style>
@@ -23,6 +23,7 @@
 .panel[data-view-panel=map] { grid-area: map; }
 .panel[data-view-panel=numbers] { grid-area: numbers; display: grid; gap: 12px; align-content: start; }
 .chart-box { flex: 1; height: auto; min-height: 160px; }
+.spectrum { container: spectrum / inline-size; }
 .colormap svg.cie { flex: 1 1 auto; min-height: 0; margin: 0 auto; }
 /* The color-map card's views share every box: the headings take the tallest one's height,
    and the diagrams the same square, so switching moves nothing. */
@@ -40,9 +41,13 @@
 #hr .star:focus-visible .dot { stroke: var(--focus); stroke-width: 3; }
 #day .big { font-size: 15px; fill: var(--text); }
 #day .swatch-line { stroke: var(--line-strong); }
-#dayWhite { cursor: pointer; outline: 0; }
-#dayWhite rect { fill: none; stroke: var(--line-strong); }
-#dayWhite:focus-visible rect { stroke: var(--focus); stroke-width: 2; }
+#day .day-white { cursor: pointer; outline: 0; }
+#day .day-white rect { fill: none; stroke: var(--line-strong); }
+#day .day-white text { fill: var(--muted); }
+#day .day-white:hover rect { stroke: var(--text); }
+#day .day-white[aria-pressed=true] rect { fill: var(--surface-2); stroke: var(--accent); }
+#day .day-white[aria-pressed=true] text { fill: var(--text); }
+#day .day-white:focus-visible rect { stroke: var(--focus); stroke-width: 2; }
 .control { grid-template-columns: 1fr; gap: 4px; }
 .control > .lbl { font-size: 12px; }
 .after-core > .card { margin: 0 0 16px; }
@@ -127,6 +132,8 @@
 @media (max-width: 899px), (max-height: 520px) {
   .b-top .stage.pinned .disc-wrap { width: 42%; gap: 2px; }
   .b-top .stage.pinned figcaption { font-size: 10px; line-height: 1.2; }
+  /* The note beside the star gives the pinned temperature in full; under a 38 px disc only the number fits. */
+  .b-top .stage.pinned figcaption span { display: none; }
   .legend { flex-wrap: wrap; align-content: flex-start; gap: 0 10px; height: 3em; overflow: hidden; font-size: 11px; }
   .core:has(.comparing) .legend .basic { display: none; }
 }
@@ -182,6 +189,7 @@
 
 /* tablet portrait: chart and color map side by side */
 @media (min-width: 600px) and (max-width: 899px) and (min-height: 521px) {
+  @container spectrum (max-width: 316px) { .spectrum h2 { visibility: hidden; } }
   .wrap { padding: 0 16px; }
   .b-dock { margin: 0 -16px; padding-left: 16px; padding-right: 16px; }
   .b-top { grid-template-columns: 132px minmax(0, 1fr); }
@@ -260,6 +268,8 @@
 /* desktop: controls left; chart and color map side by side, the same height; stats beside the
    controls; the computation pipelines span the full width below, so nothing leaves an empty column */
 @media (min-width: 900px) and (min-height: 521px) {
+  /* Too narrow for "Spectrum" beside both switches: the subtitle still names the chart. */
+  @container spectrum (max-width: 350px) { .spectrum h2 { visibility: hidden; } }
   /* The star and the chart scale with the same viewport height, offset by the difference in the
      fixed-height content around them, so the left column and the chart column end together. */
   :root { --stage-h: clamp(150px, 20vh, 240px); --viz-h: clamp(190px, calc(var(--stage-h) + 165px), 400px); }

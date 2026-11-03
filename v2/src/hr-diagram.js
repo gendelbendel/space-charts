@@ -47,7 +47,7 @@ function hrHtml() {
   const stars = HR_STARS.map(({ slug, name, T, L }) => {
     const [x, y] = [px(T), py(Math.log10(L))];
     const label = LABELS[slug] ? `<text x="${LEFT.includes(slug) ? x - 7 : x + 7}" y="${y + 3}" class="lbl"${LEFT.includes(slug) ? ' text-anchor="end"' : ""}>${LABELS[slug]}</text>` : "";
-    return `<g class="star" data-t="${T}" tabindex="0" role="button" aria-label="${name}"><circle cx="${x}" cy="${y}" r="9" fill="transparent"/><circle cx="${x}" cy="${y}" r="4" class="dot"/>${label}</g>`;
+    return `<g class="star" data-t="${T}" data-slug="${slug}" tabindex="0" role="button" aria-label="${name}"><circle cx="${x}" cy="${y}" r="9" fill="transparent"/><circle cx="${x}" cy="${y}" r="4" class="dot"/>${label}</g>`;
   }).join("");
   return `${grid}<rect x="${X0}" y="${Y0}" width="${X1 - X0}" height="${Y1 - Y0}" fill="none" class="grid"/>
     <polygon points="${band}" class="band"/>
@@ -86,7 +86,7 @@ export function initHr() {
     const star = e.target.closest(".star");
     if (star && (e.type === "click" || e.key === "Enter" || e.key === " ")) {
       e.preventDefault();
-      setTemperature(+star.dataset.t);
+      setTemperature(+star.dataset.t, star.dataset.slug);
     }
   };
   svg.addEventListener("click", pick);

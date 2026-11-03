@@ -206,7 +206,7 @@ export function legendHtml() {
   // "basic" entries give way on narrow screens when all three models need the room.
   const items = state.vs === null
     ? [["#f3f4f8", "Planck curve", "basic"], ["linear-gradient(90deg,#8040ff,#00f,#0ff,#0f0,#ff0,#f00)", "Visible light", "basic"]]
-    : [["#f3f4f8", "A"], [`repeating-linear-gradient(90deg,${PINNED_COLOR} 0 4px,transparent 4px 7px)`, `B ${formatK(state.vs)} K`]];
+    : [[`repeating-linear-gradient(90deg,${PINNED_COLOR} 0 4px,transparent 4px 7px)`, `Pinned ${formatK(state.vs)} K`], ["#f3f4f8", "Now"]];
   if (models.includes("simple")) items.push(["rgba(255,255,255,.35)", "Simple's bands"]);
   if (models.includes("cie")) items.push([`linear-gradient(90deg,${CMF_COLORS[0]} 33%,${CMF_COLORS[1]} 33% 66%,${CMF_COLORS[2]} 66%)`, "x̄ ȳ z̄ eye response"]);
   if (models.includes("star")) items.push([null, "Real stars use model spectra"]);

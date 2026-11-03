@@ -26,20 +26,25 @@ export function renderDaylight() {
   for (const panel of $("day").querySelectorAll("[data-panel]")) {
     for (const shape of panel.children) shape.style.fill = scene?.[panel.dataset.panel][shape.dataset.s] ?? "#000";
   }
-  $("dayWhiteLabel").textContent = scene ? `Camera white: ${WHITES[state.white][0]}` : "Too dim to light a page";
+  $("dayWhiteLabel").textContent = scene ? "Camera white" : "Too dim to light a page";
+  for (const option of $("day").querySelectorAll(".day-white")) {
+    option.style.display = scene ? "" : "none";
+    option.setAttribute("aria-pressed", String(option.dataset.v === state.white));
+  }
   $("cieReadout").innerHTML = scene ? `Paper: camera ${scene.camera[0]}, eye ${scene.eye[0]}` : "";
 }
 
 export function initDaylight() {
   const svg = $("day");
   svg.innerHTML = `${PANELS.map(panelHtml).join("")}
-    <g id="dayWhite" role="button" tabindex="0" aria-label="Switch the camera's white point"><rect x="8" y="272" width="304" height="40" rx="8"/>
-    <text id="dayWhiteLabel" x="160" y="297" class="lbl big" text-anchor="middle"></text></g>`;
-  const toggle = e => {
-    if (e.type === "keydown" && e.key !== "Enter" && e.key !== " ") return;
+    <text id="dayWhiteLabel" x="10" y="297" class="lbl big"></text>
+    ${Object.entries(WHITES).map(([key, [label]], i) => `<g class="day-white" data-v="${key}" role="button" tabindex="0" aria-pressed="false" aria-label="Camera white: ${label}"><rect x="${150 + i * 82}" y="276" width="76" height="32" rx="16"/><text x="${188 + i * 82}" y="297" class="lbl big" text-anchor="middle">${key === "d65" ? "D65" : "Sun"}</text></g>`).join("")}`;
+  const pick = e => {
+    const option = e.target.closest(".day-white");
+    if (!option || (e.type === "keydown" && e.key !== "Enter" && e.key !== " ")) return;
     e.preventDefault();
-    update({ white: state.white === "d65" ? "sun" : "d65" });
+    update({ white: option.dataset.v });
   };
-  $("dayWhite").addEventListener("click", toggle);
-  $("dayWhite").addEventListener("keydown", toggle);
+  svg.addEventListener("click", pick);
+  svg.addEventListener("keydown", pick);
 }

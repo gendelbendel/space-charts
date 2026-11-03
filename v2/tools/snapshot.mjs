@@ -158,7 +158,7 @@ const STATES = [
   ["daylight-sun-white", "?t=5772", async page => {
     await clickTab("map")(page);
     await page.click(".seg[data-key=map] [data-v=day]");
-    await page.click("#dayWhite");
+    await page.click("#day .day-white[data-v=sun]");
   }],
   ["daylight-dim", "?t=500", async page => {
     await clickTab("map")(page);

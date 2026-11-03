@@ -11,13 +11,6 @@ test("a star page names its star and points at its own URL and image", () => {
   const head = starHead(betelgeuse);
   assert.equal(head.ogImage, "https://space-charts.vercel.app/og/betelgeuse.jpg");
   assert.match(head.headLinks, /<link rel="canonical" href="https:\/\/space-charts\.vercel\.app\/stars\/betelgeuse\/">/);
-  assert.equal(head.htmlAttrs, ' data-t="3600"');
-});
-
-// The page reads this attribute instead of a query string. The CMB is the one object
-// whose temperature the URL parser would round, so it must reach the page exact.
-test("a star page carries the object's exact temperature", () => {
-  assert.equal(starHead(OBJECTS.find(o => o.slug === "cmb")).htmlAttrs, ' data-t="2.72548"');
 });
 
 test("titles and descriptions are unique, fit search results and are safe in an attribute", () => {
@@ -40,5 +33,4 @@ test("the sitemap lists the main page, the game and every object, and not the em
 
 test("the main page keeps its own head", () => {
   assert.equal(MAIN_HEAD.title, "What Color Is a Star?");
-  assert.equal(MAIN_HEAD.htmlAttrs, "");
 });

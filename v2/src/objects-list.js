@@ -43,7 +43,8 @@ export function initObjectsList() {
     const card = e.target.closest("a[data-i]");
     if (!card || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
     e.preventDefault();
-    setTemperature(OBJECTS[+card.dataset.i].T);
+    const { T, slug } = OBJECTS[+card.dataset.i];
+    setTemperature(T, slug);
     scrollToFirstScreen();
   });
   // The cards were buttons, and Space should go on loading one instead of scrolling the page.

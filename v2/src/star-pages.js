@@ -1,16 +1,16 @@
-// What each /stars/<slug>/ page says about itself. Only build.mjs and the checks read
-// this, so none of it reaches a page's script.
+// What each /stars/<slug>/ page says about itself. The page's script uses only the titles, to
+// keep the tab's title in step when the address moves to another object's page.
 import { OBJECTS } from "./data/objects.js";
 import { formatK } from "./format.js";
 
 export const SITE = "https://space-charts.vercel.app";
 
+export const MAIN_TITLE = "What Color Is a Star?";
 export const MAIN_HEAD = {
-  title: "What Color Is a Star?",
+  title: MAIN_TITLE,
   description: "Pick a temperature and see the light a blackbody gives off, the color your eye would actually see, and the math behind it.",
   ogImage: "/preview.webp",
   headLinks: "",
-  htmlAttrs: "",
 };
 
 // Names that don't read right after "What color is": anything that isn't a proper name.
@@ -48,7 +48,6 @@ export const starHead = o => ({
   description: escapeAttr(starDescription(o)),
   ogImage: SITE + starImage(o),
   headLinks: `\n<meta property="og:url" content="${SITE + starPath(o)}">\n<meta name="twitter:card" content="summary_large_image">\n<link rel="canonical" href="${SITE + starPath(o)}">`,
-  htmlAttrs: ` data-t="${o.T}"`,
 });
 
 export const sitemapXml = () => `<?xml version="1.0" encoding="UTF-8"?>

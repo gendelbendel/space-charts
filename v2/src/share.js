@@ -1,6 +1,6 @@
 // The readout's copy and share buttons, the copy-format menu and the toast that confirms them.
 import { colorFormats } from "./format.js";
-import { state, stateQuery } from "./state.js";
+import { state, stateUrl } from "./state.js";
 import { $ } from "./dom.js";
 
 let toastTimer;
@@ -64,7 +64,7 @@ export function initShare() {
 
   // The system share sheet where there is one; otherwise the link goes to the clipboard.
   $("shareLink").onclick = () => {
-    const url = location.origin + location.pathname + stateQuery();
+    const url = location.origin + stateUrl();
     if (navigator.share) navigator.share({ title: document.title, url }).catch(e => e.name === "AbortError" || copyText(url, "Link copied"));
     else copyText(url, "Link copied");
   };

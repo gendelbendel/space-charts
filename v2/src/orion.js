@@ -30,7 +30,7 @@ export function orionHtml() {
     const [x, y] = skyPosition(star);
     const size = dotDiameter(star.V).toFixed(1);
     const color = screenColor(T, state.model, state.light, state.wide).paint();
-    return `<button type="button" class="${star.label}" data-t="${T}" style="left:${((x / W + 0.5) * 100).toFixed(2)}%;top:${((y / H + 0.5) * 100).toFixed(2)}%;color:${color}"><i style="width:${size}px;height:${size}px"></i><span>${name}</span></button>`;
+    return `<button type="button" class="${star.label}" data-t="${T}" data-slug="${star.slug}" style="left:${((x / W + 0.5) * 100).toFixed(2)}%;top:${((y / H + 0.5) * 100).toFixed(2)}%;color:${color}"><i style="width:${size}px;height:${size}px"></i><span>${name}</span></button>`;
   }).join("");
   return `<svg viewBox="${-W / 2} ${-H / 2} ${W} ${H}" aria-hidden="true">${lines}</svg>${stars}`;
 }
@@ -47,7 +47,7 @@ export function initOrion() {
   $("orion").addEventListener("click", e => {
     const star = e.target.closest("button");
     if (!star) return;
-    setTemperature(+star.dataset.t);
+    setTemperature(+star.dataset.t, star.dataset.slug);
     scrollToFirstScreen();
   });
 }
