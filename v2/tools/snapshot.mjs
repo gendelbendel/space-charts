@@ -103,6 +103,20 @@ const STATES = [
     await page.waitForTimeout(2200);
     await page.keyboard.press("p");
   }],
+  // The tour, on Playwright's clock. With reduced motion it jumps from stop to stop, holding each for 4 s:
+  // mid-tour is the third stop (the candle), and it ends on the CMB's page after 32 s.
+  ["tour-mid", "?t=5772", async page => {
+    await page.waitForTimeout(250); // the page's own first URL write, before the clock replaces its timers
+    await page.clock.install();
+    await page.click("[data-tour]:visible");
+    await page.clock.runFor(9000);
+  }],
+  ["tour-end", "?t=5772", async page => {
+    await page.waitForTimeout(250);
+    await page.clock.install();
+    await page.keyboard.press("t");
+    await page.clock.runFor(33000);
+  }],
   ["shortcut-list", "?t=5772", async page => {
     await page.keyboard.press("?");
     await page.waitForTimeout(1500); // Chrome flashes an overlay scrollbar on the dialog as it opens

@@ -18,6 +18,7 @@ import { initFaq } from "./faq.js";
 import { initShare } from "./share.js";
 import { initPlay, renderPlay } from "./play.js";
 import { initKeys } from "./keys.js";
+import { initTour, renderTour } from "./tour.js";
 
 // ---------- visualization tabs (used by the compact layout) ----------
 
@@ -48,6 +49,7 @@ function render() {
 
   renderSlider();
   renderPlay();
+  renderTour();
   renderReadout(Lv, peakNm);
   renderControls();
   renderTabs();
@@ -79,6 +81,7 @@ initDaylight();
 initFaq();
 initShare();
 initPlay();
+initTour();
 initKeys();
 matchMedia("(color-gamut: p3)").addEventListener("change", e => update({ wide: e.matches }));
 render();

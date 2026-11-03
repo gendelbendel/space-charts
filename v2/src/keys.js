@@ -4,6 +4,7 @@ import { SPECTRAL_CLASSES } from "./data/objects.js";
 import { sliderScale, classMidpoint, tToSlider, sliderToT } from "./slider-marks.js";
 import { state, update, setCompare, setTemperature, MODEL_KEYS, LIGHT_KEYS } from "./state.js";
 import { togglePlay } from "./play.js";
+import { toggleTour, stopTour } from "./tour.js";
 import { $ } from "./dom.js";
 
 const next = (keys, current) => keys[(keys.indexOf(current) + 1) % keys.length];
@@ -21,21 +22,24 @@ export function initKeys() {
     s: () => setTemperature(SUN_TEFF),
     c: () => setCompare(!state.compare),
     p: togglePlay,
+    t: toggleTour,
     "?": () => (dialog.open ? dialog.close() : dialog.showModal()),
     // Shift moves one slider position; otherwise to the next class's midpoint.
     ArrowRight: shift => setTemperature(shift ? sliderToT(tToSlider(state.T) + 1) : midpoints.find(T => T > state.T) ?? null),
     ArrowLeft: shift => setTemperature(shift ? sliderToT(tToSlider(state.T) - 1) : midpoints.findLast(T => T < state.T) ?? null),
   };
 
-  // Letters jump to their class, except lowercase m and b, which cycle the modes (Shift+M and Shift+B are the classes).
+  // Letters jump to their class, except lowercase m and b, which cycle the modes, and t, the tour
+  // (Shift+M, Shift+B and Shift+T are the classes). Any other shortcut ends the tour.
   document.addEventListener("keydown", e => {
     if (e.ctrlKey || e.metaKey || e.altKey || e.target.matches("input:not([type=range], [type=checkbox]), textarea, [contenteditable]")) return;
     // The focused slider keeps its own arrow keys.
     if (e.target.id === "slider" && e.key.startsWith("Arrow")) return;
-    const jump = e.key !== "m" && e.key !== "b" && classes[e.key.toUpperCase()];
+    const jump = !["m", "b", "t"].includes(e.key) && classes[e.key.toUpperCase()];
     const action = jump ? () => setTemperature(jump) : actions[e.key] ?? actions[e.key.toLowerCase()];
     if (!action) return;
     e.preventDefault();
+    if (action !== toggleTour) stopTour();
     action(e.shiftKey);
   });
 }

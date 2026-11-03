@@ -11,9 +11,12 @@
 // switches the color-map card to the HR diagram and taps every star, then to Daylight with both
 // camera whites (nothing may move), and opens each visualization tab in every view: only the
 // Numbers tab may scroll.
-// A clean run returns { shifts: "none", overlaps: "none", readoutOverflow: "none", panelScroll: "none", overflowX: 0 }.
-(() => {
-  const selectors = [".b-top", ".readout-block", "#stageNote", ".b-dock", "#slider", "#spectrum", ".legend", ".chart-box", "#colormap", "#colormap > svg", ".stats", "#classChip", "#num"];
+// Last, it runs the guided tour to its end on a stand-in clock, checking every frame: nothing may move,
+// and each caption must fit the verdict's reserved box.
+// It returns a promise (the tour awaits between frames), so await it in the console. A clean run returns
+// { shifts: "none", overlaps: "none", readoutOverflow: "none", panelScroll: "none", tour: "none", overflowX: 0 }.
+(async () => {
+  const selectors = [".b-top", ".readout-block", "#stageNote", ".b-dock", "#slider", "#spectrum", ".legend", ".chart-box", "#colormap", "#colormap > svg", ".stats", "#classChip", "#num", "[data-tour]"];
   const snapshot = () => ({
     ...Object.fromEntries(selectors.map(s => {
       // The first match with a box: the color map's two diagrams take turns. The embed page
@@ -173,12 +176,51 @@
   }
   document.querySelector("[data-tabs] [data-view=spectrum]")?.click();
 
+  // The tour (the main page only) moves at constant speed for 2.5 s and holds each stop for 4 s. A stand-in
+  // clock steps it 100 ms at a time, so the 52 s tour takes a few seconds; a real task between steps lets
+  // its awaits go on. The address follows it, so it runs last.
+  const tour = [];
+  const tourButton = [...document.querySelectorAll("[data-tour]")].find(b => b.offsetParent);
+  if (tourButton) {
+    const real = { now: performance.now, raf: requestAnimationFrame, setTimeout, clearTimeout };
+    let clock = real.now.call(performance), id = 0;
+    const timers = new Map(), frames = [];
+    performance.now = () => clock;
+    window.requestAnimationFrame = fn => frames.push(fn);
+    window.setTimeout = (fn, ms = 0) => (timers.set(++id, [clock + ms, fn]), id);
+    window.clearTimeout = timer => timers.delete(timer);
+    const caption = () => document.querySelector(".tour-caption");
+    const captions = new Set();
+    try {
+      tourButton.click();
+      for (let ms = 0; ms < 60000 && tourButton.ariaPressed === "true"; ms += 100) {
+        clock += 100;
+        for (const fn of frames.splice(0)) fn(clock);
+        for (const [timer, [due, fn]] of [...timers].sort((a, b) => a[1][0] - b[1][0])) {
+          if (due <= clock && timers.delete(timer)) fn();
+        }
+        await new Promise(resolve => real.setTimeout.call(window, resolve));
+        const text = caption().textContent;
+        check(`tour @ ${ms} ms: ${text.slice(0, 3)} ${num.value} K`);
+        if (caption().scrollHeight > caption().clientHeight + 1) tour.push(`"${text}" is ${caption().scrollHeight - caption().clientHeight} px taller than the verdict`);
+        captions.add(text);
+      }
+    } finally {
+      Object.assign(window, { requestAnimationFrame: real.raf, setTimeout: real.setTimeout, clearTimeout: real.clearTimeout });
+      performance.now = real.now;
+    }
+    if (captions.size !== 8) tour.push(`showed ${captions.size} captions, not 8`);
+    if (tourButton.ariaPressed !== "false" || document.querySelector(".verdict.touring")) tour.push("didn't end");
+    if (location.pathname !== "/stars/cmb/") tour.push(`ended at ${location.pathname}, not /stars/cmb/`);
+  }
+
   return {
     viewport: `${innerWidth}x${innerHeight}`,
     shifts: Object.keys(shifts).length ? shifts : "none",
     overlaps: Object.keys(overlaps).length ? overlaps : "none",
     readoutOverflow: overflow.length ? overflow : "none",
     panelScroll: panelScroll.length ? panelScroll : "none",
+    tour: tour.length ? [...new Set(tour)] : "none",
     overflowX: document.documentElement.scrollWidth - innerWidth,
   };
 })();

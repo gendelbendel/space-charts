@@ -29,7 +29,7 @@ v2/
   src/prerender.js       bakes the first screen into the HTML at build time, from the same builders
   src/app.js             wires the UI modules: state.js (state, URL) -> render() -> controls, readout,
                          stage, chart, cie-diagram, hr-diagram, daylight, pipelines, objects-list, orion, faq, share (copy, share, toast),
-                         play (Play button) and keys (shortcuts, `?` list); animate.js moves T by code; format.js is pure
+                         play (Play button), tour (guided tour) and keys (shortcuts, `?` list); animate.js moves T by code; format.js is pure
   src/slider-scale.js    temperature <-> slider position (piecewise log, weighted toward 2,400–12,000 K)
   src/slider-marks.js    class letters and reference marks under a slider, collision-aware
   src/data/              cie1931.js, cie1951-scotopic.js, harre-heller-2021.js (generated), objects.js (stars, classes, marks)
@@ -40,7 +40,7 @@ v2/
   tools/check-layout.mjs     runs that check with Playwright at every tier's sizes (npm run check:layout)
   tools/check-embed.mjs      the same for /embed/ at 300×300, 400×400 and 800×600 (npm run check:embed)
   tools/og.mjs               renders the preview cards (npm run og)
-  tools/snapshot.mjs         before/after comparison of 396 page states (npm run snapshot:save / snapshot:compare)
+  tools/snapshot.mjs         before/after comparison of 408 page states (npm run snapshot:save / snapshot:compare)
 vercel.json              redirects /v1 -> /v1/, /play -> /play/, /embed -> /embed/, /stars/<slug> -> /stars/<slug>/ and /b -> /
 ```
 
@@ -80,7 +80,7 @@ npm run check:embed   # changes to /embed/ or anything it shares (partials, base
 npm run snapshot:compare  # refactors: must match a baseline saved before the change (~1 min)
 npm run build      # before touching deploy config or v1
 ```
-For UI changes, run `npm run check:layout`. At every size from 320×568 to 1920×1080 it checks that nothing moves, overlaps or spills across every mode and temperature, that the star, readout, chart, color map and controls fit on the first screen, and that the desktop columns end together. It saves a screenshot per size to `build/__shots/`; look at the ones your change affects. There is no light theme. For refactors and anything meant to look the same, run `npm run snapshot:save` before the change and `npm run snapshot:compare` after: 396 states (6 sizes × 66 URL and interaction states, 5 of them on `/embed/` and 4 on star pages) must match pixel for pixel, including the chart canvas, URL and DOM. Judge layout from measurements (`getBoundingClientRect`, that check), not screenshots alone: browser-pane screenshots can come back scaled or stale, especially while the pane is hidden. `check:layout` and `check:embed` also take `-- --browser webkit`, and both pass at every size in Playwright's WebKit. That isn't real Safari, which hasn't been tested on a device, and Safari renders form controls differently, so be conservative with input sizing.
+For UI changes, run `npm run check:layout`. At every size from 320×568 to 1920×1080 it checks that nothing moves, overlaps or spills across every mode and temperature, that the star, readout, chart, color map and controls fit on the first screen, that nothing moves at any frame of the guided tour, and that the desktop columns end together. It saves a screenshot per size to `build/__shots/`; look at the ones your change affects. There is no light theme. For refactors and anything meant to look the same, run `npm run snapshot:save` before the change and `npm run snapshot:compare` after: 408 states (6 sizes × 68 URL and interaction states, 5 of them on `/embed/` and 4 on star pages) must match pixel for pixel, including the chart canvas, URL and DOM. Judge layout from measurements (`getBoundingClientRect`, that check), not screenshots alone: browser-pane screenshots can come back scaled or stale, especially while the pane is hidden. `check:layout` and `check:embed` also take `-- --browser webkit`, and both pass at every size in Playwright's WebKit. That isn't real Safari, which hasn't been tested on a device, and Safari renders form controls differently, so be conservative with input sizing.
 
 ## Known benign noise (don't chase these)
 

@@ -35,7 +35,7 @@ export function readState(search, path = "") {
     map: "cie",
     // The white a camera is balanced to in the Daylight view: "d65" or "sun".
     white: "d65",
-    // True while Play (animate.js) moves the temperature.
+    // True while Play (animate.js) or the tour moves the temperature. tour.js adds `touring` while the tour runs.
     animating: false,
   };
 }
@@ -83,6 +83,8 @@ const onSitePage = () => /^\/(stars\/[\w-]+\/)?$/.test(location.pathname);
 let urlTimer;
 export function updateUrl() {
   clearTimeout(urlTimer);
+  // Between the tour's stops the address waits, so history gets only the stops.
+  if (state.touring && !state.object) return;
   urlTimer = setTimeout(() => {
     const site = onSitePage();
     const url = site ? stateUrl() : stateQuery();

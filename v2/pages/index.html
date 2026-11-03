@@ -106,18 +106,44 @@
 @media (max-width: 359px) {
   .b-top { grid-template-columns: 76px minmax(0, 1fr); }
   .temp-big { font-size: 32px; }
-  /* Only the game fits beside the title. */
-  .top-links .faq-link { display: none; }
-  .top-links .pill-link { padding: 3px 10px; font-size: 13px; }
   /* The color map's switcher shares its row with the readout. */
   .colormap > .seg button { padding: 3px 6px; }
 }
 
-/* phone: the header keeps the FAQ and the game; the footer still links v1 */
+/* The tour's button: a pill in the header, shown where it has no room beside Pin. */
+.top-links .game-short, .top-links .tour-pill { display: none; }
+.top-links .tour-pill { font: inherit; font-weight: 600; background: none; border-color: var(--line-strong); color: var(--muted); cursor: pointer; }
+.top-links .tour-pill[aria-pressed=true] { border-color: var(--accent); color: var(--text); }
+
+/* phone: the header keeps the tour and the game; the footer still links v1 and the FAQ */
 @media (max-width: 599px) {
-  .top-links { gap: 12px; }
-  .top-links .v1-link { display: none; }
+  .top-links { gap: 8px; }
+  .top-links .v1-link, .top-links .faq-link { display: none; }
 }
+/* Narrower pills fit the tour beside "Play the game", at the header's height. */
+@media (max-width: 389px) {
+  .top-links .pill-link { padding: 4px 8px; }
+}
+
+/* The tour's button sits beside Pin, or in the header where Pin has no room for it. Its caption
+   covers the verdict, which keeps the height reserved for its longest text. */
+@media (max-width: 599px), (max-height: 520px) {
+  .top-links .tour-pill { display: inline; }
+  .note-row [data-tour] { display: none; }
+}
+/* Only the tour and a shorter game link fit beside the title. */
+@media (max-width: 374px) {
+  .top-links .game-long { display: none; }
+  .top-links .game-short { display: inline; }
+}
+@media (max-width: 359px) {
+  .top-links .pill-link { padding: 3px 10px; font-size: 13px; }
+}
+.verdict { position: relative; }
+.verdict.touring { visibility: hidden; }
+.tour-caption { position: absolute; inset: 0; visibility: hidden; color: var(--text); }
+.verdict.touring .tour-caption { visibility: visible; }
+.tour-caption b { color: var(--accent); margin-right: 4px; }
 
 /* Touch-sized screens: each category of objects is a row that swipes sideways (two rows for the
    long ones), so the FAQ isn't thirty cards further down. */
