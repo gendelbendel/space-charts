@@ -85,6 +85,16 @@ for (const [tier, width, height] of sizes) {
   const stability = await page.evaluate(stabilityCheck);
 
   const problems = [];
+  // Firefox on iOS hides its toolbar by resizing the page; the first screen keeps its height (app.js pins it).
+  if (tier !== "desktop") {
+    const chartBox = () => page.evaluate(() => { const b = document.querySelector(".chart-box").getBoundingClientRect(); return `top ${Math.round(b.top)} h ${Math.round(b.height)}`; });
+    const before = await chartBox();
+    await page.setViewportSize({ width, height: height + 90 });
+    await page.waitForTimeout(100);
+    const after = await chartBox();
+    await page.setViewportSize({ width, height });
+    if (after !== before) problems.push(["moves when a toolbar hides", `.chart-box ${before} -> ${after}`]);
+  }
   if (hydrationMoves.length) problems.push(["moves when the script runs", hydrationMoves]);
   if (Object.keys(firstScreen.offScreen).length) problems.push(["off the first screen", firstScreen.offScreen]);
   if (tier === "desktop" && COLUMN_BALANCE_SIZES.includes(size) && Math.abs(firstScreen.columnGap) > COLUMN_BALANCE_TOLERANCE_PX) {

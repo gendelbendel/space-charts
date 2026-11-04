@@ -34,7 +34,8 @@ export function classMidpoint(letter, scale) {
 
 /**
  * Fills a slider's tick rows: class boundaries and letters in `classRow`,
- * reference marks in `markRow`. `onPick(T)` is called when one is clicked.
+ * reference marks in `markRow`. `onPick(T, slug)` is called when one is clicked (a class
+ * letter passes no slug).
  * Returns a `layout(currentT)` function to call on every render.
  */
 export function createSliderMarks({ classRow, markRow, scale, onPick }) {
@@ -57,13 +58,13 @@ export function createSliderMarks({ classRow, markRow, scale, onPick }) {
     label.dataset.width = b - a;
     classRow.appendChild(label);
   }
-  for (const [name, T] of SLIDER_MARKS) {
+  for (const [name, T, slug] of SLIDER_MARKS) {
     const mark = document.createElement("button");
     mark.type = "button";
     mark.textContent = name;
     mark.dataset.f = scale.toFraction(T);
     mark.setAttribute("aria-label", `Set temperature to ${name}, ${formatK(T)} K`);
-    mark.addEventListener("click", () => onPick(T));
+    mark.addEventListener("click", () => onPick(T, slug));
     markRow.appendChild(mark);
   }
 

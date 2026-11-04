@@ -124,6 +124,11 @@ const STATES = [
   ["shortcut-keys", "?t=5772", async page => {
     for (const key of ["ArrowRight", "Shift+M", "m", "b", "c"]) await page.keyboard.press(key);
   }],
+  // Phones fold the mode controls into a sheet; elsewhere the button is hidden and this is the plain page.
+  ["modes-sheet", "?t=40000&compare=1", async page => {
+    const button = page.locator("#modes");
+    if (await button.isVisible()) await button.click();
+  }],
   ["compare-no-data", "?t=1000&compare=1"],
   ["pinned-url", "?t=5772&vs=9940"],
   ["pinned-compare-url", "?t=5772&vs=9940&compare=1"],
@@ -139,7 +144,14 @@ const STATES = [
     });
   }],
   ["pin-ends-compare", "?t=6000&compare=1", page => page.click("#pin")],
-  ["compare-ends-pin", "?t=6000&vs=3000", page => page.click("#compare")],
+  // On phones Compare models is in the sheet: open it, tick, and close it again.
+  ["compare-ends-pin", "?t=6000&vs=3000", async page => {
+    const modes = page.locator("#modes");
+    const sheet = await modes.isVisible();
+    if (sheet) await modes.click();
+    await page.click("#compare");
+    if (sheet) await page.keyboard.press("Escape");
+  }],
   ["unpin", "?t=6000&vs=3000", page => page.click("#pin")],
   // Scroll positions that must survive the slider: the Numbers tab (phones) and a row of objects (touch screens).
   ["numbers-scrolled", "?t=5772", async page => {

@@ -85,8 +85,9 @@ export const CLASS_INFO = {
 };
 
 // Reference marks under the slider, in priority order: when space is tight,
-// later ones are hidden rather than overlapping earlier ones.
-export const SLIDER_MARKS = [["Sun", 5772], ["You", 310], ["Draper", 798], ["Rigel", 12100], ["Betelgeuse", 3600], ["Zeta Puppis", 40000]];
+// later ones are hidden rather than overlapping earlier ones. [label, T, object slug]:
+// a click loads the object, as its card does.
+export const SLIDER_MARKS = [["Sun", 5772, "sun"], ["You", 310, "you"], ["Draper", 798, "draper-point"], ["Rigel", 12100, "rigel"], ["Betelgeuse", 3600, "betelgeuse"], ["Zeta Puppis", 40000, "zeta-puppis"]];
 
 // Headings for the objects list, in display order.
 export const CATEGORIES = [["star", "Stars"], ["brown-dwarf", "Brown dwarfs"], ["everyday", "Everyday light"], ["cosmic", "Cosmic"]];

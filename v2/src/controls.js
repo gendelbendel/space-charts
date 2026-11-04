@@ -1,4 +1,5 @@
-// The slider (with its painted track and marks), the segmented controls, the Compare checkbox and Pin.
+// The slider (with its painted track and marks), the segmented controls, the Compare checkbox, Pin and
+// the phone's sheet of mode controls.
 import { createSliderMarks, sliderScale, tToSlider, sliderToT, sliderTrack } from "./slider-marks.js";
 import { formatK } from "./format.js";
 import { state, update, setCompare, setTemperature, togglePin } from "./state.js";
@@ -25,6 +26,24 @@ function paintTrack() {
   if (key === trackKey) return;
   trackKey = key;
   slider.style.setProperty("--track", sliderTrack(state.model, state.light, state.wide));
+}
+
+// Phones fold the color model, brightness and Compare models into a sheet over the visuals, opened by
+// the button at the slider's right end (the dock is then just the slider). A tap outside or Esc closes it.
+export function initModesSheet() {
+  const dock = slider.closest(".b-dock"), button = $("modes");
+  const setOpen = open => {
+    dock.classList.toggle("open", open);
+    button.setAttribute("aria-expanded", String(open));
+  };
+  button.addEventListener("click", () => setOpen(!dock.classList.contains("open")));
+  document.addEventListener("click", e => dock.contains(e.target) || setOpen(false));
+  document.addEventListener("keydown", e => {
+    if (e.key !== "Escape" || !dock.classList.contains("open")) return;
+    // Focus inside the sheet would be lost as it hides; it goes back to the button that opened it.
+    if ($("controls").contains(document.activeElement)) button.focus();
+    setOpen(false);
+  });
 }
 
 export function renderSlider() {

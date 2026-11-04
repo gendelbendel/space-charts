@@ -9,8 +9,8 @@
 // Then it turns compare on and sweeps again against a new baseline (turning it on changes the
 // layout on purpose), pins a temperature (nothing may move, and pin and compare exclude each other),
 // switches the color-map card to the HR diagram and taps every star, then to Daylight with both
-// camera whites (nothing may move), and opens each visualization tab in every view: only the
-// Numbers tab may scroll.
+// camera whites (nothing may move), opens the phone's sheet of mode controls (nothing may move), and
+// opens each visualization tab in every view: only the Numbers tab may scroll.
 // Last, it runs the guided tour to its end on a stand-in clock, checking every frame: nothing may move,
 // and each caption must fit the verdict's reserved box.
 // It returns a promise (the tour awaits between frames), so await it in the console. A clean run returns
@@ -159,6 +159,17 @@
     cieView.click();
     check("color map again", mapBase);
     document.querySelector("[data-tabs] [data-view=spectrum]")?.click();
+  }
+
+  // Phones: the mode controls open as a sheet over the visuals, so nothing may move, and it must fit on screen.
+  const modes = document.getElementById("modes");
+  if (modes?.offsetParent) {
+    modes.click();
+    check("modes sheet open");
+    const sheet = document.getElementById("controls").getBoundingClientRect();
+    if (!sheet.height) overlaps["modes sheet"] = "didn't open";
+    else if (sheet.top < 0) overlaps["modes sheet"] = `starts ${Math.round(-sheet.top)} px above the screen`;
+    modes.click();
   }
 
   // The chart and the color map shrink to fit: a panel that scrolls hides part of them, and in

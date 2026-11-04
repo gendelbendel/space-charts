@@ -4,7 +4,7 @@ import { luminance, wienPeakNm } from "./physics.js";
 import { statsText } from "./format.js";
 import { state, onUpdate, update, updateUrl } from "./state.js";
 import { $ } from "./dom.js";
-import { renderSlider, renderControls, renderTrack } from "./controls.js";
+import { renderSlider, renderControls, renderTrack, initModesSheet } from "./controls.js";
 import { renderReadout } from "./readout.js";
 import { renderStage } from "./stage.js";
 import { renderPipelines } from "./pipelines.js";
@@ -41,6 +41,30 @@ function renderStats(Lv, peakNm) {
   for (const [id, text] of Object.entries(statsText(state.T, Lv, peakNm, state.vs))) $(id).innerHTML = text;
 }
 
+// ---------- first-screen height ----------
+
+// The phone, tablet and short-landscape tiers fit the first screen to 100svh. Firefox on iOS hides
+// its toolbar by resizing the whole page, so every viewport unit (svh too) changed as you scrolled
+// and the chart grew and shrank with it (owner's recording, 2026-11-04). The height is measured
+// once and kept until the width changes (a rotation) or the height changes by more than a toolbar
+// does (a resized window).
+function pinScreenHeight() {
+  let width = 0, height = 0;
+  const measure = () => {
+    const probe = document.createElement("div");
+    probe.style.cssText = "position:fixed;top:0;height:100svh;visibility:hidden";
+    document.body.append(probe);
+    const h = probe.offsetHeight;
+    probe.remove();
+    if (innerWidth === width && Math.abs(h - height) < 150) return;
+    width = innerWidth;
+    height = h;
+    document.documentElement.style.setProperty("--screen-h", `${h}px`);
+  };
+  measure();
+  addEventListener("resize", measure);
+}
+
 // ---------- render ----------
 
 function render() {
@@ -72,6 +96,7 @@ function render() {
 
 // The HTML arrives prerendered for the default state (v2/src/prerender.js);
 // this first render replaces it with the URL's state.
+pinScreenHeight();
 onUpdate(render);
 initChart();
 initObjectsList();
@@ -82,6 +107,7 @@ initFaq();
 initShare();
 initPlay();
 initTour();
+initModesSheet();
 initKeys();
 matchMedia("(color-gamut: p3)").addEventListener("change", e => update({ wide: e.matches }));
 render();

@@ -22,7 +22,7 @@ Layout tiers (all in `v2/pages/index.html`), each checked for overflow and first
 
 | Tier | Sizes checked | Arrangement |
 |---|---|---|
-| Phone | 320×568, 375×667, 390×844, 430×932 | Controls docked at the bottom. One visual per tab; tall phones show the chart and color map together (container query) |
+| Phone | 320×568, 375×667, 390×844, 430×932 | The slider docked at the bottom; the color model, brightness and Compare models open as a sheet from the button at its right end. One visual per tab; tall phones show the chart and color map together (container query) |
 | Tablet portrait | 768×1024 | Chart and color map side by side, controls docked |
 | Short landscape | 667×375, 844×390, 932×430 | Readout and controls left, tabbed visuals right |
 | Desktop | 1024×768, 1280×720, 1440×900, 1920×1080 | Controls left (column grows with the screen); chart and color map side by side at a shared, height-scaled size; stats under the chart; pipelines span the full width below |

@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { OBJECTS, CATEGORIES, ORION } from "../src/data/objects.js";
+import { OBJECTS, CATEGORIES, ORION, SLIDER_MARKS } from "../src/data/objects.js";
 import { wienPeakNm } from "../src/physics.js";
 import { skyPosition, dotDiameter } from "../src/orion.js";
 import { HR_STARS, BAND_DEX, mainSequenceLogL } from "../src/hr-diagram.js";
@@ -23,6 +23,16 @@ test("every object has a known category and a usable temperature", () => {
 
 // The list shows one heading per category, so an empty category would leave a
 // heading with nothing under it.
+// The slider's named marks load their object's page (/stars/<slug>/) when clicked. They used to
+// only set the temperature, so the address stayed at /?t=… (owner's report, 2026-11-04).
+test("every slider mark names an object at the mark's temperature", () => {
+  for (const [label, T, slug] of SLIDER_MARKS) {
+    const object = OBJECTS.find(o => o.slug === slug);
+    assert.ok(object, `${label}: no object ${slug}`);
+    assert.equal(object.T, T, `${label}`);
+  }
+});
+
 test("every category has objects", () => {
   for (const [category, heading] of CATEGORIES) assert.ok(OBJECTS.some(o => o.category === category), `no objects under "${heading}"`);
 });
