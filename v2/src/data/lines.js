@@ -5,6 +5,9 @@
 // Ca II K 393.37 and H 396.85, Na I D2 588.99 and D1 589.59. Balmer lines peak in A stars,
 // Ca II H & K and Na D in G and K stars. TiO is a molecule, so it isn't in the ASD: these are
 // the band heads used to classify M stars (Gray & Corbally 2009, Stellar Spectral Classification).
+// Only 705.4 nm, the γ (0,0) head, was checked, against Pavlenko et al. 2020, A&A 642, A77. The book
+// wasn't available; the others match the α (2,0), (1,0), (0,0) and γ′ (0,0) bands' positions but
+// weren't checked against a table of heads.
 export const ABSORPTION_LINES = [
   ["Hγ", [434.0], "BAF"],
   ["Hβ", [486.1], "BAF"],

@@ -115,7 +115,7 @@ const PUBLISHED_L_R = {
   "proxima-centauri": [0.00151, 0.146], betelgeuse: [87100, 764], pollux: [38.4, 8.97], "capella-aa": [78.7, 11.98],
   sun: [1, 1], "alpha-centauri-a": [1.5059, 1.2234], "procyon-a": [7.049, 2.043], altair: [10.6, 1.79],
   deneb: [196000, 203], vega: [47.2, 2.57], "sirius-a": [25.4, 1.711], rigel: [120000, 74.1],
-  "zeta-puppis": [376000, 12.5], bellatrix: [7410, 5.6], saiph: [60300, 13.5], alnitak: [250000, 22.8],
+  "zeta-puppis": [447000, 13.5], bellatrix: [7410, 6.4], saiph: [60300, 13], alnitak: [250000, 22.8],
   alnilam: [271000, 27.6], mintaka: [190000, 13.1],
 };
 
@@ -128,6 +128,16 @@ test("every star, and nothing else, has its published luminosity and radius", ()
     assert.deepEqual([o.L, o.R], PUBLISHED_L_R[o.slug], `${o.name}: L and R`);
   }
   assert.equal(HR_STARS.length, Object.keys(PUBLISHED_L_R).length);
+});
+
+// Pollux's and Altair's temperatures were disputed (PLAN.md §9 item 5), so each is pinned to one
+// paper. Pollux: Soubiran et al. 2024 (A&A 682, A145), 4,810 ± 14 K from its angular diameter and
+// bolometric flux; older sources ran 4,586–4,865 K. Altair: van Belle et al. 2001 (ApJ 559, 1155),
+// 7,680 ± 90 K averaged over the whole disc. Altair's poles and equator differ by ~1,850 K
+// (Peterson et al. 2006: 8,740 and 6,890 K), and the page shows one color for the star.
+test("Pollux and Altair use their cited papers' temperatures", () => {
+  assert.equal(bySlug("pollux").T, 4810);
+  assert.equal(bySlug("altair").T, 7680);
 });
 
 // Each star's L, R and T come from different measurements, so L = R²(T/T☉)⁴ holds only

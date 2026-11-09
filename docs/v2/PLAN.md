@@ -63,7 +63,7 @@ Every number below was checked by running the code.
 | WISE 0855−0714 | 240 K | ~285 K | JWST-era estimates are 250–285 K. |
 | The Sun | 5,700 K | 5,772 K | IAU 2015 nominal value. |
 | Procyon A | 6,580 K | 6,530 K | |
-| Pollux | 4,800 K | 4,586 K | Sources vary; needs a citation (see open questions). |
+| Pollux | 4,800 K | 4,810 K | Soubiran et al. 2024 (A&A 682, A145), from its angular diameter and bolometric flux. Older sources ran 4,586–4,865 K. |
 
 Brown dwarfs aren't stars, so v2 labels them as brown dwarfs.
 
@@ -309,9 +309,11 @@ Compared with v1, it drops the "Libraries" and "Todos" entries, fixes "it's" →
 2. **Real devices and Safari:** everything was checked in Chrome at emulated sizes. Safari sizes form controls differently. The readout's text box overlap (fixed 2026-10-25) is the kind of bug that shows up there first. A cheap first look: `npx playwright install webkit`, then `node v2/tools/check-layout.mjs --browser webkit` (not tried yet).
 3. ~~**CIE table**~~ Resolved 2026-10-25 (roadmap P0.3). Every entry of `v2/src/data/cie1931.js` is CIE's official value (doi:10.25039/CIE.DS.xvudnb9b) rounded to six decimals; the largest gap is 4.9 × 10⁻⁷ (x̄ at 780 nm). The CSV is CC BY-SA 4.0, so it's committed unmodified with its metadata in `v2/test/data/`, and `physics.test.js` compares every 5 nm row with it.
 4. ~~**Scotopic vision**~~ Resolved 2026-10-25 (roadmap P2.B). "Your eye" brightness now follows `eyeLuminance(T)`: scotopic (CIE 1951 V′) luminance in the rod-only range, photopic once the cones fully respond, mixed in between. The absolute threshold is compared with it too. Checked against Crumey's (2014) published S/P ratios. See `docs/WHY.md#cold-objects-render-black-not-red`.
-5. **Star temperatures:** Pollux and Altair sources disagree (Altair's poles and equator differ by ~1,600 K). Pick and cite a source per star.
+5. ~~**Star temperatures**~~ Resolved 2026-11-09. Pollux is 4,810 K (Soubiran et al. 2024, A&A 682, A145, from its angular diameter and bolometric flux). Altair is 7,680 K, van Belle et al. 2001's (ApJ 559, 1155) mean over the whole disc; its poles and equator are 8,740 and 6,890 K (Peterson et al. 2006). Both are pinned by a test in `objects.test.js`.
 6. **White point (closed 2026-10-30):** the page stays D65, so 6,500 K is white and the Sun is faintly peach. The Sun-adapted option lives in the color-map card's Daylight view, as the camera's white balance (`state.white`, D65 or the Sun), where a white point has a visible meaning. It doesn't recolor the star, chart or color map.
 7. **Performance guardrails:** the size check is done (2026-10-25). Lighthouse CI on Vercel previews is still open.
-8. **Tag v1:** `git tag v1.0.0` on the last commit before v2, if the owner wants it.
+8. ~~**Tag v1**~~ Done 2026-11-09: an annotated local tag `v1.0.0` on `012b6ab` ("Pin Node.js to 24.x for Vercel builds", 2026-10-22), the last commit before v2 was added. Not pushed.
 9. **"NASA's version":** the owner mentioned it on 2026-10-22. No NASA-specific method was found; CIE 1931 plus the Real stars model covers it unless the owner had a specific page in mind.
-10. **Legend clipped on small phones:** at 375×667 the chart legend gets about 6 px of height and is cut off, with or without JS (found 2026-10-25, predates the prerender). Planned for roadmap P2.A, which reworks the chart.
+10. ~~**Legend clipped on small phones**~~ Resolved (checked 2026-11-09). Below 900 px the legend has two reserved lines (33 px). At 320×568, 375×667 and 430×932 no item is cut off with the default model, Real stars, a pinned temperature or Compare models with Lines on. At 320×568 with Compare models it hides, as designed, to give the chart its line.
+
+Still open (2026-11-09): 2 (real devices and Safari; Playwright's WebKit passes, but it isn't Safari), 7 (Lighthouse CI, not added by the owner's choice) and 9. The Daylight view's adaptation below ~1,500 K waits on the owner's pick of model (ROADMAP, Known issues).
