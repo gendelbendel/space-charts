@@ -316,4 +316,4 @@ Compared with v1, it drops the "Libraries" and "Todos" entries, fixes "it's" →
 9. **"NASA's version":** the owner mentioned it on 2026-10-22. No NASA-specific method was found; CIE 1931 plus the Real stars model covers it unless the owner had a specific page in mind.
 10. ~~**Legend clipped on small phones**~~ Resolved (checked 2026-11-09). Below 900 px the legend has two reserved lines (33 px). At 320×568, 375×667 and 430×932 no item is cut off with the default model, Real stars, a pinned temperature or Compare models with Lines on. At 320×568 with Compare models it hides, as designed, to give the chart its line.
 
-Still open (2026-11-09): 2 (real devices and Safari; Playwright's WebKit passes, but it isn't Safari), 7 (Lighthouse CI, not added by the owner's choice) and 9. The Daylight view's adaptation below ~1,500 K waits on the owner's pick of model (ROADMAP, Known issues).
+Still open (2026-11-09): 2 (real devices and Safari; Playwright's WebKit passes, but it isn't Safari), 7 (Lighthouse CI, not added by the owner's choice) and 9.

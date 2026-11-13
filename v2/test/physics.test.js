@@ -6,6 +6,7 @@ import {
   wienPeakNm, wienPeakHz, planckPerHz, blackbodyFraction, energySplit, radiantExitance, parseTemperature, toKelvin, encodeSrgb, toHex,
   scotopicLuminance, eyeLuminance, VISION, linearP3ToXyz, xyzToLinearP3, displayColorP3, linearSrgbToXy, relLuminance,
   IAU_SUN, sphereLuminosity, powerRatio, BRADFORD, BRADFORD_INVERSE, D65_WHITE, adaptXyz, bradfordMatrix, daylightScene,
+  HPE, HPE_INVERSE, adaptationFactors,
 } from "../src/physics.js";
 import { HARRE_HELLER_2021 } from "../src/data/harre-heller-2021.js";
 import { CIE1931_2DEG, CMF_START_NM, CMF_STEP_NM, CMF_ROWS } from "../src/data/cie1931.js";
@@ -401,16 +402,65 @@ test("Bradford adaptation from D65 to illuminant A matches Lindbloom's published
   adaptXyz(D65_WHITE, D65_WHITE, A_WHITE).forEach((v, i) => assert.ok(Math.abs(v - A_WHITE[i]) < 1e-5, "D65 white must land on A's white"));
 });
 
-// The Daylight view's claims. A fully adapted eye sees paper as the screen's white at any
-// temperature, by the definition of adaptation. A camera balanced to D65 sees a 6,504 K
+// Golden values for incomplete adaptation (Fairchild 1991, Color Res. Appl. 16, 243), from
+// Fairchild's own worked examples for Color Appearance Models, AppModEx.xls
+// (rit-mcsl.org/fairchild/files/AppModEx.xls, via the Internet Archive, fetched 2026-11-12).
+// Each cone's factor is p = (1 + Yn^⅓ + h) / (1 + Yn^⅓ + 1/h), where h = 3L/(L+M+S) is the
+// adapting white's share of that cone in Hunt–Pointer–Estevez space. The Hunt sheet gives h for
+// a D65 white and an illuminant-A white with the five-decimal matrix used here. The RLAB sheet
+// (RLAB uses the same factors) gives p at 318.31 and 31.83 cd/m², but its matrix is rounded to
+// four decimals, which moves p by up to ~2e-6; hence the looser tolerance there. A colored
+// light is discounted less the dimmer it is: p moves further from 1 at the lower luminance.
+test("incomplete adaptation factors match Fairchild's worked Hunt and RLAB examples", () => {
+  const D65 = [95.05, 100, 108.88], A = [109.85, 100, 35.58];
+  const share = white => {
+    const lms = HPE.map(row => row.reduce((sum, m, k) => sum + m * white[k], 0));
+    return lms.map(v => (3 * v) / (lms[0] + lms[1] + lms[2]));
+  };
+  const hunt = [[D65, [0.9490480297801083, 0.9897535204613679, 1.0611984497585238]], [A, [1.3657066664205932, 1.1881208770419251, 0.4461724565374815]]];
+  for (const [white, published] of hunt) share(white).forEach((v, i) => assert.ok(Math.abs(v - published[i]) < 1e-9, `h[${i}] ${v} vs ${published[i]}`));
+  const rlab = [
+    [D65, 318.30988618379, [0.9882166344942681, 0.9976699380496911, 1.013554573161665]],
+    [D65, 31.830988618379067, [0.9799623924751452, 0.9960240714722928, 1.0232564187475865]],
+    [A, 318.3098861837907, [1.0740041777396607, 1.039963500899757, 0.8217201571088265]],
+    [A, 31.830988618379067, [1.129244116409423, 1.0691424908846001, 0.7199712103090536]],
+  ];
+  for (const [white, Yn, published] of rlab) {
+    adaptationFactors(white, Yn).forEach(({ p, gain }, i) => {
+      assert.ok(Math.abs(p - published[i]) < 2e-5, `${white} at ${Yn}: p[${i}] ${p} vs ${published[i]}`);
+      const cone = HPE[i].reduce((sum, m, k) => sum + m * white[k], 0);
+      assert.ok(Math.abs(gain * cone - p) < 1e-12, "gain is p over the white's cone response");
+    });
+  }
+  HPE.forEach((row, i) => [0, 1, 2].forEach(j => {
+    const product = row.reduce((sum, v, k) => sum + v * HPE_INVERSE[k][j], 0);
+    assert.ok(Math.abs(product - (i === j ? 1 : 0)) < 1e-5);
+  }));
+});
+
+// The Daylight view's claims. The eye adapts to the star's light, but incompletely (Fairchild
+// 1991, checked above): near daylight, paper looks white; under a red star it looks warm, but
+// much less so than to a camera balanced for daylight. A camera balanced to D65 sees a 6,504 K
 // blackbody close to neutral, sees paper under Proxima (3,042 K) as orange, red channel
 // highest, and under a 30,000 K star as blue. The paints test the point spectra make that a
 // color shift can't: Proxima's light has so little blue in it that blue paint stays dim next
 // to red paint even after adaptation, because reflectance is integrated against the real
 // spectrum, not rescaled afterwards.
-test("the Daylight scene: the eye keeps paper white, the camera doesn't, and blue paint stays dim under a red star", () => {
+//
+// Regression (2026-11-12): with full Bradford adaptation the eye's red paint turned pink at
+// 1,100 K (#ff54d6, more blue than green), because scaling a near-empty blue channel up to
+// white amplified the paint's small blue reflectance. Incomplete adaptation keeps it red-orange.
+test("the Daylight scene: the eye adapts most of the way, the camera doesn't, and paints keep their hue", () => {
   const channels = hex => [1, 3, 5].map(i => parseInt(hex.slice(i, i + 2), 16));
-  for (const T of [1500, 3042, 5772, 30000]) assert.equal(daylightScene(T, D65_WHITE).eye[0], "#ffffff");
+  const spread = rgb => Math.max(...rgb) - Math.min(...rgb);
+  assert.ok(spread(channels(daylightScene(6504, D65_WHITE).eye[0])) <= 3, "paper near D65 should look white to the eye");
+  for (const T of [1100, 1500, 3042]) {
+    const eye = channels(daylightScene(T, D65_WHITE).eye[0]), camera = channels(daylightScene(T, D65_WHITE).camera[0]);
+    assert.ok(eye[0] === 255 && eye[2] < eye[1], `paper at ${T} K should stay warm to the eye, got ${eye}`);
+    assert.ok(eye[1] > camera[1] && eye[2] >= camera[2], `the eye should see paper at ${T} K paler than the camera does (${eye} vs ${camera})`);
+    const [red, green, blue] = channels(daylightScene(T, D65_WHITE).eye[2]);
+    assert.ok(red > green && blue < green, `red paint at ${T} K should stay red-orange, got ${[red, green, blue]}`);
+  }
   const [r, g, b] = channels(daylightScene(3042, D65_WHITE).camera[0]);
   assert.ok(r === 255 && r > g && g > b, `Proxima's paper should be orange, got ${r},${g},${b}`);
   const [hotR, , hotB] = channels(daylightScene(30000, D65_WHITE).camera[0]);

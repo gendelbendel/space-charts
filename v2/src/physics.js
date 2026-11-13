@@ -320,20 +320,54 @@ const PAINTS = [[640, 55], [530, 45], [455, 35]].map(paint);
 const PAPER_REFLECTANCE = 0.9;
 const TABLE_REFLECTANCE = 0.2;
 
+// Hunt–Pointer–Estevez cones, normalized so the equal-energy white is 1, 1, 1, and the
+// inverse as Hunt publishes it.
+export const HPE = [
+  [0.38971, 0.68898, -0.07868],
+  [-0.22981, 1.1834, 0.04641],
+  [0, 0, 1],
+];
+export const HPE_INVERSE = [
+  [1.910197, -1.112124, 0.201908],
+  [0.37095, 0.629054, -0.000008],
+  [0, 0, 1],
+];
+
+/**
+ * Fairchild's (1991) incomplete adaptation to a white seen at `Yn` cd/m²: per cone, the factor
+ * p and the gain p / (the white's cone response). A colored light keeps some of its color.
+ * The gain is written without dividing by the response, so a white with no blue stays finite.
+ */
+export function adaptationFactors(white, Yn) {
+  const lms = mul(HPE, white), k = 1 + Yn ** (1 / 3), sum = lms[0] + lms[1] + lms[2];
+  return lms.map(v => {
+    const e = (3 * v) / sum;
+    return { p: (k + e) / (k + 1 / e), gain: (3 * (k + e)) / (sum * (k * e + 1)) };
+  });
+}
+// Paper under 500 lx, the usual desk lighting (EN 12464-1): 0.9 × 500 / π = 143 cd/m².
+const PAPER_NITS = 143;
+const eyeAdapt = (xyz, white) => {
+  const [seen, screen] = [white, D65_WHITE].map(w => adaptationFactors(w, PAPER_NITS));
+  return mul(HPE_INVERSE, mul(HPE, xyz).map((v, i) => (v * seen[i].gain) / screen[i].gain));
+};
+
 /**
  * Hex colors of the Daylight scene, [paper, table, red, green, blue], twice: as a
  * camera balanced to `cameraWhite` records them under this blackbody, and as an eye
- * fully adapted to the blackbody sees them. The camera exposes so that the paper's
- * brightest channel fills the range; the eye sees that paper as full white.
+ * adapted to the blackbody sees them, incompletely (Fairchild 1991), so a very red light
+ * stays warm. Each exposes so that the paper's brightest channel fills the range.
  */
 export function daylightScene(T, cameraWhite) {
   const white = blackbodyWhite(T);
   const surfaces = [() => PAPER_REFLECTANCE, () => TABLE_REFLECTANCE, ...PAINTS].map(r => surfaceXyz(T, r));
-  const render = (toD65, peak) => surfaces.map(xyz => toHex(intoSrgb(toD65(xyz), peak).map(encodeSrgb)));
-  const cameraPeak = Math.max(...intoSrgb(adaptXyz(surfaces[0], cameraWhite, D65_WHITE), () => 1));
+  const render = toD65 => {
+    const peak = Math.max(...intoSrgb(toD65(surfaces[0]), () => 1));
+    return surfaces.map(xyz => toHex(intoSrgb(toD65(xyz), () => peak).map(encodeSrgb)));
+  };
   return {
-    camera: render(xyz => adaptXyz(xyz, cameraWhite, D65_WHITE), () => cameraPeak),
-    eye: render(xyz => adaptXyz(xyz, white, D65_WHITE), () => PAPER_REFLECTANCE),
+    camera: render(xyz => adaptXyz(xyz, cameraWhite, D65_WHITE)),
+    eye: render(xyz => eyeAdapt(xyz, white)),
   };
 }
 
